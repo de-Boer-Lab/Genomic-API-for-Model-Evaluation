@@ -15,7 +15,7 @@ Stage: build
 %post
     # Set permissions for copied files
     chmod 755 /test_gosai_predictor/*.py
-    chmod 644 /test_gosai_predictor/*.json
+    #chmod 644 /test_gosai_predictor/*.json
 %runscript
     exec python3 /test_gosai_predictor/test_gosai_predictor.py "$@"
 

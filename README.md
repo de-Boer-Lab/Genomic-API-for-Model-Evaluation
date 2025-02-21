@@ -33,7 +33,7 @@ Examples of containerized evaluators and predictors can be found in `/src` folde
 
 | Evaluator     | Zenodo Download link|Description |
 | ----------- | ----------- | ----------- |
-| Gosai MPRA      |https://zenodo.org/records/14757152       |  Gosai et al. (2024), https://doi.org/10.1038/s41586-024-08070-z : 776,474 sequences (200bp), measured in K562 (erythroid precursors), HepG2 (hepatocytes) and SK-N-SH (neuroblastoma) |
+| Gosai MPRA      |https://zenodo.org/records/14908238       |  Gosai et al. (2024), https://doi.org/10.1038/s41586-024-08070-z : 776,474 sequences (200bp), measured in K562 (erythroid precursors), HepG2 (hepatocytes) and SK-N-SH (neuroblastoma) |
 
 
 | Predictor     | Zenodo Download link | Description|
@@ -58,7 +58,7 @@ P: Here you go, Evaluator - i'm sending you a .json file back with all the predi
 
 ### How should I get started?
 
-#### 1. I want to use one the pre-built Predictor containers, where should I start:
+#### 1. I want to use one of the pre-built Predictor containers, where should I start:
 
 https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/blob/main/src/DREAM_RNN/src/Runnning_prebuilt_containers_tutorial.md
 

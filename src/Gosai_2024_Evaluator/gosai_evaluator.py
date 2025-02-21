@@ -7,6 +7,7 @@ import struct
 from collections import Counter
 #from create_json import *
 import pandas as pd
+import tqdm
 
 # Get the current working directory
 CWD = os.getcwd()
