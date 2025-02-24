@@ -13,6 +13,8 @@ Stage: build
     ../../dreamRNN_environment.yml /dreamRNN_environment.yml
 
 %environment
+    # Prevent binding of host directories by default
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
     export LC_ALL=C
     export PATH="/opt/conda/envs/dream/bin:$PATH"
     export LD_LIBRARY_PATH="/opt/conda/envs/dream/lib:$LD_LIBRARY_PATH"
@@ -60,7 +62,7 @@ Stage: build
 
 %labels
     Author "Satyam Priyadarshi"
-    Version "2.2"
+    Version "3.0"
     Description "This container is the Predictor set up for Genomic API for Model Evaluation using the DREAM-RNN model."
 
 %help

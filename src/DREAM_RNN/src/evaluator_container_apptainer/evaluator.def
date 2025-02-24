@@ -6,6 +6,8 @@ Stage: build
     evaluator_API_clean_apptainer.py /evaluator_container_apptainer/evaluator_API_clean_apptainer.py
 
 %environment
+    # Prevent automatic binding of host directories
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
     export LC_ALL=C
     export PATH="/usr/local/bin:$PATH"
 
@@ -30,7 +32,7 @@ Stage: build
 
 %labels
     Author "Satyam Priyadarshi"
-    Version "2.2"
+    Version "3.0"
     Description "This container is the Evaluator set up for Genomic API for Model Evaluation using the DREAM-RNN model."
 
 %help
@@ -57,13 +59,10 @@ Stage: build
     Bind these directories and run the container:
     ```bash
     apptainer run \
-      -B /path/to/DREAM_RNN/src/evaluator_container_apptainer/evaluator_data:/evaluator_data \
-      -B /path/to/DREAM_RNN/src/evaluator_container_apptainer/predictions:/predictions \
+      -B absolute/path/to/evaluator_data:/evaluator_data \
+      -B absolute/path/to/predictions:/predictions \
       evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
     ```
-
-    Simplified version:
-
 
     Purpose:
     - Facilitates genomic sequence evaluation by interacting with the Predictor container.
@@ -72,8 +71,8 @@ Stage: build
     Example Command:
     ```bash
     apptainer run \
-      -B /path/to/DREAM_RNN/src/evaluator_container_apptainer/evaluator_data:/evaluator_data \
-      -B /path/to/DREAM_RNN/src/evaluator_container_apptainer/predictions:/predictions \
+      -B absolute/path/to/evaluator_data:/evaluator_data \
+      -B absolute/path/to/predictions:/predictions \
       evaluator.sif 172.16.47.244 5000 /predictions
     ```
 

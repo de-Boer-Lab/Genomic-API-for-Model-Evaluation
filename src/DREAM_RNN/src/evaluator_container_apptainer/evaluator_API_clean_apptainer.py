@@ -26,7 +26,7 @@ else:
     PREDICTIONS_DIR = os.path.join(EVALUATOR_CONTAINER_DIR, "predictions")
     
 EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_json)
-RETURN_FILE_PATH = os.path.join(PREDICTIONS_DIR, f"dreamRNN_predictor_return_{input_json}")
+RETURN_FILE_PATH = os.path.join(PREDICTIONS_DIR, f"dreamRNN_predictions_{input_json}")
 
 # Validate input file path
 if not os.path.exists(EVALUATOR_INPUT_PATH):
