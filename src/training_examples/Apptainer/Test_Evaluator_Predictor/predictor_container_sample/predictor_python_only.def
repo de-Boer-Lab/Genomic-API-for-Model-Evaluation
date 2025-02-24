@@ -11,11 +11,15 @@ Stage: build
     export LC_ALL=C
     export PATH="/opt/conda/bin:$PATH"
     export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
 
 %post
     # Set permissions for copied files
     chmod 755 /predictor_container_sample/*.py
     chmod 644 /predictor_container_sample/*.json
+
+    echo "Installing Python dependencies..."
+    pip3 install --no-cache-dir numpy pandas
 %runscript
     exec python3 /predictor_container_sample/predictor_API_clean_apptainer.py "$@"
 

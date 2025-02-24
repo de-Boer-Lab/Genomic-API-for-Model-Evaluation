@@ -1,7 +1,6 @@
 #Oct 30th, 2024
 import socket
 import json
-import numpy as np
 import argparse
 import sys
 import os

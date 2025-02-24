@@ -11,8 +11,26 @@ Stage: build
     export LC_ALL=C
     export PATH="/opt/conda/bin:$PATH"
     export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
 
 %post
+    echo "Installing system dependencies..."
+    apt-get update && apt-get install -y --no-install-recommends \
+        python3-pip \
+        wget \
+        bzip2 \
+        ca-certificates \
+        libglib2.0-0 \
+        libxext6 \
+        libsm6 \
+        libxrender1 \
+        build-essential && \
+        apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+    echo "Installing Python dependencies..."
+    pip3 install --no-cache-dir numpy pandas tqdm
+
     # Set permissions for copied files
     chmod 755 /test_gosai_predictor/*.py
     #chmod 644 /test_gosai_predictor/*.json

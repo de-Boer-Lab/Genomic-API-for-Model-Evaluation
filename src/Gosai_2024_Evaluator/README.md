@@ -90,7 +90,7 @@ Definition files provide a declarative way to define:
     - **Core Script**: The primary script, `gosai_evaluator.py`, is copied into the container.
     - **Dynamic Mounting**: Input (`/evaluator_data`) and output (`/predictions`) directories are mounted at runtime to allow flexibility in handling data without modifying the container.
 3. **Environment Variables**:
-    - Environment variables like `PATH` and `LD_LIBRARY_PATH` ensure the container uses the correct Conda environment (`dream`) for Python dependencies like NumPy and Torch.
+    - Environment variables like `PATH` and `LD_LIBRARY_PATH` ensure the container uses the correct Conda environment for Python dependencies like NumPy. The `APPTAINER_NO_MOUNT` removes all local path mounts that are default in Apptainer. By removing any local path mounts the container does not have access to any locally installed packages. 
 4. **Runtime Needs**:
     - **Mounted Directories**: The Evaluator container dynamically binds host directories to `/evaluator_data` and `/predictions` within the container.
     - This ensures the Evaluator can process new inputs and save outputs without rebuilding the container.
@@ -233,8 +233,6 @@ To confirm your Evaluator and message passing code work build a test Predictor w
           -B /arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Gosai_2024_Evaluator/predictions:/predictions \
           gosai_evaluator.sif 172.16.47.243 5000 /predictions
         ```
-    apptainer run -B /arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Test_Evaluator_Predictor/gosai_evaluator/evaluator_data:/evaluator_data -B /arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Test_Evaluator_Predictor/gosai_evaluator/predictions:/predictions gosai_evaluator.sif 172.16.47.243 5000 /predictions    
-        
         
 3. **Confirm successful connection and returned predictions**
 

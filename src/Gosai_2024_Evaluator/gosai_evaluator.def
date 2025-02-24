@@ -9,7 +9,7 @@ Stage: build
     export LC_ALL=C
     export PATH="/opt/conda/envs/dream/bin:$PATH"
     export LD_LIBRARY_PATH="/opt/conda/envs/dream/lib:$LD_LIBRARY_PATH"
-
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
 %post
     echo "Installing system dependencies..."
     apt-get update && apt-get install -y --no-install-recommends \
@@ -26,7 +26,7 @@ Stage: build
 
 
     echo "Installing Python dependencies..."
-    pip3 install --no-cache-dir numpy pandas
+    pip3 install --no-cache-dir numpy pandas tqdm
 
 
     #echo "Setting permissions for directories and script..."

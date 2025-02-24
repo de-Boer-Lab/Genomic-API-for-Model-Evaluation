@@ -1,6 +1,6 @@
 import socket
 import json
-import numpy as np
+#import numpy as np
 import random
 import base64
 
