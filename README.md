@@ -38,7 +38,7 @@ Examples of containerized evaluators and predictors can be found in `/src` folde
 
 | Predictor     | Zenodo Download link | Description|
 | ----------- | ----------- | ----------- |
-| DREAMRNN      |https://zenodo.org/records/14649126       |  Rafi et al. (2024), https://doi.org/10.1038/s41587-024-02414-w : DREAMRNN Architecture trained on human K562 cells     |
+| DREAMRNN      |https://zenodo.org/records/14920340       |  Rafi et al. (2024), https://doi.org/10.1038/s41587-024-02414-w : DREAMRNN Architecture trained on human K562 cells     |
 
 #### Communication protocol example
 
