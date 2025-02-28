@@ -1,0 +1,153 @@
+Bootstrap: docker
+From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
+
+%files
+    borzoi_API_script_and_utils /predictor_script_and_utils/borzoi_API_script_and_utils
+    script_and_utils /predictor_script_and_utils/script_and_utils
+    borzoi_gpu_environment.yml /borzoi_gpu_environment.yml
+
+%environment
+    # Prevent automatic binding of host directories
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
+    export PATH="/opt/conda/envs/borzoi-gpu/bin:$PATH"
+    export LD_LIBRARY_PATH="/opt/conda/envs/borzoi-gpu/lib:/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+    export CUDA_HOME="/opt/conda/envs/borzoi-gpu"
+    export TF_CUDNN_USE_FRONTEND=1
+
+%post
+    # Install system packages needed for conda and building extensions
+    echo "Installing system dependencies..."
+    apt-get update && apt-get install -y wget git build-essential zlib1g-dev
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+    # Install Miniconda
+    echo "Setting up Miniconda..."
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh
+    bash /miniconda.sh -b -p /opt/conda
+    rm /miniconda.sh
+    export PATH=/opt/conda/bin:$PATH
+    conda init bash
+
+    # Create the conda environment using the correct file path
+    echo "Creating Conda environment 'borzoi_gpu_environment'..."
+    conda env create -f /borzoi_gpu_environment.yml
+    conda clean -a
+
+    # Activate the environment for subsequent commands
+    echo "Activating Conda environment..."
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate borzoi-gpu
+
+    # Clone and install packages in editable mode
+    echo "Installing Baskerville and Borzoi from Github"
+    git clone https://github.com/calico/baskerville.git /opt/baskerville
+    cd /opt/baskerville && pip install -e .
+
+    git clone https://github.com/calico/borzoi.git /opt/borzoi
+    cd /opt/borzoi && pip install -e .
+
+    # Set permissions to access all directories
+    echo "Setting permissions..."
+    chmod -R 755 /predictor_script_and_utils
+
+    # Clean up the source directories to reduce image size
+    rm -rf /opt/baskerville /opt/borzoi
+
+%runscript
+    # This section defines the default run behavior of the container
+    echo "Container is running with Borzoi GPU environment activated"
+    export PATH="/opt/conda/envs/borzoi-gpu/bin:$PATH"
+    exec python3 /predictor_script_and_utils/script_and_utils/borzoi_predictor_API.py "$@"
+%startscript
+    echo "Container is starting with Borzoi GPU environment activated"
+    export PATH="/opt/conda/envs/borzoi-gpu/bin:$PATH"
+    exec python3 /predictor_script_and_utils/script_and_utils/borzoi_predictor_API.py "$@"
+%labels
+    Author "Satyam Priyadarshi"
+    Version "1.0"
+    Description "This container is the Predictor set up for Genomic API for Model Evaluation using the Borzoi model."
+
+%help
+    This container for Predictor includes:
+    - Predictor script for sequence processing and error handling.
+    - Integrated Borzoi model with its dependencies and `borzoi-gpu` conda environment created using `borzoi_gpu_environment.yml`.
+    - Latest Baskerville and Borzoi repositories (as of 2025-02-25), which also contain helper scripts and 4 replicate model weights. 
+    - Support scripts like `api_preprocessing_utils.py`, `error_message_functions_updated.py`, and `predictor_help_message.json`.
+
+    Usage:
+    We encourage using pre-built containers for this model that are hosted on Zenodo.
+
+    However, if you are building the container using this definition file, ensure you have the following directory structure on the host:
+    ```
+    path/to/predictor_script_and_utils
+    ├── README.md
+    ├── borzoi_API_script_and_utils
+    │   ├── baskerville/
+    │   ├── borzoi
+    │   │   ├── LICENSE
+    │   │   ├── README.md
+    │   │   ├── borzoi_logo.png
+    │   │   ├── data/
+    │   │   ├── download_models.sh
+    │   │   ├── env_vars.sh
+    │   │   ├── examples/
+    │   │   ├── pyproject.toml
+    │   │   ├── src/
+    │   │   └── tutorials/
+    │   ├── borzoi_predict_codebase.py
+    │   ├── borzoi_utils.py
+    │   └── simplify_targets
+    │       ├── borzoi_human_targets_simplified.txt
+    │       └── parse_borzoi_target.py
+    ├── borzoi_gpu_env.def
+    ├── borzoi_gpu_environment.yml
+    ├── predictor.def
+    ├── predictor.sif
+    └── script_and_utils
+        ├── api_preprocessing_utils.py
+        ├── borzoi_predictor_API.py
+        ├── error_message_functions_updated.py
+        └── predictor_help_message.json
+
+    borzoi_API_script_and_utils/borzoi/examples/saved_models
+    ├── f3c0
+    │   └── train
+    │       └── model0_best.h5
+    ├── f3c1
+    │   └── train
+    │       └── model0_best.h5
+    ├── f3c2
+    │   └── train
+    │       └── model0_best.h5
+    └── f3c3
+        └── train
+            └── model0_best.h5
+    ```
+    
+    Build the container (SIF)
+    ```
+    apptainer build predictor.sif predictor.def
+    ```
+
+    Run the container
+    ```
+    apptainer run --nv predictor.sif HOST PORT
+    ```
+
+    Details:
+    - The container receives data via a TCP socket and does not require mounted data directories.
+    - Replace `HOST` and `PORT` with the server and port configuration for the evaluator.
+    - The `--nv` flag sets up the environment of the container to use an NVIDIA GPU and CUDA libraries to run a CUDA-enabled application.
+
+    Purpose:
+    - Facilitates genomic model evaluation and prediction using the Borzoi model.
+    - It is designed to seamlessly integrate with other tools via API endpoints.
+
+    Example Command:
+    ```
+    apptainer run --nv predictor.sif 172.16.47.244 5000
+    ```
+
+    Arguments:
+    1. `HOST`: IP address or hostname of the Predictor server.
+    2. `PORT`: Port number the Predictor is listening on.

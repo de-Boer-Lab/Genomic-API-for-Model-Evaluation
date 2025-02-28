@@ -1,0 +1,62 @@
+{
+    "request": "predict",
+    "readout": "track",
+    "prediction_tasks": [
+        {
+            "name": "task1",
+            "type": "expression",
+            "cell_type": "HEPG2",
+            "scale": "log",
+            "species": "homo_sapiens"
+        },
+        {
+            "name": "ishika_trick",
+            "type": "accessibility",
+            "cell_type": "K562",
+            "scale": "log",
+            "species": "homo_sapiens"
+        },
+        {
+            "name": "gosai_synthetic_sequences",
+            "type": "expression",
+            "cell_type": "K562",
+            "scale": "linear",
+            "species": "homo_sapiens"
+          },
+        {
+            "name": "satyam_test",
+            "type": "binding_ctcf",
+            "cell_type": "K562",
+            "scale": "linear",
+            "species": "homo_sapiens"
+        }
+    ],
+    "upstream_seq": "ATGCTT",
+    "downstream_seq": "GATCA",
+    "sequences": {
+        "seq1": "ATAGCATGATGCTACGTACGATCGTAGCTGCATGCTAGCGATCGTAGCTAGCTGACTGATCGTAGGGTACGACTGTAGCTCAGTCGATCTGAAAAAAAAA",
+        "seq2": "AGAATGTATGCTACGTACGATCGTAGCTGCATGCTAGCGATCGTAGCTAGCTGACTGATCGTAGGGTACGACTGTAGCTCAGTCGATCTGAAAAAAAAAA",
+        "random_seq": "ATGCATGATGCTACGTACGATCGTAGCTGCATGCTAGCGATCGTAGCTAGCTGACTGATCGTAGGGTACGACTGTAGCTCAGTCGATCTGAAAAAAAAAA",
+        "enhancer": "ATGCATGATGCTACGTACGATCGTAGCTGCATGCTAGCGATCGTAGCTAGCTGACTGATCGTAGGGTACGACTGTAGCTCAGTCGATCTGAAAAAAAAAA",
+        "control": "ATGCATGATGCTACGTACGATCGTAGCTGCATGCTAGCGATCGTAGCTAGCTGACTGATCGTAGGGTACGACTGTAGCTCAGTCGATCTGAAAAAAAAAA"
+    },
+    "prediction_ranges": {
+        "seq1": [
+            0,
+            100
+        ],
+        "seq2": [],
+        "random_seq": [
+            10,
+            10
+        ],
+        "enhancer": [
+            100,
+            110
+        ],
+        "control": [
+            2,
+            5
+        ]
+    }
+}

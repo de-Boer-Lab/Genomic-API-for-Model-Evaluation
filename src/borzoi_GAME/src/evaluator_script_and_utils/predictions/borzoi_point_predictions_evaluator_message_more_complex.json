@@ -1,0 +1,86 @@
+{
+    "request": "predict",
+    "bin_size": 32,
+    "prediction_tasks": [
+        {
+            "name": "task1",
+            "type_requested": "expression",
+            "type_actual": "expression",
+            "cell_type_requested": "HEPG2",
+            "cell_type_actual": "HEPG2",
+            "species_requested": "homo_sapiens",
+            "species_actual": "homo_sapiens",
+            "scale_prediction_requested": "log",
+            "scale_prediction_actual": "log",
+            "aggregation_replicates": "mean",
+            "aggregation_bins": "mean",
+            "predictions": {
+                "seq1": 0.0012521743774414062,
+                "seq2": 0.001255035400390625,
+                "random_seq": 0.0012569427490234375,
+                "enhancer": 0.0012569427490234375,
+                "control": 0.0012569427490234375
+            }
+        },
+        {
+            "name": "ishika_trick",
+            "type_requested": "accessibility",
+            "type_actual": "accessibility",
+            "cell_type_requested": "K562",
+            "cell_type_actual": "K562",
+            "species_requested": "homo_sapiens",
+            "species_actual": "homo_sapiens",
+            "scale_prediction_requested": "log",
+            "scale_prediction_actual": "log",
+            "aggregation_replicates": "mean",
+            "aggregation_bins": "mean",
+            "predictions": {
+                "seq1": 0.0113677978515625,
+                "seq2": 0.0113525390625,
+                "random_seq": 0.01137542724609375,
+                "enhancer": 0.01137542724609375,
+                "control": 0.01137542724609375
+            }
+        },
+        {
+            "name": "gosai_synthetic_sequences",
+            "type_requested": "expression",
+            "type_actual": "expression",
+            "cell_type_requested": "K562",
+            "cell_type_actual": "K562",
+            "species_requested": "homo_sapiens",
+            "species_actual": "homo_sapiens",
+            "scale_prediction_requested": "linear",
+            "scale_prediction_actual": "linear",
+            "aggregation_replicates": "mean",
+            "aggregation_bins": "mean",
+            "predictions": {
+                "seq1": 0.003253936767578125,
+                "seq2": 0.00321197509765625,
+                "random_seq": 0.0032558441162109375,
+                "enhancer": 0.0032558441162109375,
+                "control": 0.0032558441162109375
+            }
+        },
+        {
+            "name": "satyam_test",
+            "type_requested": "binding_ctcf",
+            "type_actual": "binding_ctcf",
+            "cell_type_requested": "K562",
+            "cell_type_actual": "K562",
+            "species_requested": "homo_sapiens",
+            "species_actual": "homo_sapiens",
+            "scale_prediction_requested": "linear",
+            "scale_prediction_actual": "linear",
+            "aggregation_replicates": "mean",
+            "aggregation_bins": "mean",
+            "predictions": {
+                "seq1": 0.1396484375,
+                "seq2": 0.1390380859375,
+                "random_seq": 0.139892578125,
+                "enhancer": 0.139892578125,
+                "control": 0.139892578125
+            }
+        }
+    ]
+}

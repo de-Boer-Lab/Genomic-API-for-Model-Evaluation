@@ -1,0 +1,90 @@
+Bootstrap: docker
+From: python:3.13-slim
+Stage: build
+
+%files
+    borzoi_evaluator_API.py /evaluator_script_and_utils/borzoi_evaluator_API.py
+
+%environment
+    # Prevent automatic binding of host directories
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
+    export LC_ALL=C
+    export PATH="/usr/local/bin:$PATH"
+
+%post
+    # Install system packages and dependencies
+    echo "Installing system dependencies..."
+    apt-get update && \
+    apt-get install -y --no-install-recommends python3-pip wget bzip2 ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+    echo "Installing Python dependencies..."
+    python -m pip install --upgrade pip
+    python -m pip install --no-cache-dir numpy tqdm
+
+    # Set permissions to access all directories
+    echo "Setting permissions for directories and script..."
+    chmod -R 755 /evaluator_script_and_utils
+
+%runscript
+    # This section defines the default run behavior of the container
+    exec python3 /evaluator_script_and_utils/borzoi_evaluator_API.py "$@"
+
+%startscript
+    exec python3 /evaluator_script_and_utils/borzoi_evaluator_API.py "$@"
+
+%labels
+    Author "Satyam Priyadarshi"
+    Version "1.0"
+    Description "This container is the Evaluator set up for Genomic API for Model Evaluation using the Borzoi model."
+
+%help
+    This container includes:
+    - Evaluator API script for genomic sequence evaluation.
+    - Installed Python dependencies required by the Evaluator.
+
+    Usage:
+    We encourage using pre-built containers for this model that are hosted on Zenodo.
+
+    However, if you are building the container using this definition file, ensure you have the following directory structure on the host:
+    ```
+    /path/to/evaluator_script_and_utils/
+    ├── borzoi_evaluator_API.py
+    ├── evaluator.def
+    ├── evaluator.sif
+    ├── evaluator_data/
+    └── predictions/
+    ```
+
+    Build the container (SIF)
+    ```
+    apptainer build evaluator.sif evaluator.def
+    ```
+
+    Bind these directories and run the container:
+    ```bash
+    apptainer run \
+      -B absolute/path/to/evaluator_data:/evaluator_data \
+      -B absolute/path/to/predictions:/predictions \
+      evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
+    ```
+    Details:
+    - The container sends and receives data via a TCP socket and requires directories to be mounted.
+    - Replace `PREDICTOR_HOST` and `PREDICTOR_PORT` with the server IP and port configuration.
+
+    Purpose:
+    - Facilitates genomic sequence evaluation by interacting with the Predictor container.
+    - Handles input/output through bound directories.
+
+    Example Command:
+    ```bash
+    apptainer run \
+      -B absolute/path/to/evaluator_data:/evaluator_data \
+      -B absolute/path/to/predictions:/predictions \
+      evaluator.sif 172.16.47.244 5000 /predictions
+    ```
+
+    Arguments:
+    1. `PREDICTOR_HOST`: IP address or hostname of the Predictor server.
+    2. `PREDICTOR_PORT`: Port number the Predictor is listening on.
+    3. `/predictions`: Mounted path inside the container for storing output predictions.
