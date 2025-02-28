@@ -4,3 +4,11 @@
 .Ruserdata
 # Ignoring the containers since they are huge
 *.sif
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore specific test scripts and environment .def file
+/src/borzoi_GAME/src/test_scripts
+/src/borzoi_GAME/src/predictor_script_and_utils/borzoi_gpu_env.def
