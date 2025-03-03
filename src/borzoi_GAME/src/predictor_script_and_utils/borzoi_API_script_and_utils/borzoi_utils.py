@@ -88,16 +88,3 @@ def filter_evaluator_request(simplified_targets_df, request_type, cell_type, mol
     # Invalid request type
     else:
         raise ValueError(f"Invalid request type {request_type}")
-    
-    ## model specific checks that cause a "prediction_request_failed" error
-def check_seqs_specifications(sequences, json_return_error_model):
-    max_length = 2000
-    for sequence in sequences:
-        value = sequences[sequence]
-        key = sequence
-
-        if len(value) > 2000:
-            json_return_error_model['prediction_request_failed'].append("length of a sequence in " + key + " is greater than 2000")
-        if "N" in value:
-            json_return_error_model['prediction_request_failed'].append("sequence in " + key + " has an invalid character present")
-    return(json_return_error_model)
