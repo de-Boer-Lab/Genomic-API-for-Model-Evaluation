@@ -1,0 +1,82 @@
+{
+  "train": {
+    "batch_size": 4,
+    "shuffle_buffer": 64,
+    "optimizer": "adam",
+    "learning_rate": 0.0001,
+    "loss": "poisson_mn",
+    "total_weight": 0.2,
+    "warmup_steps": 10000,
+    "global_clipnorm": 0.1,
+    "adam_beta1": 0.9,
+    "adam_beta2": 0.999,
+    "patience": 25,
+    "train_epochs_min": 3,
+    "train_epochs_max": 3
+  },
+  "model": {
+    "seq_length": 131072,
+    "augment_rc": true,
+    "augment_shift": 3,
+    "activation": "gelu",
+    "norm_type": "batch",
+    "bn_momentum": 0.9,
+    "kernel_initializer": "lecun_normal",
+    "l2_scale": 1.0e-7,
+    "trunk": [
+      {
+        "name": "conv_dna",
+        "filters": 32,
+        "kernel_size": 7,
+        "norm_type": null,
+        "activation": "linear",
+        "pool_size": 8
+      },
+      {
+        "name": "res_tower",
+        "filters_init": 40,
+        "filters_end": 64,
+        "divisible_by": 4,
+        "kernel_size": 5,
+        "num_convs": 1,
+        "pool_size": 2,
+        "repeat": 4
+      },
+      {
+        "name": "transformer_tower",
+        "key_size": 32,
+        "heads": 2,
+        "num_position_features": 32,
+        "dropout": 0.2,
+        "mha_l2_scale": 2.0e-8,
+        "l2_scale": 2.0e-8,
+        "kernel_initializer": "he_normal",
+        "repeat": 1
+      },
+      {
+        "name": "unet_conv",
+        "kernel_size": 3,
+        "upsample_conv": true
+      },
+      {
+        "name": "unet_conv",
+        "kernel_size": 3,
+        "upsample_conv": true
+      },
+      {
+        "name": "Cropping1D",
+        "cropping": 1024
+      }
+    ],
+    "head_human": {
+      "name": "final",
+      "units": 74,
+      "activation": "softplus"
+    },
+    "head_mouse": {
+      "name": "final",
+      "units": 32,
+      "activation": "softplus"
+    }
+  }
+}

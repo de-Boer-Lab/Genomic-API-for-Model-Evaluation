@@ -1,0 +1,75 @@
+	identifier	file	clip	clip_soft	scale	sum_stat	strand_pair	description
+0	CNhs10752+	/home/drk/tillage/datasets/human/cage/fantom/CNhs10752/summary/coverage+.w5	384	64	1.0	sum_sqrt	1	CAGE:oral squamous cell carcinoma cell line:Ca9-22
+1	CNhs10752-	/home/drk/tillage/datasets/human/cage/fantom/CNhs10752/summary/coverage-.w5	384	64	1.0	sum_sqrt	0	CAGE:oral squamous cell carcinoma cell line:Ca9-22
+2	CNhs10853+	/home/drk/tillage/datasets/human/cage/fantom/CNhs10853/summary/coverage+.w5	384	64	1.0	sum_sqrt	3	CAGE:CD4+ T Cells,
+3	CNhs10853-	/home/drk/tillage/datasets/human/cage/fantom/CNhs10853/summary/coverage-.w5	384	64	1.0	sum_sqrt	2	CAGE:CD4+ T Cells,
+4	CNhs10875+	/home/drk/tillage/datasets/human/cage/fantom/CNhs10875/summary/coverage+.w5	384	64	1.0	sum_sqrt	5	CAGE:Intestinal epithelial cells (polarized),
+5	CNhs10875-	/home/drk/tillage/datasets/human/cage/fantom/CNhs10875/summary/coverage-.w5	384	64	1.0	sum_sqrt	4	CAGE:Intestinal epithelial cells (polarized),
+6	CNhs11049+	/home/drk/tillage/datasets/human/cage/fantom/CNhs11049/summary/coverage+.w5	384	64	1.0	sum_sqrt	7	CAGE:cord blood derived cell line:COBL-a 24h infection(-C)
+7	CNhs11049-	/home/drk/tillage/datasets/human/cage/fantom/CNhs11049/summary/coverage-.w5	384	64	1.0	sum_sqrt	6	CAGE:cord blood derived cell line:COBL-a 24h infection(-C)
+8	CNhs11276+	/home/drk/tillage/datasets/human/cage/fantom/CNhs11276/summary/coverage+.w5	384	64	1.0	sum_sqrt	9	CAGE:neuroblastoma cell line:CHP-134
+9	CNhs11276-	/home/drk/tillage/datasets/human/cage/fantom/CNhs11276/summary/coverage-.w5	384	64	1.0	sum_sqrt	8	CAGE:neuroblastoma cell line:CHP-134
+10	CNhs11841+	/home/drk/tillage/datasets/human/cage/fantom/CNhs11841/summary/coverage+.w5	384	64	1.0	sum_sqrt	11	CAGE:bronchogenic carcinoma cell line:ChaGo-K-1
+11	CNhs11841-	/home/drk/tillage/datasets/human/cage/fantom/CNhs11841/summary/coverage-.w5	384	64	1.0	sum_sqrt	10	CAGE:bronchogenic carcinoma cell line:ChaGo-K-1
+12	CNhs11856+	/home/drk/tillage/datasets/human/cage/fantom/CNhs11856/summary/coverage+.w5	384	64	1.0	sum_sqrt	13	CAGE:pagetoid sarcoma cell line:Hs 925.T
+13	CNhs11856-	/home/drk/tillage/datasets/human/cage/fantom/CNhs11856/summary/coverage-.w5	384	64	1.0	sum_sqrt	12	CAGE:pagetoid sarcoma cell line:Hs 925.T
+14	CNhs12184+	/home/drk/tillage/datasets/human/cage/fantom/CNhs12178/summary/coverage+.w5	384	64	1.0	sum_sqrt	15	CAGE:CD8+ T Cells (pluriselect), , donation2
+15	CNhs12184-	/home/drk/tillage/datasets/human/cage/fantom/CNhs12178/summary/coverage-.w5	384	64	1.0	sum_sqrt	14	CAGE:CD8+ T Cells (pluriselect), , donation2
+16	CNhs12846+	/home/drk/tillage/datasets/human/cage/fantom/CNhs12846/summary/coverage+.w5	384	64	1.0	sum_sqrt	17	CAGE:ductus deferens, adult
+17	CNhs12846-	/home/drk/tillage/datasets/human/cage/fantom/CNhs12846/summary/coverage-.w5	384	64	1.0	sum_sqrt	16	CAGE:ductus deferens, adult
+18	CNhs13061+	/home/drk/tillage/datasets/human/cage/fantom/CNhs13061/summary/coverage+.w5	384	64	1.0	sum_sqrt	19	CAGE:mesothelioma cell line:NCI-H28
+19	CNhs13061-	/home/drk/tillage/datasets/human/cage/fantom/CNhs13061/summary/coverage-.w5	384	64	1.0	sum_sqrt	18	CAGE:mesothelioma cell line:NCI-H28
+20	CNhs13207+	/home/drk/tillage/datasets/human/cage/fantom/CNhs13207/summary/coverage+.w5	384	64	1.0	sum_sqrt	21	CAGE:CD14-CD16+ Monocytes,
+21	CNhs13207-	/home/drk/tillage/datasets/human/cage/fantom/CNhs13207/summary/coverage-.w5	384	64	1.0	sum_sqrt	20	CAGE:CD14-CD16+ Monocytes,
+22	CNhs13535+	/home/drk/tillage/datasets/human/cage/fantom/CNhs13535/summary/coverage+.w5	384	64	1.0	sum_sqrt	23	CAGE:migratory langerhans cells,
+23	CNhs13535-	/home/drk/tillage/datasets/human/cage/fantom/CNhs13535/summary/coverage-.w5	384	64	1.0	sum_sqrt	22	CAGE:migratory langerhans cells,
+24	ENCFF890OGQ	/home/drk/tillage/datasets/human/dnase/encode/ENCSR000EIS/summary/coverage.w5	128	32	2.0	mean	24	DNASE:GM03348
+25	ENCFF136DBS	/home/drk/tillage/datasets/human/dnase/encode/ENCSR000EJV/summary/coverage.w5	128	32	2.0	mean	25	DNASE:HepG2
+26	ENCFF427FEF	/home/drk/tillage/datasets/human/dnase/encode/ENCSR000EMS/summary/coverage.w5	128	32	2.0	mean	26	DNASE:GM12865
+27	ENCFF472TFO	/home/drk/tillage/datasets/human/dnase/encode/ENCSR000ENI/summary/coverage.w5	128	32	2.0	mean	27	DNASE:cardiac fibroblast female
+28	ENCFF810XTS	/home/drk/tillage/datasets/human/dnase/encode/ENCSR000FEK/summary/coverage.w5	128	32	2.0	mean	28	DNASE:SK-MEL-5
+29	ENCFF154NSS	/home/drk/tillage/datasets/human/dnase/encode/ENCSR437AYW/summary/coverage.w5	128	32	2.0	mean	29	DNASE:vagina female adult (53 years)
+30	ENCFF302BVR	/home/drk/tillage/datasets/human/dnase/encode/ENCSR476SDZ/summary/coverage.w5	128	32	2.0	mean	30	DNASE:muscle of back male embryo (108 days)
+31	ENCFF785TYR	/home/drk/tillage/datasets/human/dnase/encode/ENCSR540PVZ/summary/coverage.w5	128	32	2.0	mean	31	DNASE:right renal pelvis male embryo (120 days)
+32	ENCFF385DEA	/home/drk/tillage/datasets/human/dnase/encode/ENCSR932KWJ/summary/coverage.w5	128	32	2.0	mean	32	DNASE:A172
+33	ENCFF622PZI	/home/drk/tillage/datasets/human/dnase/encode/ENCSR947POC/summary/coverage.w5	128	32	2.0	mean	33	DNASE:brain male embryo (104 days)
+34	ENCFF520NFI+	/home/drk/tillage/datasets/human/rna/encode/ENCSR000AAR/summary/coverage+.w5	384	64	0.3	sum_sqrt	35	RNA:tracheal epithelial cell male adult (21 years) and male adult (68 years)
+35	ENCFF520NFI-	/home/drk/tillage/datasets/human/rna/encode/ENCSR000AAR/summary/coverage-.w5	384	64	0.3	sum_sqrt	34	RNA:tracheal epithelial cell male adult (21 years) and male adult (68 years)
+36	ENCFF892OBT+	/home/drk/tillage/datasets/human/rna/encode/ENCSR000AFC/summary/coverage+.w5	384	64	0.3	sum_sqrt	37	RNA:lung tissue female embryo (20 weeks) and female embryo (24 weeks)
+37	ENCFF892OBT-	/home/drk/tillage/datasets/human/rna/encode/ENCSR000AFC/summary/coverage-.w5	384	64	0.3	sum_sqrt	36	RNA:lung tissue female embryo (20 weeks) and female embryo (24 weeks)
+38	ENCFF782HFV+	/home/drk/tillage/datasets/human/rna/encode/ENCSR151NGC/summary/coverage+.w5	384	64	0.3	sum_sqrt	39	RNA:GM12878
+39	ENCFF782HFV-	/home/drk/tillage/datasets/human/rna/encode/ENCSR151NGC/summary/coverage-.w5	384	64	0.3	sum_sqrt	38	RNA:GM12878
+40	ENCFF946ZPT	/home/drk/tillage/datasets/human/rna/encode/ENCSR264LON/summary/coverage.w5	384	64	0.3	sum_sqrt	40	RNA:with multiple sclerosis; CD14-positive monocyte
+41	ENCFF213LRI+	/home/drk/tillage/datasets/human/rna/encode/ENCSR474TRG/summary/coverage+.w5	384	64	0.3	sum_sqrt	42	RNA:esophagus squamous epithelium tissue male adult (54 years)
+42	ENCFF213LRI-	/home/drk/tillage/datasets/human/rna/encode/ENCSR474TRG/summary/coverage-.w5	384	64	0.3	sum_sqrt	41	RNA:esophagus squamous epithelium tissue male adult (54 years)
+43	ENCFF709BGZ	/home/drk/tillage/datasets/human/rna/encode/ENCSR535YOP/summary/coverage.w5	384	64	0.3	sum_sqrt	43	RNA:with multiple sclerosis; IgD-negative memory B cell
+44	ENCFF489SFV	/home/drk/tillage/datasets/human/rna/encode/ENCSR555BCP/summary/coverage.w5	384	64	0.3	sum_sqrt	44	RNA:adrenal gland tissue embryo (96 days)
+45	ENCFF047ADC	/home/drk/tillage/datasets/human/rna/encode/ENCSR563ZWI/summary/coverage.w5	384	64	0.3	sum_sqrt	45	RNA:K562 treated with 10 nM Bortezomib for 4 hours
+46	ENCFF218MMR+	/home/drk/tillage/datasets/human/rna/encode/ENCSR569JKX/summary/coverage+.w5	384	64	0.3	sum_sqrt	47	RNA:SK-N-DZ cytosolic fraction
+47	ENCFF218MMR-	/home/drk/tillage/datasets/human/rna/encode/ENCSR569JKX/summary/coverage-.w5	384	64	0.3	sum_sqrt	46	RNA:SK-N-DZ cytosolic fraction
+48	ENCFF733JPK+	/home/drk/tillage/datasets/human/rna/encode/ENCSR621PZI/summary/coverage+.w5	384	64	0.3	sum_sqrt	49	RNA:spleen tissue female adult (41 years)
+49	ENCFF733JPK-	/home/drk/tillage/datasets/human/rna/encode/ENCSR621PZI/summary/coverage-.w5	384	64	0.3	sum_sqrt	48	RNA:spleen tissue female adult (41 years)
+50	ENCFF759QTQ	/home/drk/tillage/datasets/human/rna/encode/ENCSR702IGQ/summary/coverage.w5	384	64	0.3	sum_sqrt	50	RNA:stomach tissue female embryo (107 days)
+51	ENCFF751PQP+	/home/drk/tillage/datasets/human/rna/encode/ENCSR725TPW/summary/coverage+.w5	384	64	0.3	sum_sqrt	52	RNA:ovary tissue female adult (30 years)
+52	ENCFF751PQP-	/home/drk/tillage/datasets/human/rna/encode/ENCSR725TPW/summary/coverage-.w5	384	64	0.3	sum_sqrt	51	RNA:ovary tissue female adult (30 years)
+53	ENCFF193HUI	/home/drk/tillage/datasets/human/rna/encode/ENCSR755LFM/summary/coverage.w5	384	64	0.3	sum_sqrt	53	RNA:testis tissue male embryo
+54	ENCFF295UWT	/home/drk/tillage/datasets/human/rna/encode/ENCSR774SEX/summary/coverage.w5	384	64	0.3	sum_sqrt	54	RNA:stomach tissue embryo (101 days)
+55	ENCFF107LVE	/home/drk/tillage/datasets/human/rna/encode/ENCSR880XLM/summary/coverage.w5	384	64	0.3	sum_sqrt	55	RNA:placenta tissue female embryo (113 days)
+56	ENCFF649RYB+	/home/drk/tillage/datasets/human/rna/encode/ENCSR892LBU/summary/coverage+.w5	384	64	0.3	sum_sqrt	57	RNA:kidney tissue female adult (47 years)
+57	ENCFF649RYB-	/home/drk/tillage/datasets/human/rna/encode/ENCSR892LBU/summary/coverage-.w5	384	64	0.3	sum_sqrt	56	RNA:kidney tissue female adult (47 years)
+58	ENCFF734VZN+	/home/drk/tillage/datasets/human/rna/encode/ENCSR897KTO/summary/coverage+.w5	384	64	0.3	sum_sqrt	59	RNA:epithelial cell of alveolus of lung NONE and female embryo (21 weeks)
+59	ENCFF734VZN-	/home/drk/tillage/datasets/human/rna/encode/ENCSR897KTO/summary/coverage-.w5	384	64	0.3	sum_sqrt	58	RNA:epithelial cell of alveolus of lung NONE and female embryo (21 weeks)
+60	ENCFF895JFS+	/home/drk/tillage/datasets/human/rna/encode/ENCSR997KDB/summary/coverage+.w5	384	64	0.3	sum_sqrt	61	RNA:heart right ventricle tissue female adult (59 years)
+61	ENCFF895JFS-	/home/drk/tillage/datasets/human/rna/encode/ENCSR997KDB/summary/coverage-.w5	384	64	0.3	sum_sqrt	60	RNA:heart right ventricle tissue female adult (59 years)
+62	GTEX-14DAR-0726-SM-5RQIA.1	/home/drk/tillage/datasets/human/rna/recount3/esophagus/GTEX-14DAR-0726-SM-5RQIA.1/coverage.w5	384	64	0.02	sum_sqrt	62	RNA:esophagus
+63	GTEX-1MUQO-1226-SM-E9TJK.1	/home/drk/tillage/datasets/human/rna/recount3/heart/GTEX-1MUQO-1226-SM-E9TJK.1/coverage.w5	384	64	0.02	sum_sqrt	63	RNA:heart
+64	tabula174+	/home/drk/tillage/datasets/human/rna3/czi/tabula174/coverage+.w5	384	64	0.3059869193359048	sum_sqrt	65	RNA3:Lymph_Node, memory b cell
+65	tabula174-	/home/drk/tillage/datasets/human/rna3/czi/tabula174/coverage-.w5	384	64	0.3059869193359048	sum_sqrt	64	RNA3:Lymph_Node, memory b cell
+66	tabula206+	/home/drk/tillage/datasets/human/rna3/czi/tabula206/coverage+.w5	384	64	0.13349038658511606	sum_sqrt	67	RNA3:Muscle, mesenchymal stem cell
+67	tabula206-	/home/drk/tillage/datasets/human/rna3/czi/tabula206/coverage-.w5	384	64	0.13349038658511606	sum_sqrt	66	RNA3:Muscle, mesenchymal stem cell
+68	tabula208+	/home/drk/tillage/datasets/human/rna3/czi/tabula208/coverage+.w5	384	64	0.5075664849226661	sum_sqrt	69	RNA3:Muscle, skeletal muscle satellite stem cell
+69	tabula208-	/home/drk/tillage/datasets/human/rna3/czi/tabula208/coverage-.w5	384	64	0.5075664849226661	sum_sqrt	68	RNA3:Muscle, skeletal muscle satellite stem cell
+70	tabula271+	/home/drk/tillage/datasets/human/rna3/czi/tabula271/coverage+.w5	384	64	1.0	sum_sqrt	71	RNA3:Skin, macrophage
+71	tabula271-	/home/drk/tillage/datasets/human/rna3/czi/tabula271/coverage-.w5	384	64	1.0	sum_sqrt	70	RNA3:Skin, macrophage
+72	tabula399+	/home/drk/tillage/datasets/human/rna3/czi/tabula399/coverage+.w5	384	64	1.0	sum_sqrt	73	RNA3:Vasculature, epithelial cell
+73	tabula399-	/home/drk/tillage/datasets/human/rna3/czi/tabula399/coverage-.w5	384	64	1.0	sum_sqrt	72	RNA3:Vasculature, epithelial cell
