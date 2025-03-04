@@ -54,7 +54,22 @@ path/to/predictor_script_and_utils
     ├── borzoi_predictor_API.py
     ├── error_message_functions_updated.py
     └── predictor_help_message.json
+```
 
+### Model Availability
+
+The model weights can be downloaded as .h5 files by running the `download_models.sh` to download all model replicates and annotations into the `/borzoi/examples/` folder. From the `borzoi_API_script_and_utils/`, run this command:
+
+```bash
+cd borzoi
+./download_models.sh
+```
+
+**NOTE:** Downloading the model weights require python modules like `pyfaidx`. For more details regarding the models, please refer to [Borzoi Github Repository](https://github.com/calico/borzoi?tab=readme-ov-file#model-availability).
+
+The saved models will be arranged as such (based on HUMAN training data only):
+
+```bash
 borzoi_API_script_and_utils/borzoi/examples/saved_models
 ├── f3c0
 │   └── train

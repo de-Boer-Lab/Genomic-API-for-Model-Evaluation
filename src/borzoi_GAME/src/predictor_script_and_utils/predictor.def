@@ -75,10 +75,11 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
     - Support scripts like `api_preprocessing_utils.py`, `error_message_functions_updated.py`, and `predictor_help_message.json`.
 
     Usage:
-    We encourage using pre-built containers for this model that are hosted on Zenodo.
+    We encourage using pre-built containers for this model that are hosted on Zenodo: [[LINK HERE]].
 
-    However, if you are building the container using this definition file, ensure you have the following directory structure on the host:
-    ```
+    However, if you are building the container using the provided definition file, ensure you have the following directory structure on the host:
+
+    ```bash
     path/to/predictor_script_and_utils
     ├── README.md
     ├── borzoi_API_script_and_utils
@@ -108,7 +109,21 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
         ├── borzoi_predictor_API.py
         ├── error_message_functions_updated.py
         └── predictor_help_message.json
+    ```
 
+    Model Availability:
+    The model weights can be downloaded as .h5 files by running the `download_models.sh` to download all model replicates and annotations into the `/borzoi/examples/` folder. From the `borzoi_API_script_and_utils/`, run this command:
+
+    ```bash
+    cd borzoi
+    ./download_models.sh
+    ```
+
+    **NOTE:** Downloading the model weights require python modules like `pyfaidx`. For more details regarding the models, please refer to [Borzoi Github Repository](https://github.com/calico/borzoi?tab=readme-ov-file#model-availability).
+
+    The saved models will be arranged as such (based on HUMAN training data only):
+
+    ```bash
     borzoi_API_script_and_utils/borzoi/examples/saved_models
     ├── f3c0
     │   └── train
@@ -122,7 +137,7 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
     └── f3c3
         └── train
             └── model0_best.h5
-    ```
+```
     
     Build the container (SIF)
     ```
