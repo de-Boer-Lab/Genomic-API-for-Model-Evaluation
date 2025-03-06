@@ -62,6 +62,7 @@ def run_predictor():
     # Initialize data to store a new message on each iteration
     json_data_recv = b''
 
+    # ---------------------- Receive Evaluator JSON ----------------------
     while True:
         # Before receiving JSON from Evaluator
         # Receive length of the incoming JSON message (4-byte integer)
@@ -110,8 +111,7 @@ def run_predictor():
             client_socket.close()
             break  # Break the loop on exception
 
-
-# ---------------------- %%%%%%%---------------
+    # ---------------------- Process Received JSON ----------------------
     evaluator_request_full = json_data_recv
     evaluator_json = evaluator_request_full.decode("utf-8")
     evaluator_json = json.loads(evaluator_json)
@@ -187,7 +187,7 @@ def run_predictor():
         json_return_error = check_prediction_task_name(evaluator_json['prediction_tasks'], json_return_error)
         json_return_error = check_prediction_task_type(evaluator_json['prediction_tasks'], json_return_error)
         json_return_error = check_prediction_task_cell_type(evaluator_json['prediction_tasks'], json_return_error)
-        # json_return_error = check_prediction_task_species(evaluator_json['prediction_tasks'], json_return_error)
+        json_return_error = check_prediction_task_species(evaluator_json['prediction_tasks'], json_return_error)
         if 'prediction_ranges' in evaluator_json.keys():
             json_return_error = check_seq_ids(evaluator_json['prediction_ranges'], evaluator_json['sequences'], json_return_error)
             json_return_error = check_prediction_ranges(evaluator_json['prediction_ranges'], json_return_error)
@@ -197,6 +197,14 @@ def run_predictor():
         if 'downstream_seq' in evaluator_json.keys():
             json_return_error = check_key_values_downstream_flank(evaluator_json['downstream_seq'], json_return_error)
 
+        # --- MODEL SPECIFIC: Ensure this Borzoi Predictor only supports homo_sapiens ---
+        for task in evaluator_json['prediction_tasks']:
+            if task.get('species', '').lower() != "homo_sapiens":
+                json_return_error['bad_prediction_request'].append(
+                    f"This predictor only supports species: homo_sapiens. Received '{task.get('species')}' for task '{task.get('name')}'."
+                )
+                break
+        
         # if any errors were caught return them all to evaluator
         if any(json_return_error.values()) == True:
             json_string = json.dumps(json_return_error)
@@ -213,7 +221,7 @@ def run_predictor():
                 print("Connection to client closed")
                 sys.exit(1)
 
-    # ---------------------- %%%%%%%---------------
+    # ---------------------- Process Sequences and Prediction Ranges ----------------------
     # Extract sequences to predict
     # Check that the sequences meet model specifications
     # Otherwise do any other formatting required for the model
@@ -221,6 +229,24 @@ def run_predictor():
     # Can add any additional error checking functions here
     json_return_error_model = {'prediction_request_failed': []}
     json_return_error_model = check_seqs_specifications(sequences, json_return_error_model)
+    
+    # --- Process prediction_ranges if provided ---
+    if 'prediction_ranges' in evaluator_json:
+        prediction_ranges = evaluator_json['prediction_ranges']
+        for seq_id, pr in prediction_ranges.items():
+            # Only process non-empty ranges
+            if pr:
+                # Unpack start and end indices
+                start, end = pr
+                # Check that the end index does not exceed sequence length
+                if end >= len(sequences[seq_id]):
+                    json_return_error_model['prediction_request_failed'].append(
+                        f"Prediction range for '{seq_id}' exceeds the sequence length!"
+                    )
+                else:
+                    # Slice the sequence. `prediction_range` is start, end inclusive
+                    sequences[seq_id] = sequences[seq_id][start:end+1]
+                    print(f"Sequence '{seq_id}' trimmed to prediction range [{start}, {end}].")
 
     # if anything is caught don't run the model and return to evaluator to fix
     if any(json_return_error_model.values()) == True:
@@ -238,7 +264,7 @@ def run_predictor():
             print("Connection to client closed")
             sys.exit(1)
 
-    # ---------------------- %%%%%%%---------------
+    # ---------------------- Extract Prediction Tasks and Run the Model ----------------------
     # Start big loop here for all the prediction_tasks
     # Connect to cell type matching container in cases of multi-task models
     # cell_type_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -324,8 +350,7 @@ def run_predictor():
         print("Connection to client closed")
         sys.exit(0)
 
-    # ---------------------- %%%%%%%---------------
-    # close connection socket with the client
+    # ---------------------- Close Connection Sockets ----------------------
     client_socket.close()
     print("Connection to client closed")
     # close server socket

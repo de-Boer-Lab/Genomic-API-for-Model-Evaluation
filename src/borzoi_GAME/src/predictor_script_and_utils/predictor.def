@@ -73,6 +73,9 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
     - Integrated Borzoi model with its dependencies and `borzoi-gpu` conda environment created using `borzoi_gpu_environment.yml`.
     - Latest Baskerville and Borzoi repositories (as of 2025-02-25), which also contain helper scripts and 4 replicate model weights. 
     - Support scripts like `api_preprocessing_utils.py`, `error_message_functions_updated.py`, and `predictor_help_message.json`.
+    
+    NOTE: This container requires a GPU for execution because the Borzoi model relied on GPU-accelerated operations from TensorFlow. 
+    Running on CPU may lead to excessive memory usage and thread allocation failures.
 
     Usage:
     We encourage using pre-built containers for this model that are hosted on Zenodo: [[LINK HERE]].
@@ -103,7 +106,7 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
     ├── borzoi_gpu_env.def
     ├── borzoi_gpu_environment.yml
     ├── predictor.def
-    ├── predictor.sif
+    ├── borzoi_human_predictor.sif
     └── script_and_utils
         ├── api_preprocessing_utils.py
         ├── borzoi_predictor_API.py
@@ -141,12 +144,12 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
     
     Build the container (SIF)
     ```
-    apptainer build predictor.sif predictor.def
+    apptainer build borzoi_human_predictor.sif predictor.def
     ```
 
     Run the container
     ```
-    apptainer run --nv predictor.sif HOST PORT
+    apptainer run --nv borzoi_human_predictor.sif HOST PORT
     ```
 
     Details:
@@ -160,7 +163,7 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 
     Example Command:
     ```
-    apptainer run --nv predictor.sif 172.16.47.244 5000
+    apptainer run --nv borzoi_human_predictor.sif 172.16.47.244 5000
     ```
 
     Arguments:

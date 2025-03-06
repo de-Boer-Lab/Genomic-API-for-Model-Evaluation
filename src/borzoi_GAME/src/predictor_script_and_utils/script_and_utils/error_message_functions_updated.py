@@ -1,5 +1,6 @@
 #Oct 30, 2024
 #Error checking functions
+# error_message_functions_updated.py
 import socket
 import json
 import numpy as np
@@ -189,27 +190,49 @@ def check_prediction_task_scale(prediction_tasks, json_return_error):
     return(json_return_error)
 
 
-### check that prediction_ranges are integers and subarrays are 2 elemnts each
+### check that prediction_ranges are integers and subarrays are 2 elements each
 
 def check_prediction_ranges(prediction_ranges, json_return_error):
     for key, value in prediction_ranges.items():
+        # If value is an empty list, assume full sequence is used and skip further checking.
+        if isinstance(value, list) and len(value) == 0:
+            continue
+        
+        # Check that the value is a list
+        if not isinstance(value, list):
+            json_return_error['bad_prediction_request'].append(
+                f"Prediction range for '{key}' should be a list."
+            )
+            continue
 
-        if type(value) == list:
-            if len(value) > 2:
-                json_return_error['bad_prediction_request'].append("length array in " + key+ " is greater than 2")
+        # Check that exactly two elements are provided
+        if len(value) != 2:
+            json_return_error['bad_prediction_request'].append(
+                f"Prediction range for '{key}' must contain exactly two elements (start and end)."
+            )
+            continue
 
-            else:
-                pass
-            for number in value:
-                if isinstance(number, int) == True:
-                    pass
-                else:
-                    json_return_error['bad_prediction_request'].append("value in " + key + " key is not an integer")
+        start, end = value
 
-        else:
-            json_return_error['bad_prediction_request'].append("values for prediction_ranges should be lists")
+        # Check that both elements are integers
+        if not isinstance(start, int) or not isinstance(end, int):
+            json_return_error['bad_prediction_request'].append(
+                f"Both start and end for prediction range '{key}' must be integers."
+            )
+            continue
 
-    return(json_return_error)
+        # Check that indices are non-negative
+        if start < 0 or end < 0:
+            json_return_error['bad_prediction_request'].append(
+                f"Prediction range for '{key}' contains negative values."
+            )
+
+        # Check that start index is less than or equal to end index
+        if start > end:
+            json_return_error['bad_prediction_request'].append(
+                f"In prediction range for '{key}', start index ({start}) is greater than end index ({end})."
+            )
+    return json_return_error
 
 ##check that seqids have valid characters
 ## apparently this is done by default in .json loads

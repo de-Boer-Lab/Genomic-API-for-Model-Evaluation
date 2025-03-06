@@ -8,7 +8,7 @@ For details regarding:
     - Configuring containers using definition files
     - Purpose of definition files
     - Why containers are used and to learn more about them
-please checkout this [documentation](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/DREAM_RNN)
+please checkout this [documentation](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/DREAM_RNN).
 
 ## Overview
 
@@ -18,9 +18,11 @@ This container for Predictor includes:
     - Latest Baskerville and Borzoi repositories (as of 2025-02-25), which also contain helper scripts and 4 replicate model weights.
     - Support scripts like `api_preprocessing_utils.py`, `error_message_functions_updated.py`, and `predictor_help_message.json`.
 
+**NOTE:** This container ***requires a GPU*** for execution because the Borzoi model relied on TensorFlow's GPU-accelerated operations. Running on CPU may lead to excessive memory usage and thread allocation failures.
+
 ## Usage
 
-We encourage using pre-built containers for this model that are hosted on Zenodo: [[LINK HERE]].
+We encourage using pre-built containers for this model that are hosted on Zenodo: <https://zenodo.org/records/14969579>.
 
 However, if you are building the container using the provided definition file, ensure you have the following directory structure on the host:
 
@@ -48,7 +50,7 @@ path/to/predictor_script_and_utils
 ├── borzoi_gpu_env.def
 ├── borzoi_gpu_environment.yml
 ├── predictor.def
-├── predictor.sif
+├── borzoi_human_predictor.sif
 └── script_and_utils
     ├── api_preprocessing_utils.py
     ├── borzoi_predictor_API.py
@@ -88,19 +90,19 @@ borzoi_API_script_and_utils/borzoi/examples/saved_models
 ### Build the container (SIF)
 
 ```bash
-apptainer build predictor.sif predictor.def
+apptainer build borzoi_human_predictor.sif predictor.def
 ```
 
 ### Run the container
 
 ```bash
-apptainer run --nv predictor.sif HOST PORT
+apptainer run --nv borzoi_human_predictor.sif HOST PORT
 ```
 
 ## Details
 
 - The container receives data via a TCP socket and does not require mounted data directories.
-- Replace `HOST` and `PORT` with the server and port configuration for the evaluator.
+- Replace `HOST` and `PORT` with the server and port configuration for the evaluator to connect to.
 - The `--nv` flag sets up the environment of the container to use an NVIDIA GPU and CUDA libraries to run a CUDA-enabled application.
 
 ## Purpose
@@ -111,7 +113,7 @@ apptainer run --nv predictor.sif HOST PORT
 ## Example Command
 
 ```bash
-apptainer run --nv predictor.sif 172.16.47.244 5000
+apptainer run --nv borzoi_human_predictor.sif 172.16.47.244 5000
 ```
 
 ## Arguments

@@ -51,14 +51,14 @@ Stage: build
     /path/to/evaluator_script_and_utils/
     ├── borzoi_evaluator_API.py
     ├── evaluator.def
-    ├── evaluator.sif
+    ├── borzoi_evaluator.sif
     ├── evaluator_data/
     └── predictions/
     ```
 
     Build the container (SIF)
     ```
-    apptainer build evaluator.sif evaluator.def
+    apptainer build borzoi_evaluator.sif evaluator.def
     ```
 
     Bind these directories and run the container:
@@ -66,7 +66,7 @@ Stage: build
     apptainer run \
       -B absolute/path/to/evaluator_data:/evaluator_data \
       -B absolute/path/to/predictions:/predictions \
-      evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
+      borzoi_evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
     ```
     Details:
     - The container sends and receives data via a TCP socket and requires directories to be mounted.
@@ -81,7 +81,7 @@ Stage: build
     apptainer run \
       -B absolute/path/to/evaluator_data:/evaluator_data \
       -B absolute/path/to/predictions:/predictions \
-      evaluator.sif 172.16.47.244 5000 /predictions
+      borzoi_evaluator.sif 172.16.47.244 5000 /predictions
     ```
 
     Arguments:

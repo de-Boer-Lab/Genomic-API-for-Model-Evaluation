@@ -43,7 +43,7 @@
     "prediction_ranges": {
         "seq1": [
             0,
-            100
+            99
         ],
         "seq2": [],
         "random_seq": [
@@ -51,8 +51,8 @@
             10
         ],
         "enhancer": [
-            100,
-            110
+            90,
+            99
         ],
         "control": [
             2,

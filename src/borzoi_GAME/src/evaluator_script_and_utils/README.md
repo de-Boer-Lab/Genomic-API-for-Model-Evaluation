@@ -18,7 +18,7 @@ This container includes:
 
 ## Usage
 
-We encourage using pre-built containers for this model that are hosted on Zenodo: [[LINK HERE]].
+We encourage using pre-built containers for this model that are hosted on Zenodo: <https://zenodo.org/records/14969579>.
 
 However, if you are building the container using the provided definition file, ensure you have the following directory structure on the host:
 
@@ -43,7 +43,7 @@ apptainer build evaluator.sif evaluator.def
 apptainer run \
     -B absolute/path/to/evaluator_data:/evaluator_data \
     -B absolute/path/to/predictions:/predictions \
-    evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /path/to/predictions
+    evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
 ```
 
 ## Details
