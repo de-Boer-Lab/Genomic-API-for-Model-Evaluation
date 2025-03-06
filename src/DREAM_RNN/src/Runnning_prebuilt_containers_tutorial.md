@@ -54,7 +54,6 @@ apptainer run \
     -B /path/to/predictions:/predictions  \
     evaluator.sif 172.16.47.243 5000 /predictions
 ```
-apptainer run -B //arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Running_prebuilt_containers/test_evaluator/evaluator_data:/evaluator_data -B //arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Running_prebuilt_containers/test_evaluator/predictions:/predictions evaluator.sif 172.16.47.243 5000 /predictions
 
 The `-B` mounts local directories so that the Evaluator container can read in the JSON file from a local folder and write the prediction to the locally created `/predictions` folder.
 

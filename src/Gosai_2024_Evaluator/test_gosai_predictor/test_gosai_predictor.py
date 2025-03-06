@@ -164,7 +164,7 @@ def run_predictor():
     #otherwise do any other formatting required for the model
     sequences = evaluator_json['sequences']
     #can add any additional error checking functons here
-    json_return_error_model = {'prediction_request_failed': {}}
+    json_return_error_model = {'prediction_request_failed': []}
     json_return_error_model = check_seqs_specifications(sequences, json_return_error_model)
 
     #if anything is caught don't run the model and return to evaluator to fix

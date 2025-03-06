@@ -18,6 +18,7 @@ wget -O borzoi_human_predictor.sif "https://zenodo.org/records/14969579/files/bo
 cd test_evaluator
 wget -O borzoi_evaluator.sif "https://zenodo.org/records/14969579/files/borzoi_evaluator.sif?download=1"
 wget -O evaluator_data.tar.gz "https://zenodo.org/records/14969579/files/evaluator_data.tar.gz?download=1"
+tar -xvzf evaluator_data.tar.gz
 mkdir predictions
 ```
 
