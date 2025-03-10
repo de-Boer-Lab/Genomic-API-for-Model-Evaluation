@@ -16,7 +16,7 @@ def check_seqs_specifications(sequences, json_return_error_model):
             json_return_error_model['prediction_request_failed'].append("length of a sequence in " + key + " is greater than 2000")
         if "N" in value:
             json_return_error_model['prediction_request_failed'].append("sequence in " + key + " has an invalid character present")
-    return(json_return_error_model)
+    return(json_return_error_model)SB
 
 def fake_model_point(sequences, json_dict):
     predictions = {}

@@ -33,7 +33,7 @@ Examples of containerized evaluators and predictors can be found in `/src` folde
 
 | Evaluator     | Zenodo Download link|Description |
 | ----------- | ----------- | ----------- |
-| Gosai MPRA      |https://zenodo.org/records/14920112       |  Gosai et al. (2024), https://doi.org/10.1038/s41586-024-08070-z : 776,474 sequences (200bp), measured in K562 (erythroid precursors), HepG2 (hepatocytes) and SK-N-SH (neuroblastoma) |
+| Gosai MPRA - Genomic     |https://zenodo.org/records/14920112       |  Gosai et al. (2024), https://doi.org/10.1038/s41586-024-08070-z : 776,474 genomic sequences (200bp), measured in K562 (erythroid precursors), HepG2 (hepatocytes) and SK-N-SH (neuroblastoma) |
 
 
 | Predictor     | Zenodo Download link | Description|
