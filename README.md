@@ -39,6 +39,7 @@ Examples of containerized evaluators and predictors can be found in `/src` folde
 | Predictor     | Zenodo Download link | Description|
 | ----------- | ----------- | ----------- |
 | DREAMRNN      |https://zenodo.org/records/14920340       |  Rafi et al. (2024), https://doi.org/10.1038/s41587-024-02414-w : DREAMRNN Architecture trained on human K562 cells     |
+| Borzoi      |https://zenodo.org/records/14969579       |  Linder et al. (2025), https://doi.org/10.1038/s41588-024-02053-6 : Borzoi human model is trained on human RNA-seq data from ENCODE (with 866 datasets across diverse biosamples, including cell lines and adult tissues) and Genotype-Tissue Expression (GTEx) data (with 2-3 replicates for each tissue, processed by the recount3 project). The training dataset also includes epigenomic datasets from the Enformer model, such as CAGE, DNase-seq, ATAC-seq, and ChIP-seq tracks.     |
 
 #### Communication protocol example
 
