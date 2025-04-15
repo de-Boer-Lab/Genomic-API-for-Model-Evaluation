@@ -13,10 +13,13 @@ please checkout this [documentation](https://github.com/de-Boer-Lab/Genomic-API-
 ## Overview
 
 This container for Predictor includes:
-    - Predictor script for sequence processing and error handling.
-    - Integrated Borzoi model with its dependencies and `borzoi-gpu` conda environment created using `borzoi_gpu_environment.yml`.
-    - Latest Baskerville and Borzoi repositories (as of 2025-02-25), which also contain helper scripts and 4 replicate model weights.
-    - Support scripts like `api_preprocessing_utils.py`, `error_message_functions_updated.py`, and `predictor_help_message.json`.
+- Predictor script for sequence processing and error handling.
+- Integrated Borzoi model with its dependencies and `borzoi-gpu` conda environment created using `borzoi_gpu_environment.yml`.
+- Latest Baskerville and Borzoi repositories (as of 2025-02-25), which also contain helper scripts and 4 replicate model weights.
+- Support scripts like
+    - `api_preprocessing_utils.py`
+    - `error_message_functions_updated.py`
+    - `predictor_help_message.json`.
 
 **NOTE:** This container ***requires a GPU*** for execution because the Borzoi model relied on TensorFlow's GPU-accelerated operations. Running on CPU may lead to excessive memory usage and thread allocation failures.
 

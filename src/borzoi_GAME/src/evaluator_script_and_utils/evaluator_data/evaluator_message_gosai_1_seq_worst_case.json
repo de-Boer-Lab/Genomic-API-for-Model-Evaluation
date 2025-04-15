@@ -1,0 +1,16 @@
+{
+  "request": "predict",
+  "readout": "track",
+  "prediction_tasks": [
+    {
+      "name": "gosai_synthetic_sequences",
+      "type": "all_tracks",
+      "cell_type": "K562",
+      "scale": "linear",
+      "species": "homo_sapiens"
+    }
+  ],
+  "sequences":{
+      "7:70038969:G:T:A:wC": "CCTGGTCTTTCTTGCTAAATAAACATATCGTGCATCATCCAGATCTTGCTGAAATTTGGGGGATATGCATTGAAGCAGCCCCTGTTTCTCCATGAAGGTTTATGTCTGTGAGCCTGGCTGTGCAGTTGGGAGGCCTGGGGGAGAGGTCATGCTTCTACCATGGCGTTTTCCATTTTCCTTAAAATGTGCCTCAGCAACAG"
+    }
+}

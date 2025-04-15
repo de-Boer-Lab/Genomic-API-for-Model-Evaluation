@@ -1,7 +1,6 @@
 #Oct 30th, 2024
 import socket
 import json
-import argparse
 import sys
 import os
 import struct

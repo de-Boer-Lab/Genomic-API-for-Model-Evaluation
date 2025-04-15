@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import time
 import tqdm
 import struct
 import socket
@@ -18,34 +19,17 @@ input_json = "evaluator_message_more_complex.json"
 if os.path.exists("/.singularity.d"):
     # Running inside the container
     EVALUATOR_DATA_DIR = "/evaluator_data"
-    PREDICTIONS_DIR = "/predictions"
 else:
     # Running outside the container
-    EVALUATOR_SCRIPT_DIR = SCRIPT_DIR
-    EVALUATOR_DATA_DIR = os.path.join(EVALUATOR_SCRIPT_DIR, "evaluator_data")
-    PREDICTIONS_DIR = os.path.join(EVALUATOR_SCRIPT_DIR, "predictions")
+    EVALUATOR_DATA_DIR = os.path.join(SCRIPT_DIR, "evaluator_data")
     
 EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_json)
-RETURN_FILE_PATH = os.path.join(PREDICTIONS_DIR, f"borzoi_predictions_{input_json}")
-
-# Validate input file path
-if not os.path.exists(EVALUATOR_INPUT_PATH):
-    print(f"Error: Input file '{EVALUATOR_INPUT_PATH}' does not exist.")
-    sys.exit(1)
-
-# Validate output directory
-output_dir = os.path.dirname(RETURN_FILE_PATH)
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir, exist_ok=True)
-    print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
-    # sys.exit(1)
     
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
 
 # Debug logs for validation
 print(f"Using input JSON: {EVALUATOR_INPUT_PATH}")
-print(f"Will save predictions to: {RETURN_FILE_PATH}")
 
 #function to check for duplicate keys in the JSON file
 def check_duplicates(json_file_path):
@@ -138,8 +122,10 @@ def run_evaluator():
 
     # Validate output directory
     if not os.path.exists(output_dir):
-        print(f"Error: Output directory '{output_dir}' does not exist.")
-        sys.exit(1)
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
+        
+    RETURN_FILE_PATH = os.path.join(output_dir, f"borzoi_predictions_{input_json}")
         
     # Try creating a socket
     try:
@@ -148,17 +134,32 @@ def run_evaluator():
     except socket.error as e:
         print ("server_error: Error creating socket: %s" % e)
         sys.exit(1)
-
-    try:
-        # establish connection with predictor server
-        connection.connect((host, port))
-        print(f"Connected to Predictor on {host}:{port}")
-    except socket.gaierror as e:
-        print ("Address-related error connecting to server: %s" % e)
-        sys.exit(1)
-    except socket.error as e:
-        print ("server_error: Connection error: %s" % e)
-        sys.exit(1)
+        
+    # Re-try Parameters
+    RETRY_INTERVAL = 30 # 30 seconds 
+    MAX_RETRIES = 50
+    attempt = 0
+    connected = False
+    
+    while attempt < MAX_RETRIES and not connected:
+        try:
+            # establish connection with predictor server
+            connection.connect((host, port))
+            print(f"Connected to Predictor on {host}:{port}")
+            connected = True
+        except socket.gaierror as e:
+            print ("Address-related error connecting to server: %s" % e)
+            sys.exit(1)
+        except socket.error as e:
+            attempt += 1
+            print ("server_error: Connection error: %s" % e)
+            if attempt < MAX_RETRIES:
+                print(f"Retrying in {RETRY_INTERVAL} seconds... (Attempt {attempt} of {MAX_RETRIES})")
+                for _ in tqdm.tqdm(range(RETRY_INTERVAL), desc="Waiting to retry connection", unit="s"):
+                    time.sleep(1)
+            else:
+                print(f"Tried connecting {attempt} times. Exceeded maximum number of retries. Exiting...")
+                sys.exit(1)
 
     try:
         # load in JSON file from evalutor_data if Predictor container was successful
@@ -247,7 +248,7 @@ def run_evaluator():
         predictor_json = predictor_response_full.decode("utf-8")
         predictor_json = json.loads(predictor_json)
         
-        output_file = RETURN_FILE_PATH # // os.path.join(output_dir, os.path.basename(RETURN_FILE_PATH))
+        output_file = RETURN_FILE_PATH
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(predictor_json, f, ensure_ascii=False, indent=4, separators=(",", ": ")) # // ADDED separators
         print(f"Predictions saved to {output_file}")

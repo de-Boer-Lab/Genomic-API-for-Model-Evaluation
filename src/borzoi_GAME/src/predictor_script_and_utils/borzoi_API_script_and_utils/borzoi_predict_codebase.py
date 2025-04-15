@@ -91,11 +91,15 @@ def predict_borzoi(sequences, request_tasks, is_point_readout=False):
         is_point_readout (bool): If True, average 16352 bin predictions to single value.
     
     Returns:
-        task_predictions (dict): A dictionary of key-value pairs (strings) 
-                {task_key: {sequence_id, [16352 predictions, averaged across desired tracks]}}
+        task_predictions (dict): 
+            A dictionary of key-value pairs (strings) 
+            {task_key: {sequence_id, [16352 predictions, averaged across desired tracks]}}
+            
+            For "all_tracks" tasks, predictions are not averaged over tracks
+            and the full prediction matrix is returned (shape [1, 16352, 7611 tracks]).
     
     """
-    print("Running Borzoi Model Predictions on ALL tracks!")
+    print("Running Borzoi Model Predictions on ALL tracks before filtering...")
     
     # Load parameters, target indices, and models
     params_model, _ = load_model_parameters()
@@ -121,7 +125,7 @@ def predict_borzoi(sequences, request_tasks, is_point_readout=False):
     # Example: [1, 2, 3]
     
     for request_type, cell_type in request_tasks:
-        print(f"Performing track selection for {request_type} and {cell_type}")
+        print(f"Performing track selection for {request_type} and {cell_type}...")
         # Get track indices of desired tracks for filtering predictions
         targets_df, simplified_targets_df = load_targets()
         filtered_tracks = filter_evaluator_request(simplified_targets_df,
@@ -129,10 +133,13 @@ def predict_borzoi(sequences, request_tasks, is_point_readout=False):
         track_indices = filtered_tracks.index.tolist()
     
         if not track_indices:
-            print("No matching tracks found for {request_type} and {cell_type}. Skipping...")
+            print(f"No matching tracks found for {request_type} and {cell_type}. Skipping...")
             continue
-    
-        print(f"Using Track Indices for ({request_type}, {cell_type}): {track_indices}")
+        # Avoid printing a huge list for "all_tracks" requests:
+        if request_type.lower() == "all_tracks":
+            print(f"Using all {len(track_indices)} track indices for ({request_type}, {cell_type}).")
+        else:
+            print(f"Using Track Indices for ({request_type}, {cell_type}): {track_indices}")
         task_to_indices[(request_type, cell_type)] = track_indices
         
         for index in track_indices:
@@ -147,11 +154,15 @@ def predict_borzoi(sequences, request_tasks, is_point_readout=False):
         print("No valid track indices found for any tasks.")
         return {}
     
-    print(f"Unique required track indices for all tasks: {unique_track_indices}")
+    # Check if any request is an all_tracks request
+    if any(rt.lower() == "all_tracks" for rt, _ in request_tasks):
+        print(f"Unique required track indices for this task: ALL {len(unique_track_indices)} tracks.")
+    else:
+        print(f"Unique required track indices for all tasks: {unique_track_indices}")
     
     # 5.2. Process each sequence and run prediction
     #    - Iterate over sequences and run model prediction only for the required tracks
-    print("Processing sequences and predicting only on required tracks...")
+    print("Processing sequences and storing predictions only for required tracks...")
     task_predictions = {task: {} for task in task_to_indices}
     
     # Process each sequence
@@ -160,6 +171,7 @@ def predict_borzoi(sequences, request_tasks, is_point_readout=False):
                                       unit="sequence",
                                       total=len(sequences),
                                       dynamic_ncols=True):
+        print(f"Predicting on sequence ID: {seq_id} 🧬")
         # Pad and encode sequence
         encoded_seq = dna.dna_1hot(seq=sequence, seq_len=seq_len)
         print(f"Shape of encoded sequence before predict_tracks: {encoded_seq.shape}")
@@ -175,21 +187,26 @@ def predict_borzoi(sequences, request_tasks, is_point_readout=False):
         # Now assign filtered predictions to each task to be averaged
         for task_key, indices in task_to_indices.items():
             # Extract relevant track predictions per task
-            print(f"Assigning prediction for tasks: {task_key} (Tracks: {indices})")
-            selected_tracks = fold_averaged_predictions[:, :, 
-                                              [unique_track_indices.index(idx) for idx in indices]]
-            # Average duplicate tracks per task
-            print(f"Averaging duplicate track predictions for task {task_key} (Tracks: {indices})")
-            avg_prediction = np.mean(selected_tracks, axis=-1, keepdims=True)
-            
-            if is_point_readout:
-                # "point" readout: Average across 16352 bins to a single value per sequence
-                print(f"Generating point readout for task: {task_key}")
-                point_prediction = np.mean(avg_prediction, axis=1, keepdims=True)
-                task_predictions[task_key][seq_id] = point_prediction.squeeze().tolist()
+            # Special case: for "all_tracks" request, return full predictions without averaging over tracks
+            if task_key[0].lower() == "all_tracks":
+                print(f"Assigning prediction for tasks: {task_key} (All tracks: [1, {len(indices)}])")
+                task_predictions[task_key][seq_id] = np.vectorize(lambda x: float(f"{x:.7f}"))(fold_averaged_predictions).squeeze().tolist()
             else:
-                # "track" readout: Return full 16352 bin predictions
-                # Store predictions in task-specific dictionary
-                task_predictions[task_key][seq_id] = avg_prediction.squeeze().tolist()
+                print(f"Assigning prediction for tasks: {task_key} (Tracks: {indices})")
+                selected_tracks = fold_averaged_predictions[:, :, 
+                                [unique_track_indices.index(idx) for idx in indices]]
+                # Average duplicate tracks per task
+                print(f"Averaging duplicate track predictions for task {task_key} (Tracks: {indices})")
+                avg_prediction = np.mean(selected_tracks, axis=-1, keepdims=True)
+                
+                if is_point_readout:
+                    # "point" readout: Average across 16352 bins to a single value per sequence
+                    print(f"Generating point readout for task: {task_key}")
+                    point_prediction = np.mean(avg_prediction, axis=1, keepdims=True)
+                    task_predictions[task_key][seq_id] = np.vectorize(lambda x: float(f"{x:.7f}"))(point_prediction).squeeze().tolist()
+                else:
+                    # "track" readout: Return full 16352 bin predictions
+                    # Store predictions in task-specific dictionary
+                    task_predictions[task_key][seq_id] = np.vectorize(lambda x: float(f"{x:.7f}"))(avg_prediction).squeeze().tolist()
     
     return task_predictions

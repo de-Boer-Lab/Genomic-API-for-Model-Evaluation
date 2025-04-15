@@ -1,14 +1,11 @@
 #Oct 30th, 2024
 import socket
 import json
-import random
-import base64
 import sys
-import os
 import struct
+import tqdm
 from error_message_functions_updated import *
 from deBoerTest_model import *
-import argparse
 
 
 def run_predictor():
@@ -57,6 +54,11 @@ def run_predictor():
             msglen = struct.unpack('>I', msg_length)[0]
             print(f"Expecting {msglen} bytes of data from the Evaluator.")
             # Can comment out print commands other than for errors
+            
+            # Initialize the progress bar
+            progress = tqdm.tqdm(range(msglen), unit="B", 
+                                 desc="Receiving Evaluator Request(s)",
+                                 unit_scale=True, unit_divisor=1024)
 
             #Step 2
             # Now we want to receive the actual JSON in packets
@@ -67,7 +69,11 @@ def run_predictor():
                     print("Connection closed unexpectedly.")
                     break
                 json_data_recv += packet
+                progress.update(len(packet))
                 #print(f"Received packet of {len(packet)} bytes, total received: {len(data)} bytes")
+                
+            # Close the progress bar when done
+            progress.close()
 
             # Decode and display the received data if all of it is received
             if len(json_data_recv) == msglen:

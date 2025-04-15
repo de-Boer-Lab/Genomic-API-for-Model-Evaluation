@@ -1,82 +1,59 @@
 # Jan 15, 2025
-import socket
-import json
-import sys
+# gosai_evaluator.py
 import os
-import struct
-from collections import Counter
-#from create_json import *
-import pandas as pd
+import sys
+import json
+import time
 import tqdm
+import struct
+import socket
+import pandas as pd
 
-# Get the current working directory
-CWD = os.getcwd()
-def create_json(input_data):
+from evaluator_utils import *
 
-    """
-    Parses a pandas dataframe to create a JSON object to be sent to a Predictor
-    Args:
-        input_data: pandas dataframe with DNA sequences
-
-    Returns:
-        json object in API format
-    """
-    #these paramters are decided based on the sequence dataset
-    json_evaluator = {'request': 'predict', 'readout': 'point'}
-    json_evaluator['prediction_tasks'] = [{'name': 'gosai_synthetic_sequences', 'type': 'expression', 'cell_type': 'K562', 'scale': 'linear', 'species': 'homo_sapiens'}]
-
-    #option flanking sequences can be added here for MPRAs
-    #json_evaluator['upstream_seq'] = ['ATGCTT']
-    #json_evaluator['downstream_seq'] = ['GATCA']
-
-    sequences = dict(zip(input_data.IDs, input_data.sequence))
-    json_evaluator['sequences'] = sequences
-    json_evaluator = json.dumps(json_evaluator)
-
-    #if you want to write the JSON to a local directory
-    # with open(CWD + '/evalutor_data/evaluator_message_gosai.json', 'w', encoding='utf-8') as f:
-    #     json.dump(json_evaluator, f, ensure_ascii=False, indent=4)
-
-    return(json_evaluator)
+# Get the absolute path of the script's directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # File name for input sequences
 input_txt = "41586_2024_8070_MOESM4_ESM.txt"
 
 #Determine if running inside a container or not
-if os.path.exists("/evaluator_data"):
+if os.path.exists("/.singularity.d"):
     # Running inside the container
-    EVALUATOR_INPUT_PATH = os.path.join("/evaluator_data", input_txt)
-
+    EVALUATOR_DATA_DIR = "/evaluator_data"
 else:
     #Running outside the container
-    EVALUATOR_INPUT_PATH = os.path.join(CWD, "evaluator_data", input_txt)
+    EVALURATOR_DATA_DIR = os.path.join(SCRIPT_DIR, "evaluator_data")
 
-print(EVALUATOR_INPUT_PATH)
-# Validate input file path
-if not os.path.exists(EVALUATOR_INPUT_PATH):
-    print(f"Error: Input file '{EVALUATOR_INPUT_PATH}' does not exist.")
-    sys.exit(1)
+EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_txt)
 
+output_json_filename = f"gosai_mpra_predictions_{input_txt.replace(".txt", "")}.json"
+
+# Set buffer size for TCP
+BUFFER_SIZE = 65536
 
 # Debug logs for validation
-print(f"Using input data: {EVALUATOR_INPUT_PATH}")
-#print(f"Will save predictions to: {RETURN_FILE_PATH}")
+print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
 def run_evaluator():
     host = sys.argv[1]
     port = int(sys.argv[2])
     output_dir = sys.argv[3]
-
-    # Validate input JSON file
+    
+    # Validate evaluator input file exists
     if not os.path.exists(EVALUATOR_INPUT_PATH):
         print(f"Error: Evaluator input file '{EVALUATOR_INPUT_PATH}' does not exist.")
         sys.exit(1)
 
-    # Validate output directory
+    # Validate output directory; create if it does not
     if not os.path.exists(output_dir):
-        print(f"Error: Output directory '{output_dir}' does not exist.")
-        sys.exit(1)
-
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
+    
+    # Compute the full RETURN_FILE_PATH using the provided output directory
+    RETURN_FILE_PATH = os.path.join(output_dir, output_json_filename)
+    print(f"Will save predictions to: {RETURN_FILE_PATH}")
+        
     # Try creating a socket
     try:
         # create a socket object
@@ -85,25 +62,48 @@ def run_evaluator():
         print ("server_error: Error creating socket: %s" % e)
         sys.exit(1)
 
+    # Re-try Parameters
+    RETRY_INTERVAL = 300 # 300 seconds (5 mins)
+    MAX_RETRIES = 5
+    attempt = 0
+    connected = False
+    
+    while attempt < MAX_RETRIES and not connected:
+        try:
+            # establish connection with predictor server
+            connection.connect((host, port))
+            print(f"Connected to Predictor on {host}:{port}")
+            connected = True
+        except socket.gaierror as e:
+            print ("Address-related error connecting to server: %s" % e)
+            sys.exit(1)
+        except socket.error as e:
+            attempt += 1
+            print ("server_error: Connection error: %s" % e)
+            if attempt < MAX_RETRIES:
+                print(f"Retrying in {RETRY_INTERVAL/60:.0f} minutes... (Attempt {attempt} of {MAX_RETRIES})")
+                for _ in tqdm.tqdm(range(RETRY_INTERVAL), desc="Waiting to retry connection", unit="s"):
+                    time.sleep(1)
+            else:
+                print(f"Tried connecting {attempt} times. Exceeded maximum number of retries. Exiting...")
+                sys.exit(1)
+
     try:
-        # establish connection with predictor server
-        connection.connect((host, port))
-        print(f"Connected to Predictor on {host}:{port}")
-    except socket.gaierror as e:
-        print ("Address-related error connecting to server: %s" % e)
-        sys.exit(1)
-    except socket.error as e:
-        print ("server_error: Connection error: %s" % e)
-        sys.exit(1)
-
-
-    input_data = pd.read_csv(EVALUATOR_INPUT_PATH, sep='\t', header=0)
-
-    # #check if duplicate ID's exist since they will be used as keys for the sequences
-    # duplicated_rows = input_data['IDs'][input_data['IDs'].duplicated()]
-
-    #only create JSON object if the values you way to use for the sequence keys are not duplicates
-    jsonResult = create_json(input_data)
+        # Load in JSON file from evalutor_data if connection to Predictor container was successful
+        # Create JSON string from input file since it is not in JSON format already
+        df = pd.read_csv(EVALUATOR_INPUT_PATH, delimiter='\t')
+        evaluator_json_str = create_json(df)
+                
+        # Check for duplicate keys in the generated JSON string.
+        # Use the helper function that accepts a JSON string.
+        jsonResult_dict = check_duplicates_from_string(evaluator_json_str)
+        if jsonResult_dict is None:
+            sys.exit(1)
+        
+        # Convert the validated JSON dictionary back to a JSON string for transmission.    
+        jsonResult = json.dumps(jsonResult_dict)
+    except json.JSONDecodeError as e:
+        print("Invalid JSON syntax:", e)
 
     # first send the total bytes we are transmitting to the Predictor
     # This is used to stop the recv() process
@@ -139,25 +139,31 @@ def run_evaluator():
                 connection.close()
                 break # Exit the loop if no message length is received
 
-            # Unpack meesage length from 4 bytes
+            # Unpack message length from 4 bytes
             msglen = struct.unpack('>I', msg_length)[0]
             print(f"Expecting {msglen} bytes of data from the Predictor.")
             # Can comment out print commands other than for errors
+            
+            # Initialize the progress bar
+            progress = tqdm.tqdm(range(msglen), unit="B", 
+                                 desc="Receiving Predictor Response",
+                                 unit_scale=True)
 
             #Step 2
             # Now we want to receive the actual JSON in packets
-            progress = tqdm.tqdm(range(msglen), unit="B", desc="Receiving Predictor Message", unit_scale=True, unit_divisor=1024)
-
+            
             while len(json_data_recv) < msglen:
-                packet = connection.recv(65536)
+                packet = connection.recv(BUFFER_SIZE)
                 if not packet:
                     print("Connection closed unexpectedly.")
                     break
                 json_data_recv += packet
                 progress.update(len(packet))
-
                 #print(f"Received packet of {len(packet)} bytes, total received: {len(data)} bytes")
-
+           
+            # Close the progress bar when done
+            progress.close()
+            
             # Decode and display the received data if all of it is received
             if len(json_data_recv) == msglen:
                 print("Predictor return received completely!")
@@ -176,12 +182,12 @@ def run_evaluator():
         predictor_response_full = json_data_recv
         predictor_json = predictor_response_full.decode("utf-8")
         predictor_json = json.loads(predictor_json)
-
-        output_file = os.path.join(output_dir + '/predictions.json')
+        
+        output_file = RETURN_FILE_PATH
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(predictor_json, f, ensure_ascii=False, indent=4)
+            json.dump(predictor_json, f, ensure_ascii=False, indent=4, separators=(",", ": ")) # // ADDED separators
         print(f"Predictions saved to {output_file}")
-
+        
     except (json.JSONDecodeError, IOError) as e:
         print(f"Error saving predictions: {e}")
         sys.exit(1)

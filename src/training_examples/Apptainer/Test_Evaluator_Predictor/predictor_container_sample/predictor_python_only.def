@@ -1,29 +1,32 @@
 Bootstrap: docker
-From: python:3.9-slim
+From: python:3.13-slim
 Stage: build
 
 %files
-    /path_to/predictor_container_sample/predictor_API_clean_apptainer.py /predictor_container_sample/predictor_API_clean_apptainer.py
-    /path_to/predictor_container_sample/error_message_functions_updated.py /predictor_container_sample/error_message_functions_updated.py
-    /path_to/predictor_container_sample/deBoerTest_model.py /predictor_container_sample/deBoerTest_model.py
-    /path_to/predictor_container_sample/predictor_help_message.json /predictor_container_sample/predictor_help_message.json
+    predictor_API_clean_apptainer.py /predictor_container_sample/predictor_API_clean_apptainer.py
+    error_message_functions_updated.py /predictor_container_sample/error_message_functions_updated.py
+    deBoerTest_model.py /predictor_container_sample/deBoerTest_model.py
+    predictor_help_message.json /predictor_container_sample/predictor_help_message.json
+
 %environment
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
     export LC_ALL=C
     export PATH="/opt/conda/bin:$PATH"
     export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
-    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
 
 %post
     # Set permissions for copied files
-    chmod 755 /predictor_container_sample/*.py
-    chmod 644 /predictor_container_sample/*.json
+    echo "Setting permissions..."
+    chmod -R 755 /predictor_container_sample
 
     echo "Installing Python dependencies..."
-    pip3 install --no-cache-dir numpy pandas
+    python -m pip install --upgrade pip
+    pip3 install --no-cache-dir numpy pandas tqdm
 %runscript
     exec python3 /predictor_container_sample/predictor_API_clean_apptainer.py "$@"
 
 %startscript
+    exec python3 /predictor_container_sample/predictor_API_clean_apptainer.py "$@"
 
 %test
 

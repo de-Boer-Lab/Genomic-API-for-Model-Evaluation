@@ -1,35 +1,30 @@
 Bootstrap: docker
-From: python:3.9-slim
+From: python:3.13-slim
 Stage: build
 
 %files
-    /path/to/Gosai_2024_Evaluator/gosai_evaluator.py /Gosai_2024_Evaluator/gosai_evaluator.py
+    gosai_evaluator.py /Gosai_2024_Evaluator/gosai_evaluator.py
+    evaluator_utils.py /Gosai_2024_Evaluator/evaluator_utils.py
 
 %environment
-    export LC_ALL=C
-    export PATH="/opt/conda/envs/dream/bin:$PATH"
-    export LD_LIBRARY_PATH="/opt/conda/envs/dream/lib:$LD_LIBRARY_PATH"
+    # Prevent automatic binding of host directories
     export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
+    export LC_ALL=C
+    export PATH="/usr/local/bin:$PATH"
+    export PYTHONPATH="/Gosai_2024_Evaluator:$PYTHONPATH"
+
 %post
     echo "Installing system dependencies..."
-    apt-get update && apt-get install -y --no-install-recommends \
-        python3-pip \
-        wget \
-        bzip2 \
-        ca-certificates \
-        libglib2.0-0 \
-        libxext6 \
-        libsm6 \
-        libxrender1 \
-        build-essential && \
-        apt-get clean && rm -rf /var/lib/apt/lists/*
-
+    apt-get update && \
+    apt-get install -y --no-install-recommends python3-pip wget bzip2 ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
     echo "Installing Python dependencies..."
+    python -m pip install --upgrade pip
     pip3 install --no-cache-dir numpy pandas tqdm
 
-
     #echo "Setting permissions for directories and script..."
+    echo "Setting permissions for directories and script..."
     chmod -R 755 /Gosai_2024_Evaluator
 
 %runscript
@@ -47,7 +42,7 @@ Stage: build
 
 %labels
     Author "Ishika Luthra"
-    Version "1.1"
+    Version "1.2"
     Description "This container is the Evaluator set up for the Gosai 2024 paper MPRA data."
 
 %help
@@ -62,8 +57,9 @@ Stage: build
     ├── evaluator.def
     ├── gosai_evaluator.py
     ├── evaluator_data
-    │   ├── 41586_2024_8070_MOESM4_ESM.txt
-    └── predictions
+    │   └── 41586_2024_8070_MOESM4_ESM.txt
+    ├── evaluator_utils.py
+    └── predictions/
     ```
 
     Prepare directories on the host system for data and predictions:
@@ -74,8 +70,8 @@ Stage: build
     Bind these directories and run the container:
     ```bash
     apptainer run \
-      -B /path/to/Gosai_2024_Evaluator/evaluator_data \
-      -B /path/to/Gosai_2024_Evaluator/predictions \
+      -B /path/to/Gosai_2024_Evaluator/evaluator_data:/evaluator_data \
+      -B /path/to/Gosai_2024_Evaluator/predictions:/predictions \
       gosai_evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
     ```
 
@@ -86,8 +82,8 @@ Stage: build
     **Example Command:**
     ```bash
     apptainer run \
-      -B /path/to/Gosai_2024_Evaluator/evaluator_data \
-      -B /path/to/Gosai_2024_Evaluator/predictions \
+      -B /path/to/Gosai_2024_Evaluator/evaluator_data:/evaluator_data \
+      -B /path/to/Gosai_2024_Evaluator/predictions:/predictions \
       gosai_evaluator.sif 172.16.47.244 5000 /predictions
     ```
 

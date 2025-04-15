@@ -1,10 +1,10 @@
 {
   "request": "predict",
-  "readout": "point",
+  "readout": "track",
   "prediction_tasks": [
     {
       "name": "gosai_synthetic_sequences",
-      "type": "expression",
+      "type": "expression_pol2",
       "cell_type": "K562",
       "scale": "linear",
       "species": "homo_sapiens"

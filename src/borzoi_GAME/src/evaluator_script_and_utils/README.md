@@ -4,7 +4,6 @@ For details regarding:
 
 1. Creating wrapper functions for the API JSON structure
 2. Configuring and Running the API:
-
     - Configuring containers using definition files
     - Purpose of definition files
     - Why containers are used and to learn more about them
@@ -13,8 +12,9 @@ please checkout this [documentation](https://github.com/de-Boer-Lab/Genomic-API-
 ## Overview
 
 This container includes:
-    - Evaluator API script for genomic sequence evaluation.
-    - Installed Python dependencies required by the Evaluator.
+
+- Evaluator API script for genomic sequence evaluation.
+- Installed Python dependencies required by the Evaluator.
 
 ## Usage
 

@@ -104,7 +104,8 @@ def check_prediction_task_type(prediction_tasks, json_return_error):
     #loop through object to check each array
     for prediction_task in prediction_tasks:
         print(prediction_task)
-        prediction_task_options = ["accessibility", "expression", "chromatin_confirmation"]
+        prediction_task_options = ["accessibility", "expression", "chromatin_confirmation",
+                                   "all_tracks"] # Adding an option for all_tracks here
         if type(prediction_task['type']) == list:
             json_return_error['bad_prediction_request'].append("'type' should only have 1 value")
 
@@ -112,7 +113,7 @@ def check_prediction_task_type(prediction_tasks, json_return_error):
 
             if isinstance(prediction_task['type'], str) == True:
 
-                if prediction_task['type'] in prediction_task_options or prediction_task['type'].startswith('binding_'):
+                if prediction_task['type'] in prediction_task_options or prediction_task['type'].startswith('binding_') or prediction_task['type'].startswith('expression_'): # Added expression_
                     pass
                 else:
                     json_return_error['bad_prediction_request'].append("prediction type " + str(prediction_task['type']) + " is not recognized")
@@ -273,3 +274,8 @@ def check_key_values_downstream_flank(downstream_seq, json_return_error):
             json_return_error['bad_prediction_request'].append("'downstream_seq' value should be a string")
 
     return(json_return_error)
+
+######
+# Changes made on March 26, 2025:
+# Added passing filter for `all_tracks` and type that starts with `expression_`
+# filter_evaluator_request() will handle the input error if error_message_functions_updated.py does not.
