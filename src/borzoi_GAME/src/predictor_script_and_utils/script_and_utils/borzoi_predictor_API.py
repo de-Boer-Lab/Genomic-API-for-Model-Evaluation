@@ -34,6 +34,34 @@ from borzoi_predict_codebase import *
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
 
+# ------ ADDITION: Configuration for Format ------
+FORMATS = ["json", "msgpack"] # Remove msgpack if not supported
+
+# Advertise support for format(s)
+def advertise_formats(client_socket):
+    """
+    Advertise supported serialization formats. TODO
+    
+    Args:
+        socket
+        
+    Return:
+        None: Send message to client about the formats and print what you advertise.
+    """
+    supported_fmts = {"formats": FORMATS}
+    advert = json.dumps(supported_fmts).encode('utf-8')
+    client_socket.sendall(struct.pack(">I", len(advert)))
+    client_socket.sendall(advert)
+    print(f"Advertised formats: {supported_fmts}")
+    
+def negotiate_format_with_evaluator(client_socket):
+    # Advertise
+    advertise_formats(client_socket)
+    # Read Evaluator's choice
+    # If choice in advertised formats, YAYYY
+    # If not, ERR? 
+    pass
+
 def recv_message_loop(client_socket):
     # Step 1: Receive total bytes (length) of the Evaluator's request 
     # Step 2: Receive file from Evaluator

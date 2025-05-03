@@ -31,6 +31,25 @@ BUFFER_SIZE = 65536
 # Debug logs for validation
 print(f"Using input JSON: {EVALUATOR_INPUT_PATH}")
 
+# ------ ADDITION: Configuration of preference for Format ------
+EVAL_PREFERRED_FORMAT = "msgpack" # "json"
+
+# - Needs to have a preferred format it wants predictions in.
+# - Reads in the formats that the predictor supports.
+# - If preferred MsgPack and Predictor can support it:
+#     - Convert input JSON or TXT (which is already converted to JSON string) to evaluator’s send preference [JSON, MsgPack]
+#     - Send MsgPack to Predictor.
+#     - Receive MsgPack from Predictor.
+#     - Convert that to JSON and store.
+# - If preferred MsgPack but Predictor cannot handle it:
+#     - Throw an error so as to not waste time predicting and sending large predictions as JSON
+# - If preferred JSON:
+#     - Default JSON ↔ JSON behaviour
+
+# Function to send preferred format for receiveing predictions to Predictor
+
+# Negotiate (for cases when Predictor cannot handle MsgPack)
+
 #function to check for duplicate keys in the JSON file
 def check_duplicates(json_file_path):
 
