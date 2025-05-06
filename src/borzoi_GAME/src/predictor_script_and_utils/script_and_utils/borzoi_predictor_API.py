@@ -34,29 +34,33 @@ from borzoi_predict_codebase import *
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
 
-# ------ ADDITION: Configuration for Format ------
-FORMATS = ["json", "msgpack"] # Remove msgpack if not supported
+# ------ ADDITION: Configuration for Wire-Format ------
+PREDICTOR_SUPPORTED_FORMATS = ["json", "msgpack"] # Remove msgpack if not supported
 
-# Advertise support for format(s)
-def advertise_formats(client_socket):
-    """
-    Advertise supported serialization formats. TODO
-    
-    Args:
-        socket
-        
-    Return:
-        None: Send message to client about the formats and print what you advertise.
-    """
-    supported_fmts = {"formats": FORMATS}
-    advert = json.dumps(supported_fmts).encode('utf-8')
-    client_socket.sendall(struct.pack(">I", len(advert)))
-    client_socket.sendall(advert)
-    print(f"Advertised formats: {supported_fmts}")
+# - Needs to advertise the formats it can support.
+# - Negotiates with evaluator the wire-format to send predictions back in.
+# - If Evaluator's preferred format is not what the Predictor can support, don't waste 
+#   time and just send error back to Evaluator
+# - Can receive JSON, TXT (converted to JSON string, so it arrives as JSON), MsgPack
+# - If MessagePack is received, Predictor will have to convert it to JSON so the payload 
+#   can pass through error checks and tasks and sequences can be extracted for the model.
+# - If Evaluator's preferred format is JSON, send back as JSON (as normal).
+# - If it is MessagePack, convert the JSON string to Msgpack before streaming to Evaluator
     
 def negotiate_format_with_evaluator(client_socket):
+    
+    """
+    1. Send supported formats from Predictor (JSON)
+    2. Receive preferred format from Evaluator before receiving payload (JSON)
+    Returns the agreed wire_format for payload. 
+    """
+    
     # Advertise
-    advertise_formats(client_socket)
+    supported_fmts = {"formats": PREDICTOR_SUPPORTED_FORMATS}
+    supported_fmts_bytes = json.dumps(supported_fmts).encode('utf-8')
+    client_socket.sendall(struct.pack(">I", len(supported_fmts_bytes)))
+    client_socket.sendall(supported_fmts_bytes)
+    print(f"Advertised formats: {supported_fmts}")
     # Read Evaluator's choice
     # If choice in advertised formats, YAYYY
     # If not, ERR? 

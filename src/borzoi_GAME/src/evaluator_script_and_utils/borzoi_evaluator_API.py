@@ -29,16 +29,18 @@ EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_json)
 BUFFER_SIZE = 65536
 
 # Debug logs for validation
-print(f"Using input JSON: {EVALUATOR_INPUT_PATH}")
+print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
 # ------ ADDITION: Configuration of preference for Format ------
-EVAL_PREFERRED_FORMAT = "msgpack" # "json"
+EVAL_PREFERRED_FORMAT = "msgpack" # or "json"
 
 # - Needs to have a preferred format it wants predictions in.
 # - Reads in the formats that the predictor supports.
 # - If preferred MsgPack and Predictor can support it:
-#     - Convert input JSON or TXT (which is already converted to JSON string) to evaluator’s send preference [JSON, MsgPack]
-#     - Send MsgPack to Predictor.
+#     - Feed input JSON/TXT (which is already converted to JSON string)/MsgPack to evaluator’s send preference [.json and .txt sent as JSONs, .msgpack is sent as MsgPack]
+#     - If MsgPack is the input, it will have to be converted to JSON string to get it to pass through check_duplicates function.
+#     - Only when it passes that:
+#       - Send payload to Predictor.
 #     - Receive MsgPack from Predictor.
 #     - Convert that to JSON and store.
 # - If preferred MsgPack but Predictor cannot handle it:
