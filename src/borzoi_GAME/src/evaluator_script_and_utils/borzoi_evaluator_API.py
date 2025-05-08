@@ -1,4 +1,4 @@
-# borzoi_evaluator_API.py
+# borzoi_evaluator_API.py -- Example Evaluator
 import os
 import sys
 import json
@@ -6,14 +6,17 @@ import time
 import tqdm
 import struct
 import socket
+import msgpack
 
-from collections import Counter
+from evaluator_utils import *
 
 # Get the absolute path of the script's directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Define the input JSON file name
-input_json = "evaluator_message_more_complex.json"
+# Define the input file name
+# This example Evaluator can only take .json/.msgpack inputs
+# ALERT: Variable names will change -- JSON-specific names will be changed
+input_file = "evaluator_message_more_complex.json"
 
 # Determine if running inside a container or not
 if os.path.exists("/.singularity.d"):
@@ -23,7 +26,7 @@ else:
     # Running outside the container
     EVALUATOR_DATA_DIR = os.path.join(SCRIPT_DIR, "evaluator_data")
     
-EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_json)
+EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_file)
     
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
@@ -57,87 +60,49 @@ EVAL_PREFERRED_FORMAT = "msgpack" # or "json"
 
 # Negotiate (for cases when Predictor cannot handle MsgPack)
 
-#function to check for duplicate keys in the JSON file
-def check_duplicates(json_file_path):
-
-    """
-    Parses a JSON file to detect and report any duplicate keys at the same level in the same object.
-    This function ensures that no keys are silently overwritten in dictionaries.
-
-    The function uses a helper to track the number of times each key appears during parsing,
-    leveraging the `object_pairs_hook` parameter of `json.load()` to intercept key-value pairs
-    before they are processed into a dictionary. If duplicates are detected at any level, they
-    are reported with their counts and paths. Keys reused in separate objects within arrays
-    (e.g., lists) are not considered duplicates.
-
-    Args:
-        json_file_path (str): The path to the JSON file to parse and check for duplicates.
-
-    Returns:
-        None:
-            - If no duplicates are found, returns None, prints "No duplicates found."
-            - If duplicates are found, prints the duplicate keys and their counts and returns None.
-    """
-
-    # Initialize a dictionary to track duplicate keys and their counts
-    duplicate_keys = {}
-
-    # Helper function to detect duplicates during JSON parsing
-    def detect_duplicates(pairs):
-
-        """
-        Detects duplicate keys during JSON parsing and counts occurrences of each key.
-
-        This function intercepts the key-value pairs provided by `json.load` and ensures that
-        duplicate keys are flagged. It constructs the dictionary normally but counts how often
-        each key appears, recording any keys that occur more than once.
-
-        Args:
-            pairs (list of tuple): A list of key-value pairs at the current level of the JSON.
-
-        Returns:
-            dict: A dictionary created from the key-value pairs.
-        """
-
-        # Use a local Counter to count occurrences of keys at this level
-        local_counts = Counter()
-        result_dict = {}
-        for key, value in pairs:
-            # Increment the count for each key
-            local_counts[key] += 1
-            # If the key is a duplicate, record it in the duplicate_keys dictionary
-            if local_counts[key] > 1:
-                duplicate_keys[key] = local_counts[key]
-            # Add the key-value pair to the resulting dictionary
-            result_dict[key] = value
-        return result_dict
-
-    try:
-        # Open and parse the JSON file, using the helper to track duplicates
-        with open(json_file_path, 'r') as file:
-            data = json.load(file, object_pairs_hook=detect_duplicates)
-
-        # Report duplicates if any were found
-        if duplicate_keys:
-            print("Duplicate keys found:")
-            for key, count in duplicate_keys.items():
-                print(f"Key: {key}, Count: {count}")
-            return None  # Indicate that the JSON contains duplicates
-        else:
-            print("No duplicates found.")
-            return data
-
-    except FileNotFoundError:
-        # Handle the case where the file is not found
-        print(f"File not found: {json_file_path}")
-        return None
-    except json.JSONDecodeError as e:
-        # Handle invalid JSON format errors
-        print(f"Invalid JSON in file '{json_file_path}': {e}")
-        return None
+# ADDITION: Enable negotiation
+def negotiate_format_with_predictor(connection):
     
-def negotiate_format_with_predictor()
-
+    """
+    1. Read the advertised formats from Predictor (received as JSON)
+    2. If EVAL_PREFERRED_FORMAT is supported, send back {"format": ...}
+    3. Otherwise exit with error.
+    Returns:
+        Agreed wire_format
+    """
+    
+    # Receive advert from Predictor
+    prefix = connection.recv(4)
+    if not prefix:
+        print("Failed to receive supported formats from Predictor.")
+        sys.exit(1)
+        
+    supported_fmt_len = struct.unpack(">I", prefix)[0]
+    supported_fmt = b""
+    while len(supported_fmt) < supported_fmt_len:
+        chunk = connection.recv(BUFFER_SIZE)
+        if not chunk:
+            print("Could not receive Predictor's supported wire_format. Closing connection!")
+            sys.exit(1)
+        supported_fmt += chunk
+    try:
+        supported = json.loads(supported_fmt.decode("utf-8"))["formats"]
+        print(f"Predictor suppports: {supported}")
+    except Exception as e:
+        print("Error: Could not parse Predictor's supported formats")
+        sys.exit(1)
+    
+    if EVAL_PREFERRED_FORMAT not in supported:
+        print(f"Error: preferred wire format '{EVAL_PREFERRED_FORMAT}' not supported by Predictor. Exiting!")
+        sys.exit(1)
+        
+    # Send Evaluator choice
+    choice = json.dumps({"format": EVAL_PREFERRED_FORMAT}).encode('utf-8')
+    connection.sendall(struct.pack(">I", len(choice)))
+    connection.sendall(choice)
+    print(f"Negotiated wire-format: {EVAL_PREFERRED_FORMAT}")
+    return EVAL_PREFERRED_FORMAT
+    
 def run_evaluator():
     host = sys.argv[1]
     port = int(sys.argv[2])
@@ -153,7 +118,7 @@ def run_evaluator():
         os.makedirs(output_dir, exist_ok=True)
         print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
         
-    RETURN_FILE_PATH = os.path.join(output_dir, f"borzoi_predictions_{input_json}")
+    RETURN_FILE_PATH = os.path.join(output_dir, f"borzoi_predictions_{input_file}")
         
     # Try creating a socket
     try:
@@ -188,43 +153,95 @@ def run_evaluator():
             else:
                 print(f"Tried connecting {attempt} times. Exceeded maximum number of retries. Exiting...")
                 sys.exit(1)
-
-    try:
-        # load in JSON file from evalutor_data if Predictor container was successful
-        jsonResult = check_duplicates(EVALUATOR_INPUT_PATH)
-        if jsonResult is None:
+                
+    # Negotiate wire format
+    wire_fmt = negotiate_format_with_predictor(connection)
+    
+    # Load in input file from evalutor_data if Predictor connection was successful
+    # Validate it though check_duplicates function
+    # ADDITION: Load and validate
+    if input_file.endswith(".json"): 
+        # If input is .txt, adjust accordingly and 
+        # use `check_duplicates_from_string`, 
+        # assuming JSON string was created using `create_json`
+        try:
+            data_dict = check_duplicates_from_json(EVALUATOR_INPUT_PATH)
+            if data_dict is None:
+                sys.exit(1)
+        except json.JSONDecodeError as e:
+            print("Invalid JSON syntax:", e)
             sys.exit(1)
-        jsonResult = json.dumps(jsonResult)
-    except json.JSONDecodeError as e:
-        print("Invalid JSON syntax:", e)
-
+    else:
+        # .msgpack -> raw dict -> JSON string -> check_duplicates_from_string
+        try:
+            with open(EVALUATOR_INPUT_PATH, "rb") as f:
+                raw = msgpack.unpackb(f.read(), raw=False)
+        except Exception as e:
+            print(f"Error unpacking MsgPack: {e}")
+            sys.exit(1)
+        
+        json_str = json.dumps(raw)
+        data_dict = check_duplicates_from_string(json_str)
+    
+    if data_dict is None:
+        print("Couldn't load and validate the input data!")
+        sys.exit(1)
+    
+    # Prepare payload -- serialize
+    if wire_fmt == "msgpack":
+        try:
+            payload_bytes = msgpack.packb(data_dict, use_bin_type=True)
+        except Exception as e:
+            print(f"Error packing MsgPack: {e}")
+            sys.exit(1)
+    else:
+        try:
+            payload_bytes = json.dumps(data_dict).encode("utf-8")
+        except Exception as e:
+            print(f"Error packing JSON: {e}")
+            sys.exit(1)
+    
     # first send the total bytes we are transmitting to the Predictor
     # This is used to stop the recv() process
-    # send the evaluator json to the predictor server
+    # send the evaluator data to the predictor server
     try:
-        # Length prefixing
-        # Send Evaluator JSON length as a 4-byte integer
-        jsonResult_bytes = jsonResult.encode("utf-8")
-        jsonResults_total_bytes = len(jsonResult_bytes)
-
-        connection.sendall(struct.pack('>I', jsonResults_total_bytes))
-        print(f"Sent evaluator request length {jsonResults_total_bytes} bytes")
-
-        connection.sendall(jsonResult_bytes)
-
+        payload_bytes_len = len(payload_bytes)
+        connection.sendall(struct.pack(">I", payload_bytes_len))
+        print(f"Sent evaluator request length {payload_bytes_len} bytes!")
+        
+        # Now send the actual payload
+        connection.sendall(payload_bytes)
     except socket.error as e:
-        print ("server_error: Error sending evaluator_file: %s" % e)
+        print (f"server_error: Error sending payload: {e}")
         sys.exit(1)
 
+    # # first send the total bytes we are transmitting to the Predictor
+    # # This is used to stop the recv() process
+    # # send the evaluator json to the predictor server
+    # try:
+    #     # Length prefixing
+    #     # Send Evaluator JSON length as a 4-byte integer
+    #     jsonResult_bytes = jsonResult.encode("utf-8")
+    #     jsonResults_total_bytes = len(jsonResult_bytes)
+
+    #     connection.sendall(struct.pack('>I', jsonResults_total_bytes))
+    #     print(f"Sent evaluator request length {jsonResults_total_bytes} bytes")
+
+    #     connection.sendall(jsonResult_bytes)
+
+    # except socket.error as e:
+    #     print ("server_error: Error sending evaluator_file: %s" % e)
+    #     sys.exit(1)
+
 # ---------------------- %%%%%%%---------------
-    # receive message from the server
-    json_data_recv = b''
+    # Receive message from the server
+    data_recv = b''
     while True:
-        # Before receiving JSON from Predictor
-        # Receive length of the incoming JSON message (4-byte integer)
+        # Before receiving predictions/ payload from Predictor
+        # Receive length of the incoming message (4-byte integer)
         # Can change to 8-byte integer by changing .recv(4) to .recv(8)
         # and replacing format string '>I' to '>Q'
-        # Step 1
+        # Step 1: length prefix
         try:
             msg_length = connection.recv(4)
             if not msg_length:
@@ -242,23 +259,21 @@ def run_evaluator():
                                  desc="Receiving Predictor Response",
                                  unit_scale=True, unit_divisor=1024)
 
-            #Step 2
+            # Step 2: the payload
             # Now we want to receive the actual JSON in packets
-            
-            while len(json_data_recv) < msglen:
+            while len(data_recv) < msglen:
                 packet = connection.recv(BUFFER_SIZE)
                 if not packet:
                     print("Connection closed unexpectedly.")
                     break
-                json_data_recv += packet
+                data_recv += packet
                 progress.update(len(packet))
-                #print(f"Received packet of {len(packet)} bytes, total received: {len(data)} bytes")
            
             # Close the progress bar when done
             progress.close()
             
             # Decode and display the received data if all of it is received
-            if len(json_data_recv) == msglen:
+            if len(data_recv) == msglen:
                 print("Predictor return received completely!")
                 break
             else:
@@ -272,22 +287,32 @@ def run_evaluator():
 
     # Parse and save Predictor response
     try:
-        predictor_response_full = json_data_recv
-        predictor_json = predictor_response_full.decode("utf-8")
-        predictor_json = json.loads(predictor_json)
+        if wire_fmt == "msgpack":
+            try:
+                predictor_data = msgpack.unpackb(data_recv, raw=False)
+            # But in case of an error/help, Predictor will return JSON
+            # Even if the agreed wire_fmt was not JSON
+            except Exception:
+                predictor_data = json.loads(data_recv.decode("utf-8"))
+        else:
+            try:
+                predictor_data = json.loads(data_recv.decode("utf-8"))
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Error saving predictions: {e}")
+                sys.exit(1)
         
         output_file = RETURN_FILE_PATH
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(predictor_json, f, ensure_ascii=False, indent=4, separators=(",", ": ")) # // ADDED separators
+            json.dump(predictor_data, f,
+                      ensure_ascii=False, indent=4, 
+                      separators=(",", ": "))
         print(f"Predictions saved to {output_file}")
-        
-    except (json.JSONDecodeError, IOError) as e:
+    except Exception as e:
         print(f"Error saving predictions: {e}")
         sys.exit(1)
-
-# ---------------------- %%%%%%%---------------
-
-    connection.close()
-    print("Connection to server closed")
-
-run_evaluator()
+    finally:
+        connection.close()
+        print("Connection to server closed")   
+    
+if __name__ == '__main__':
+    run_evaluator()

@@ -79,7 +79,7 @@ def negotiate_format_with_evaluator(client_socket):
     1. Send supported formats from Predictor (as JSON)
     2. Receive preferred format from Evaluator before receiving payload (as JSON)
     Returns: 
-        agreed wire_format for payload, or
+        Agreed wire_format for payload, or
         None -- JSON-encoded error and close connection
     """
     
@@ -103,6 +103,7 @@ def negotiate_format_with_evaluator(client_socket):
     while len(choice_recv) < choice_len:
         chunk = client_socket.recv(BUFFER_SIZE) # This can change to receive the exact data length
         if not chunk:
+            print("Could not receive Evaluator's preferred wire_format. Closing connection!")
             client_socket.close()
             return None
         choice_recv += chunk
