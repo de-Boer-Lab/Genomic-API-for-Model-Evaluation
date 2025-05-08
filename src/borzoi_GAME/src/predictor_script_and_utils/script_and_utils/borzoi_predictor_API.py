@@ -66,7 +66,6 @@ def send_payload(sock, payload_obj, wire_fmt):
             body = msgpack.packb(payload_obj, use_bin_type=True)
         else:
             body = json.dumps(payload_obj).encode("utf-8")
-        
         # Length-prefix
         sock.sendall(struct.pack(">I", len(body)))
         sock.sendall(body)
@@ -80,7 +79,7 @@ def negotiate_format_with_evaluator(client_socket):
     1. Send supported formats from Predictor (as JSON)
     2. Receive preferred format from Evaluator before receiving payload (as JSON)
     Returns: 
-        agreed wire_format for payload or
+        agreed wire_format for payload, or
         None -- JSON-encoded error and close connection
     """
     
@@ -142,15 +141,17 @@ def recv_message_loop(client_socket):
 
     # ---------------------- Receive Evaluator JSON ----------------------
     while True:
-        # Initialize data to store a new message on each iteration
-        data_recv = b'' # formerly, json_data_recv
         # Before receiving JSON from Evaluator
         # Receive length of the incoming JSON message (4-byte integer)
         # Can change to 8-byte integer by changing .recv(4) to .recv(8)
         # and replacing format string '>I' to '>Q'
         
         try:
-            # Step 1: read length prefix
+            # Initialize data to store a new message on each iteration
+            # Clear data_recv variable so multiple requests can be made
+            data_recv = b'' # formerly, json_data_recv
+            
+            # Step 1: Read length prefix
             msg_length = client_socket.recv(4)
             if not msg_length:
                 print("Failed to receive message length. Closing connection.")
@@ -166,17 +167,17 @@ def recv_message_loop(client_socket):
             progress = tqdm.tqdm(range(msglen), unit="B", 
                                  desc="Receiving Evaluator Request(s)",
                                  unit_scale=True, unit_divisor=1024)
-
-            while len(data_recv) < msglen:
-                packet = client_socket.recv(BUFFER_SIZE) # can change
-                if not packet:
-                    print("Connection closed unexpectedly.")
-                    break
-                data_recv += packet
-                progress.update(len(packet))
-            
-            # Close the progress bar when done
-            progress.close()
+            try:
+                while len(data_recv) < msglen:
+                    packet = client_socket.recv(BUFFER_SIZE) # can change
+                    if not packet:
+                        print("Connection closed unexpectedly.")
+                        break
+                    data_recv += packet
+                    progress.update(len(packet))
+            finally:
+                # Close the progress bar when done
+                progress.close()
             
             # Verify if all of the data is received
             if len(data_recv) == msglen:
@@ -193,7 +194,7 @@ def recv_message_loop(client_socket):
         
         # ---------------------- Process Received File ----------------------
         
-        # Decode incoming payload into dict
+        # --- Decode incoming payload into dict ---
         # This is to standardize payload received in any wire_format
         # so it can go through error-checking
         try:
@@ -207,19 +208,16 @@ def recv_message_loop(client_socket):
                          {"error": 
                              "bad_payload -- error while decoding incoming payload"},
                          wire_format)
-            continue
-        
-        # group these functions
-        json_return_error = {'bad_prediction_request': []}
+            break
 
-        # if only a "help" was requested return the predictor information file
+        # If only a "help" was requested return the predictor information file
         if evaluator_json['request'] == "help":
             # model builder should place help file in predictor folder
             print(f"Help requested! Sending {HELP_FILE}...")
             jsonResult_help = json.load(open(HELP_FILE))
             send_payload(client_socket, jsonResult_help, "json")
             client_socket.close()
-            continue
+            break
 
             # jsonResult_help = json.dumps(jsonResult_help)
             # try:
@@ -245,7 +243,7 @@ def recv_message_loop(client_socket):
             send_payload(client_socket, json_return_error, "json")
             client_socket.close()
             print("Connection to client closed")
-            continue
+            break
             
             # json_string = json.dumps(json_return_error)
             # try:
@@ -264,13 +262,17 @@ def recv_message_loop(client_socket):
             #     # sys.exit(0)
 
         # re-usable error checking functions
+        # group these functions
+        json_return_error = {'bad_prediction_request': []}
         json_return_error = check_mandatory_keys(evaluator_json.keys(), json_return_error)
         json_return_error = check_request(evaluator_json['request'], json_return_error)
         json_return_error = check_prediction_task_mandatory_keys(evaluator_json['prediction_tasks'], json_return_error)
         # if any of the mandatory keys are missing immediately return an error to the evaluator
         if any(json_return_error.values()) == True:
+            print("Validation error; sending error JSON!")
             send_payload(client_socket, json_return_error, "json")
-            continue
+            client_socket.close()
+            break
         
             # json_string = json.dumps(json_return_error)
             # try:
@@ -312,8 +314,10 @@ def recv_message_loop(client_socket):
             
             # if any errors were caught return them all to evaluator
             if any(json_return_error.values()) == True:
+                print("Validation error; sending error JSON!")
                 send_payload(client_socket, json_return_error, "json")
-                continue
+                client_socket.close()
+                break
             
                 # json_string = json.dumps(json_return_error)
                 # try:
@@ -381,8 +385,10 @@ def recv_message_loop(client_socket):
 
         # if anything is caught don't run the model and return to evaluator to fix
         if any(json_return_error_model.values()) == True:
+            print("Sequence spec errors; sending error JSON")
             send_payload(client_socket, json_return_error_model, "json")
-            continue
+            client_socket.close()
+            break
         
             # json_string = json.dumps(json_return_error_model)
             # try:
@@ -428,8 +434,10 @@ def recv_message_loop(client_socket):
             # Wrap the error string into error payload 
             json_return_error_model[
                 'prediction_request_failed'].append(task_predictions)
+            print("Model error; sending error JSON")
             send_payload(client_socket, json_return_error_model, "json")
-            continue
+            client_socket.close()
+            break
         
             # json_string = json.dumps(json_return_error_model)
             # try:
@@ -496,6 +504,8 @@ def recv_message_loop(client_socket):
 
         # Convert dictionary to wire_format object and send back to evaluator
         send_payload(client_socket, json_return, wire_format)
+        
+        # Loop back for the next file, if provided, from the Evaluator
         
         # json_string = json.dumps(json_return)
         # try:

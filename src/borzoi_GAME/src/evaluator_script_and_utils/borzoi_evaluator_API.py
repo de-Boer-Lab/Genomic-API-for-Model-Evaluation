@@ -31,22 +31,27 @@ BUFFER_SIZE = 65536
 # Debug logs for validation
 print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
-# ------ ADDITION: Configuration of preference for Format ------
+# ------ ADDITION: Configuration for Wire-Format ------
 EVAL_PREFERRED_FORMAT = "msgpack" # or "json"
 
-# - Needs to have a preferred format it wants predictions in.
+# - Needs to have a preferred format it wants predictions back in.
 # - Reads in the formats that the predictor supports.
 # - If preferred MsgPack and Predictor can support it:
 #     - Feed input JSON/TXT (which is already converted to JSON string)/MsgPack to evaluator’s send preference [.json and .txt sent as JSONs, .msgpack is sent as MsgPack]
 #     - If MsgPack is the input, it will have to be converted to JSON string to get it to pass through check_duplicates function.
 #     - Only when it passes that:
-#       - Send payload to Predictor.
+#       - Send payload to Predictor -- as MsgPack or JSON (input determines how it is sent).
 #     - Receive MsgPack from Predictor.
 #     - Convert that to JSON and store.
 # - If preferred MsgPack but Predictor cannot handle it:
 #     - Throw an error so as to not waste time predicting and sending large predictions as JSON
-# - If preferred JSON:
-#     - Default JSON ↔ JSON behaviour
+# - If preferred (return prediction wire_format) is JSON:
+#     - If input is .json:
+#       - Default JSON ↔ JSON behaviour
+#     - If input is .msgpack:
+#       - convert to JSON string to pass through check_duplicates
+#       - Wire MsgPack at send time (only if predictor can handle it)
+#       - predictor will return JSON
 
 # Function to send preferred format for receiveing predictions to Predictor
 
@@ -130,6 +135,8 @@ def check_duplicates(json_file_path):
         # Handle invalid JSON format errors
         print(f"Invalid JSON in file '{json_file_path}': {e}")
         return None
+    
+def negotiate_format_with_predictor()
 
 def run_evaluator():
     host = sys.argv[1]
