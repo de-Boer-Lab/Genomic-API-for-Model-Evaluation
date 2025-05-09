@@ -35,7 +35,9 @@ BUFFER_SIZE = 65536
 print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
 # ------ ADDITION: Configuration for Wire-Format ------
-EVAL_PREFERRED_FORMAT = "msgpack" # or "json"
+EVAL_PREFERRED_FORMAT = "MsgpAck" # or "json"
+
+EVAL_PREFERRED_FORMAT = EVAL_PREFERRED_FORMAT.lower() # for case-insensitive matching
 
 # - Needs to have a preferred format it wants predictions back in.
 # - Reads in the formats that the predictor supports.
@@ -57,7 +59,6 @@ EVAL_PREFERRED_FORMAT = "msgpack" # or "json"
 #       - predictor will return JSON
 
 # Function to send preferred format for receiveing predictions to Predictor
-
 # Negotiate (for cases when Predictor cannot handle MsgPack)
 
 # ADDITION: Enable negotiation
@@ -86,8 +87,8 @@ def negotiate_format_with_predictor(connection):
             sys.exit(1)
         supported_fmt += chunk
     try:
-        supported = json.loads(supported_fmt.decode("utf-8"))["formats"]
-        print(f"Predictor suppports: {supported}")
+        supported = [fmt.lower() for fmt in json.loads(supported_fmt.decode("utf-8"))["formats"]]
+        print(f"Predictor supports: {supported}")
     except Exception as e:
         print("Error: Could not parse Predictor's supported formats")
         sys.exit(1)
@@ -191,12 +192,14 @@ def run_evaluator():
     if wire_fmt == "msgpack":
         try:
             payload_bytes = msgpack.packb(data_dict, use_bin_type=True)
+            print(f"Sending payload serialized as MsgPack")
         except Exception as e:
             print(f"Error packing MsgPack: {e}")
             sys.exit(1)
     else:
         try:
             payload_bytes = json.dumps(data_dict).encode("utf-8")
+            print(f"Sending payload serialized as JSON")
         except Exception as e:
             print(f"Error packing JSON: {e}")
             sys.exit(1)
@@ -214,24 +217,6 @@ def run_evaluator():
     except socket.error as e:
         print (f"server_error: Error sending payload: {e}")
         sys.exit(1)
-
-    # # first send the total bytes we are transmitting to the Predictor
-    # # This is used to stop the recv() process
-    # # send the evaluator json to the predictor server
-    # try:
-    #     # Length prefixing
-    #     # Send Evaluator JSON length as a 4-byte integer
-    #     jsonResult_bytes = jsonResult.encode("utf-8")
-    #     jsonResults_total_bytes = len(jsonResult_bytes)
-
-    #     connection.sendall(struct.pack('>I', jsonResults_total_bytes))
-    #     print(f"Sent evaluator request length {jsonResults_total_bytes} bytes")
-
-    #     connection.sendall(jsonResult_bytes)
-
-    # except socket.error as e:
-    #     print ("server_error: Error sending evaluator_file: %s" % e)
-    #     sys.exit(1)
 
 # ---------------------- %%%%%%%---------------
     # Receive message from the server
@@ -272,9 +257,9 @@ def run_evaluator():
             # Close the progress bar when done
             progress.close()
             
-            # Decode and display the received data if all of it is received
+            # Decode data if all of it is received
             if len(data_recv) == msglen:
-                print("Predictor return received completely!")
+                print("Predictor response received completely!")
                 break
             else:
                 print("Data received was incomplete or corrupted.")
@@ -289,13 +274,17 @@ def run_evaluator():
     try:
         if wire_fmt == "msgpack":
             try:
+                print("De-serializing Predictor response as MsgPack")
                 predictor_data = msgpack.unpackb(data_recv, raw=False)
             # But in case of an error/help, Predictor will return JSON
             # Even if the agreed wire_fmt was not JSON
             except Exception:
+                print("Error/ Help was received!")
+                print("De-serializing Predictor response as JSON")
                 predictor_data = json.loads(data_recv.decode("utf-8"))
         else:
             try:
+                print("De-serializing Predictor response as JSON")
                 predictor_data = json.loads(data_recv.decode("utf-8"))
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Error saving predictions: {e}")
