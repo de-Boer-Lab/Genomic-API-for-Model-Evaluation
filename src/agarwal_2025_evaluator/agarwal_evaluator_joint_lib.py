@@ -39,24 +39,8 @@ print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 EVAL_PREFERRED_FORMAT = "MsgpAck" # or "json"
 EVAL_PREFERRED_FORMAT = EVAL_PREFERRED_FORMAT.lower() # for case-insensitive matching
 
-# - Needs to have a preferred format it wants predictions back in.
-# - Reads in the formats that the predictor supports.
-# - If preferred MsgPack and Predictor can support it:
-#     - Feed input JSON/TXT/XLSX (which is already converted to JSON string)/MsgPack to evaluator’s send preference [.msgpack is sent as MsgPack, all other formats as JSON]
-#     - If MsgPack is the input, it will have to be converted to JSON string to get it to pass through check_duplicates function.
-#     - Only when it passes that:
-#       - Send payload to Predictor -- as MsgPack or JSON (input determines how it is sent).
-#     - Receive MsgPack from Predictor.
-#     - Convert that to JSON and store.
-# - If preferred MsgPack but Predictor cannot handle it:
-#     - Throw an error so as to not waste time predicting and sending large predictions as JSON
-# - If preferred (return prediction wire_format) is JSON:
-#     - If input is .json:
-#       - Default JSON ↔ JSON behaviour
-#     - If input is .msgpack:
-#       - convert to JSON string to pass through check_duplicates
-#       - Wire MsgPack at send time (only if predictor can handle it)
-#       - predictor will return JSON
+# Compute send format before connecting to Predictor
+send_format = "msgpack" if input_file.endswith(".msgpack") else "json"
 
 # Function to send preferred format for receiveing predictions to Predictor
 # Negotiate (for cases when Predictor cannot handle MsgPack)
@@ -98,11 +82,15 @@ def negotiate_format_with_predictor(connection):
         sys.exit(1)
         
     # Send Evaluator choice
-    choice = json.dumps({"format": EVAL_PREFERRED_FORMAT}).encode('utf-8')
+    choice = json.dumps({
+        "send_format": send_format,
+        "receive_format": EVAL_PREFERRED_FORMAT
+        }).encode('utf-8')
     connection.sendall(struct.pack(">I", len(choice)))
     connection.sendall(choice)
-    print(f"Negotiated wire-format: {EVAL_PREFERRED_FORMAT}")
-    return EVAL_PREFERRED_FORMAT
+    print(f"Negotiated send format: {send_format}")
+    print(f"Negotiated return format: {EVAL_PREFERRED_FORMAT}")
+    return send_format, EVAL_PREFERRED_FORMAT
 
 def run_evaluator():
     host = sys.argv[1]
@@ -158,7 +146,7 @@ def run_evaluator():
                 sys.exit(1)
     
     # Negotiate wire format
-    wire_fmt = negotiate_format_with_predictor(connection)
+    send_fmt, recv_fmt = negotiate_format_with_predictor(connection)
     
     # ----- PAYLOAD PREPROCESSING -----
     # Load and validate input
@@ -177,9 +165,8 @@ def run_evaluator():
         sys.exit(1)
         
     # Prepare payload -- Serialize
-    send_format = "msgpack" if input_file.endswith(".msgpack") else "json"
-    print(f"Sending request to Predictor as {send_format}")
-    if send_format == "msgpack":
+    print(f"Sending request to Predictor as {send_fmt}")
+    if send_fmt == "msgpack":
         try:
             payload_bytes = msgpack.packb(data_dict, use_bin_type=True)
             print(f"Sending payload serialized as MsgPack")
@@ -262,7 +249,7 @@ def run_evaluator():
 
     # Parse and save Predictor response
     try:
-        if wire_fmt == "msgpack":
+        if recv_fmt == "msgpack":
             try:
                 print("De-serializing Predictor response as MsgPack")
                 predictor_data = msgpack.unpackb(data_recv, raw=False)
