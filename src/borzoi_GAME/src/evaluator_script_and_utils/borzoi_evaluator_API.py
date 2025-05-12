@@ -106,7 +106,8 @@ def negotiate_format_with_predictor(connection):
         }).encode('utf-8')
     connection.sendall(struct.pack(">I", len(choice)))
     connection.sendall(choice)
-    print(f"Negotiated wire-format: {EVAL_PREFERRED_FORMAT}")
+    print(f"Negotiated send format: {send_format}")
+    print(f"Negotiated receive format: {EVAL_PREFERRED_FORMAT}")
     return send_format, EVAL_PREFERRED_FORMAT
     
 def run_evaluator():
