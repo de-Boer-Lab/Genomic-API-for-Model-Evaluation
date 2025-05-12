@@ -112,9 +112,9 @@ def negotiate_format_with_evaluator(client_socket):
     try:
         preferences = json.loads(choice_recv.decode("utf-8"))
         send_fmt = preferences["send_format"].lower()       # Evaluator -> Predictor
-        recv_fmt = preferences["receive_format"].lower() # Predictor -> Evaluator
+        return_fmt = preferences["receive_format"].lower() # Predictor -> Evaluator
         print(f"Evaluator will send as:  {send_fmt}")
-        print(f"Evaluator wants back: {recv_fmt}")
+        print(f"Evaluator wants back: {return_fmt}")
     except Exception as e:
         send_payload(client_socket,
                      {"error": "bad_payload -- cannot parse format choice"},
@@ -126,22 +126,22 @@ def negotiate_format_with_evaluator(client_socket):
     # If unsupported, send error back as JSON and close 
     # The client will close before reachign this but this 
     # is a server side-check, in case client doesn't have it
-    if send_fmt not in PREDICTOR_SUPPORTED_FORMATS or recv_fmt not in PREDICTOR_SUPPORTED_FORMATS:
-        print(f"Requested return wire-format ({recv_fmt}) not supported! Closing connection!")
+    if send_fmt not in PREDICTOR_SUPPORTED_FORMATS or return_fmt not in PREDICTOR_SUPPORTED_FORMATS:
+        print(f"Requested return wire-format ({return_fmt}) not supported! Closing connection!")
         err = {"error":
-            f"Unsupported format: '{recv_fmt}'. Supported: {PREDICTOR_SUPPORTED_FORMATS}"
+            f"Unsupported format: '{return_fmt}'. Supported: {PREDICTOR_SUPPORTED_FORMATS}"
             }
         send_payload(client_socket, err, "json")
         client_socket.close()
         return None
     
-    return send_fmt, recv_fmt
+    return send_fmt, return_fmt
 
 def recv_message_loop(client_socket):
     
     # --- Perform the one-time handshake ---
-    send_fmt, recv_fmt = negotiate_format_with_evaluator(client_socket)
-    if send_fmt is None or recv_fmt is None:
+    send_fmt, return_fmt = negotiate_format_with_evaluator(client_socket)
+    if send_fmt is None or return_fmt is None:
         print("Send/Receive wire-format negotiation failed.")
         print("Closing connection with this Evaluator!")
         return None
@@ -221,7 +221,7 @@ def recv_message_loop(client_socket):
             send_payload(client_socket, 
                          {"error": 
                              "bad_payload -- error while decoding incoming payload"},
-                         recv_fmt)
+                         return_fmt)
             break
 
         # If only a "help" was requested return the predictor information file
@@ -427,7 +427,7 @@ def recv_message_loop(client_socket):
             json_return['prediction_tasks'].append(current_prediction_task)
 
         # Convert dictionary to wire_format object and send back to evaluator
-        send_payload(client_socket, json_return, recv_fmt)
+        send_payload(client_socket, json_return, return_fmt)
 
 def run_predictor():
 
