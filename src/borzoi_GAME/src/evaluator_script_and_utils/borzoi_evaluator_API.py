@@ -202,7 +202,7 @@ def run_evaluator():
         sys.exit(1)
     
     # Prepare payload -- Serialize
-    print(f"Sending request to Predictor as {send_fmt}")
+    print(f"Serializing request to Predictor as '{send_fmt}'")
     if send_fmt == "msgpack":
         try:
             payload_bytes = msgpack.packb(data_dict, use_bin_type=True)
