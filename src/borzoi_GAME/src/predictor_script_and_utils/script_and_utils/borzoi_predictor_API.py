@@ -84,7 +84,7 @@ def negotiate_format_with_evaluator(client_socket):
     """
     
     # Advertise
-    supported_fmts = {"formats": PREDICTOR_SUPPORTED_FORMATS}
+    supported_fmts = {"formats": PREDICTOR_SUPPORTED_FORMATS} # Two lines {send and receive formats}
     supported_fmts_bytes = json.dumps(supported_fmts).encode('utf-8')
     client_socket.sendall(struct.pack(">I", len(supported_fmts_bytes)))
     client_socket.sendall(supported_fmts_bytes)

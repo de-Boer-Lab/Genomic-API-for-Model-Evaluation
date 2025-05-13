@@ -35,11 +35,12 @@ BUFFER_SIZE = 65536
 print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
 # ------ ADDITION: Configuration for Wire-Format ------
-EVAL_PREFERRED_FORMAT = "jSON" # or "json"
+EVAL_PREFERRED_FORMAT = "msgpack" # fallback to "json" if advert contains msgpack
 EVAL_PREFERRED_FORMAT = EVAL_PREFERRED_FORMAT.lower() # for case-insensitive matching
 
 # Compute send format before connecting to Predictor
-send_format = "msgpack" if input_file.endswith(".msgpack") else "json"
+send_format = "msgpack" if input_file.endswith(".msgpack") else "json" 
+# request_format and return_format
 
 # - Needs to have a preferred format it wants predictions back in.
 # - Reads in the formats that the predictor supports.
