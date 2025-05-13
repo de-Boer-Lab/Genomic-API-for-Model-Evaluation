@@ -39,16 +39,6 @@ BUFFER_SIZE = 65536
 SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]] # Remove msgpack if not supported
 SUPPORTED_PREDICTION_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]]
 
-# - Needs to advertise the formats it can support -- send and request formats.
-# - Negotiates with evaluator the wire-format to send predictions back in.
-# - If Evaluator's preferred format is not what the Predictor can support, don't waste 
-#   time and just send error back to Evaluator
-# - Can receive JSON, TXT (converted to JSON string, so it arrives as JSON), MsgPack
-# - If MessagePack is received, Predictor will have to convert it to JSON so the payload 
-#   can pass through error checks and tasks and sequences can be extracted for the model.
-# - If Evaluator's preferred format is JSON, send back as JSON (as normal).
-# - If it is MessagePack, convert the JSON string to Msgpack before streaming to Evaluator
-
 def send_payload(sock, payload_obj, wire_fmt):
     
     """
@@ -102,13 +92,13 @@ def negotiate_format_with_evaluator(client_socket):
     client_socket.sendall(supported_fmts_bytes)
     print(f"Advertised formats: {supported_fmts}")
     
-    # Read Evaluator's choice
     # Evaluator decides what its request and prediction formats will be
     # based on what was advertised to it.
     # This time evaluator is reaching out to predictor to send its decision
     # so predictor can handle incoming and outgoing payload accordingly.
-    # If the evaluator was too dumb and still sent REQUEST and PREDICTION format
-    # that Predictor does not support, close connection with that evaluator.
+    # If the evaluator still somehow sent REQUEST and PREDICTION format
+    # that Predictor does not support, close connection 
+    # with that evaluator and send error.
     
     # Receive choice length from Evaluator
     prefix = client_socket.recv(4)
@@ -144,7 +134,7 @@ def negotiate_format_with_evaluator(client_socket):
     
     # If unsupported, send error back as JSON and close 
     # The client will close before reaching this but this 
-    # is a server side-check, in case client doesn't have it
+    # is a server side-check, in case client doesn't.
     # Lastly, JSON is always accepted even in cases where
     # Predictor does not mention that in 
     # SUPPORTED_REQUEST_FORMATS and SUPPORTED_PREDICTION_FORMATS

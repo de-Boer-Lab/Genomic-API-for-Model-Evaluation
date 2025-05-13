@@ -35,39 +35,12 @@ BUFFER_SIZE = 65536
 print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
 # ------ ADDITION: Configuration for Wire-Format ------
-REQUEST_FORMAT = "JSON" # fallback to "json" if advert does not contain msgpack
+REQUEST_FORMAT = "JSON"
 REQUEST_FORMAT = REQUEST_FORMAT.lower() # for case-insensitive matching
 
 # Compute send format before connecting to Predictor
-PREDICTION_FORMAT = "msgpack" if input_file.endswith(".msgpack") else "json"
+PREDICTION_FORMAT = "msgpack"
 PREDICTION_FORMAT = PREDICTION_FORMAT.lower()
-
-# request_format and return_format should always have fallbacks based on what the predictor can support
-# Idea is that if the evaluator can read what is advertised, it should be able to decide which format to send
-# the request in (given some initial preference). JSON - JSON schema is always supported
-
-# - Needs to have a preferred format it wants predictions back in.
-# - Reads in the formats that the predictor supports.
-# - If preferred MsgPack and Predictor can support it:
-#     - Feed input JSON/TXT (which is already converted to JSON string)/MsgPack to evaluator’s send preference -- sent as first choice, with fallback]
-#     - If MsgPack is the input, it will have to be converted to JSON string to get it to pass through check_duplicates function.
-#     - Only when it passes that:
-#       - Send payload to Predictor -- as MsgPack or JSON (input determines how it is sent).
-#     - Receive MsgPack from Predictor.
-#     - Convert that to JSON and store.
-# - If preferred MsgPack but Predictor cannot handle it:
-#     - Throw an error so as to not waste time predicting and sending large predictions as JSON
-#     - The logic is that if predictor does not support msgpack, evaluator should never send or request msgpack -- that would be dumb
-# - If preferred (return prediction wire_format) is JSON:
-#     - If input is .json:
-#       - Default JSON-JSON behaviour
-#     - If input is .msgpack:
-#       - convert to JSON string to pass through check_duplicates
-#       - Wire MsgPack at send time (only if predictor can handle it)
-#       - predictor will return JSON
-
-# Function to send preferred format for receiveing predictions to Predictor
-# Negotiate (for cases when Predictor cannot handle MsgPack)
 
 # ADDITION: Enable negotiation
 def negotiate_format_with_predictor(connection):
