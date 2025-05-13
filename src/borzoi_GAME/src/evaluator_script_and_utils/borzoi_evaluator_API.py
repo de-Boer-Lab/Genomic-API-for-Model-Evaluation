@@ -108,6 +108,12 @@ def negotiate_format_with_predictor(connection):
     except Exception as e:
         print("Error: Could not parse Predictor's supported formats")
         sys.exit(1)
+        
+    # JSON should always be accepted
+    if "json" not in pred_request_fmts:
+        pred_request_fmts.append("json")
+    if "json" not in pred_prediction_fmts:
+        pred_prediction_fmts.append("json")
     print(f"Predictor can receive: {pred_request_fmts}")
     print(f"Predictor can send back: {pred_prediction_fmts}")
     

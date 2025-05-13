@@ -77,14 +77,26 @@ def send_payload(sock, payload_obj, wire_fmt):
 def negotiate_format_with_evaluator(client_socket):
     
     """
-   
+    1. Send advert JSON with:
+         - "predictor_request_formats"    (what Predictor can RECEIVE)
+         - "predictor_prediction_formats" (what Predictor can SEND BACK)
+    2. Read back Evaluator choice JSON with:
+         - "request_format"    (what Evaluator will use to send)
+         - "prediction_format" (what Evaluator expects back)
+    3. Validate both against SUPPORTED_REQUEST_FORMATS 
+       and SUPPORTED_PREDICTION_FORMATS, respectively
+    
+    Returns:
+        Agreed (request_fmt, prediction_fmt) on success;
+        (None, None) Send error JSON and close the 
+        connection with Evaluator on failure.
     """
     
     # Advertise
     supported_fmts = {
         "predictor_request_formats": SUPPORTED_REQUEST_FORMATS,
         "predictor_prediction_formats": SUPPORTED_PREDICTION_FORMATS
-        } # Two lines {send and receive formats}
+        }
     supported_fmts_bytes = json.dumps(supported_fmts).encode('utf-8')
     client_socket.sendall(struct.pack(">I", len(supported_fmts_bytes)))
     client_socket.sendall(supported_fmts_bytes)
@@ -98,55 +110,66 @@ def negotiate_format_with_evaluator(client_socket):
     # If the evaluator was too dumb and still sent REQUEST and PREDICTION format
     # that Predictor does not support, close connection with that evaluator.
     
+    # Receive choice length from Evaluator
     prefix = client_socket.recv(4)
     if not prefix:
         print("Evaluator disconnected before sending preferred format.")
         client_socket.close()
-        return None
-    
+        return None, None
     choice_len = struct.unpack(">I", prefix)[0]
+    
     choice_recv = b""
     while len(choice_recv) < choice_len:
         chunk = client_socket.recv(BUFFER_SIZE) # This can change to receive the exact data length
         if not chunk:
-            print("Could not receive Evaluator's preferred wire_format. Closing connection!")
+            print("Error: incomplete choice payload. Closing connection!")
             client_socket.close()
-            return None
+            return None, None
         choice_recv += chunk
-        
+    
+    # Receive Evaluator choice and validate
     try:
         preferences = json.loads(choice_recv.decode("utf-8"))
-        send_fmt = preferences["send_format"].lower()       # Evaluator -> Predictor
-        return_fmt = preferences["receive_format"].lower() # Predictor -> Evaluator
-        print(f"Evaluator will send as:  {send_fmt}")
-        print(f"Evaluator wants back: {return_fmt}")
+        request_fmt = preferences["request_format"].lower()       # Evaluator -> Predictor
+        prediction_fmt = preferences["prediction_format"].lower() # Predictor -> Evaluator
+        print(f"Evaluator will send request(s) in: {request_fmt}")
+        print(f"Evaluator excpects predictions in: {prediction_fmt}")
     except Exception as e:
         send_payload(client_socket,
                      {"error": "bad_payload -- cannot parse format choice"},
                      "json")
         print(f"Error parsing evaluator choice: {e}")
         client_socket.close()
-        return None
+        return None, None
     
     # If unsupported, send error back as JSON and close 
-    # The client will close before reachign this but this 
+    # The client will close before reaching this but this 
     # is a server side-check, in case client doesn't have it
-    if send_fmt not in PREDICTOR_SUPPORTED_FORMATS or return_fmt not in PREDICTOR_SUPPORTED_FORMATS:
-        print(f"Requested return wire-format ({return_fmt}) not supported! Closing connection!")
-        err = {"error":
-            f"Unsupported format: '{return_fmt}'. Supported: {PREDICTOR_SUPPORTED_FORMATS}"
-            }
-        send_payload(client_socket, err, "json")
-        client_socket.close()
-        return None
+    # Lastly, JSON is always accepted even in cases where
+    # Predictor does not mention that in 
+    # SUPPORTED_REQUEST_FORMATS and SUPPORTED_PREDICTION_FORMATS
+    accept_request_format = (request_fmt == "json") or (request_fmt in SUPPORTED_REQUEST_FORMATS)
+    accept_prediction_format = (prediction_fmt == "json") or (prediction_fmt in SUPPORTED_PREDICTION_FORMATS)
     
-    return send_fmt, return_fmt
+    if not accept_request_format or not accept_prediction_format:
+        err = {
+            "error": (
+                f"Unsupported formats: request must be one of {SUPPORTED_REQUEST_FORMATS}, "
+                f"prediction must be one of {SUPPORTED_PREDICTION_FORMATS}"
+            )
+        }
+        send_payload(client_socket, err, "json")
+        print(f"Unsupported choice (request={request_fmt}, prediction={prediction_fmt}); closing.")
+        client_socket.close()
+        return None, None
+    
+    return request_fmt, prediction_fmt
 
 def recv_message_loop(client_socket):
     
     # --- Perform the one-time handshake ---
-    send_fmt, return_fmt = negotiate_format_with_evaluator(client_socket)
-    if send_fmt is None or return_fmt is None:
+    request_fmt, prediction_fmt = negotiate_format_with_evaluator(client_socket)
+    if request_fmt is None or prediction_fmt is None:
         print("Send/Receive wire-format negotiation failed.")
         print("Closing connection with this Evaluator!")
         return None
@@ -163,10 +186,6 @@ def recv_message_loop(client_socket):
         # and replacing format string '>I' to '>Q'
         
         try:
-            # Initialize data to store a new message on each iteration
-            # Clear data_recv variable so multiple requests can be made
-            data_recv = b'' # formerly, json_data_recv
-            
             # Step 1: Read length prefix
             msg_length = client_socket.recv(4)
             if not msg_length:
@@ -177,9 +196,13 @@ def recv_message_loop(client_socket):
 
             # Unpack message length from 4 bytes
             msglen = struct.unpack('>I', msg_length)[0]
-            print(f"Expecting {msglen} bytes of data from the Evaluator ({send_fmt}).")
+            print(f"Expecting {msglen} bytes of data from the Evaluator ({request_fmt}).")
             
             # Step 2: Now receive the actual payload in packets
+            
+            # Initialize data to store a new message on each iteration
+            # Clear data_recv variable so multiple requests can be made
+            data_recv = b'' # formerly, json_data_recv
             # Initialize the progress bar
             progress = tqdm.tqdm(range(msglen), unit="B", 
                                  desc="Receiving Evaluator Request(s)",
@@ -215,18 +238,18 @@ def recv_message_loop(client_socket):
         # This is to standardize payload received in any wire_format
         # so it can go through error-checking
         try:
-            if send_fmt == "msgpack":
-                print(f"Unpacking {send_fmt} payload")
+            if request_fmt == "msgpack":
+                print(f"Unpacking {request_fmt} payload")
                 evaluator_json = msgpack.unpackb(data_recv, raw=False)
             else:
-                print(f"Unpacking {send_fmt} payload")
+                print(f"Unpacking {request_fmt} payload")
                 evaluator_json = json.loads(data_recv.decode("utf-8"))
         except Exception as e:
             print(f"Error while decoding incoming payload: {e}")
             send_payload(client_socket, 
                          {"error": 
                              "bad_payload -- error while decoding incoming payload"},
-                         return_fmt)
+                         "json")
             break
 
         # If only a "help" was requested return the predictor information file
@@ -432,7 +455,7 @@ def recv_message_loop(client_socket):
             json_return['prediction_tasks'].append(current_prediction_task)
 
         # Convert dictionary to wire_format object and send back to evaluator
-        send_payload(client_socket, json_return, return_fmt)
+        send_payload(client_socket, json_return, prediction_fmt)
 
 def run_predictor():
 
