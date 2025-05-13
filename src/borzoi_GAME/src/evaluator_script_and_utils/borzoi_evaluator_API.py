@@ -35,17 +35,21 @@ BUFFER_SIZE = 65536
 print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
 # ------ ADDITION: Configuration for Wire-Format ------
-EVAL_PREFERRED_FORMAT = "msgpack" # fallback to "json" if advert contains msgpack
-EVAL_PREFERRED_FORMAT = EVAL_PREFERRED_FORMAT.lower() # for case-insensitive matching
+REQUEST_FORMAT = "JSON" # fallback to "json" if advert does not contain msgpack
+REQUEST_FORMAT = REQUEST_FORMAT.lower() # for case-insensitive matching
 
 # Compute send format before connecting to Predictor
-send_format = "msgpack" if input_file.endswith(".msgpack") else "json" 
-# request_format and return_format
+PREDICTION_FORMAT = "msgpack" if input_file.endswith(".msgpack") else "json"
+PREDICTION_FORMAT = PREDICTION_FORMAT.lower()
+
+# request_format and return_format should always have fallbacks based on what the predictor can support
+# Idea is that if the evaluator can read what is advertised, it should be able to decide which format to send
+# the request in (given some initial preference). JSON - JSON schema is always supported
 
 # - Needs to have a preferred format it wants predictions back in.
 # - Reads in the formats that the predictor supports.
 # - If preferred MsgPack and Predictor can support it:
-#     - Feed input JSON/TXT (which is already converted to JSON string)/MsgPack to evaluator’s send preference [.json and .txt sent as JSONs, .msgpack is sent as MsgPack]
+#     - Feed input JSON/TXT (which is already converted to JSON string)/MsgPack to evaluator’s send preference -- sent as first choice, with fallback]
 #     - If MsgPack is the input, it will have to be converted to JSON string to get it to pass through check_duplicates function.
 #     - Only when it passes that:
 #       - Send payload to Predictor -- as MsgPack or JSON (input determines how it is sent).
@@ -53,6 +57,7 @@ send_format = "msgpack" if input_file.endswith(".msgpack") else "json"
 #     - Convert that to JSON and store.
 # - If preferred MsgPack but Predictor cannot handle it:
 #     - Throw an error so as to not waste time predicting and sending large predictions as JSON
+#     - The logic is that if predictor does not support msgpack, evaluator should never send or request msgpack -- that would be dumb
 # - If preferred (return prediction wire_format) is JSON:
 #     - If input is .json:
 #       - Default JSON-JSON behaviour
@@ -68,20 +73,25 @@ send_format = "msgpack" if input_file.endswith(".msgpack") else "json"
 def negotiate_format_with_predictor(connection):
     
     """
-    1. Read the advertised formats from Predictor (received as JSON)
-    2. If EVAL_PREFERRED_FORMAT is supported, send back {"format": ...}
-    3. Otherwise exit with error.
+    1. Read the advertised formats from Predictor:
+        - "predictor_request_formats"    (what Predictor can RECEIVE)
+        - "predictor_prediction_formats" (what Predictor can SEND BACK)
+    2. Choose send_format = REQUEST_FORMAT if in predictor_request_formats else "json"
+    3. Choose recv_format = PREDICTION_FORMAT if in predictor_prediction_formats else 
+    4. Send back {"request_format": send_format, "prediction_format": recv_format}
+    
     Returns:
-        Agreed wire_format
+        Agreed (send_format, recv_format)
     """
     
-    # Receive advert from Predictor
+    # Receive advert length from Predictor
     prefix = connection.recv(4)
     if not prefix:
         print("Failed to receive supported formats from Predictor.")
-        sys.exit(1)
-        
+        sys.exit(1)    
     supported_fmt_len = struct.unpack(">I", prefix)[0]
+    
+    # Read the advert payload
     supported_fmt = b""
     while len(supported_fmt) < supported_fmt_len:
         chunk = connection.recv(BUFFER_SIZE)
@@ -89,27 +99,44 @@ def negotiate_format_with_predictor(connection):
             print("Could not receive Predictor's supported wire_format. Closing connection!")
             sys.exit(1)
         supported_fmt += chunk
+        
+    # Parse JSON advert
     try:
-        supported = [fmt.lower() for fmt in json.loads(supported_fmt.decode("utf-8"))["formats"]]
-        print(f"Predictor supports: {supported}")
+        supported = json.loads(supported_fmt.decode("utf-8"))
+        pred_request_fmts = [f.lower() for f in supported.get("predictor_request_formats")]
+        pred_prediction_fmts = [f.lower() for f in supported.get("predictor_prediction_formats")]
     except Exception as e:
         print("Error: Could not parse Predictor's supported formats")
         sys.exit(1)
+    print(f"Predictor can receive: {pred_request_fmts}")
+    print(f"Predictor can send back: {pred_prediction_fmts}")
     
-    if EVAL_PREFERRED_FORMAT not in supported:
-        print(f"Error: preferred wire format '{EVAL_PREFERRED_FORMAT}' not supported by Predictor. Exiting!")
-        sys.exit(1)
-        
-    # Send Evaluator choice
+    # Decide request format having parsed what Predictor can support
+    if REQUEST_FORMAT in pred_request_fmts:
+        send_format = REQUEST_FORMAT
+    else:
+        send_format = "json"
+        if REQUEST_FORMAT != "json":
+            print(f"WARNING: REQUEST_FORMAT='{REQUEST_FORMAT}' not supported by Predictor; Using JSON")
+    
+    # Decide prediction format
+    if PREDICTION_FORMAT in pred_prediction_fmts:
+        recv_format = PREDICTION_FORMAT
+    else: 
+        recv_format = "json"
+        if PREDICTION_FORMAT != "json":
+            print(f"WARNING: PREDICTION_FORMAT='{PREDICTION_FORMAT}' not supported by Predictor; Using JSON")
+    
+    # Send Evaluator decision back
     choice = json.dumps({
-        "send_format": send_format,
-        "receive_format": EVAL_PREFERRED_FORMAT
+        "request_format": send_format,
+        "prediction_format": recv_format
         }).encode('utf-8')
     connection.sendall(struct.pack(">I", len(choice)))
     connection.sendall(choice)
     print(f"Negotiated send format: {send_format}")
-    print(f"Negotiated receive format: {EVAL_PREFERRED_FORMAT}")
-    return send_format, EVAL_PREFERRED_FORMAT
+    print(f"Negotiated receive format: {recv_format}")
+    return send_format, recv_format
     
 def run_evaluator():
     host = sys.argv[1]

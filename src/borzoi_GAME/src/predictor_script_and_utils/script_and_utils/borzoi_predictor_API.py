@@ -36,9 +36,10 @@ from borzoi_predict_codebase import *
 BUFFER_SIZE = 65536
 
 # ------ ADDITION: Configuration for Wire-Format ------
-PREDICTOR_SUPPORTED_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]] # Remove msgpack if not supported
+SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]] # Remove msgpack if not supported
+SUPPORTED_PREDICTION_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]]
 
-# - Needs to advertise the formats it can support.
+# - Needs to advertise the formats it can support -- send and request formats.
 # - Negotiates with evaluator the wire-format to send predictions back in.
 # - If Evaluator's preferred format is not what the Predictor can support, don't waste 
 #   time and just send error back to Evaluator
@@ -76,23 +77,27 @@ def send_payload(sock, payload_obj, wire_fmt):
 def negotiate_format_with_evaluator(client_socket):
     
     """
-    1. Send supported formats from Predictor (as JSON)
-    2. Receive preferred format from Evaluator before receiving payload (as JSON)
-    Returns: 
-        Agreed wire_format for payload, or
-        None -- JSON-encoded error and close connection
+   
     """
     
     # Advertise
-    supported_fmts = {"formats": PREDICTOR_SUPPORTED_FORMATS} # Two lines {send and receive formats}
+    supported_fmts = {
+        "predictor_request_formats": SUPPORTED_REQUEST_FORMATS,
+        "predictor_prediction_formats": SUPPORTED_PREDICTION_FORMATS
+        } # Two lines {send and receive formats}
     supported_fmts_bytes = json.dumps(supported_fmts).encode('utf-8')
     client_socket.sendall(struct.pack(">I", len(supported_fmts_bytes)))
     client_socket.sendall(supported_fmts_bytes)
     print(f"Advertised formats: {supported_fmts}")
     
     # Read Evaluator's choice
-    # If choice in advertised formats, Evaluator gets it asks for
-    # If not, JSON-encoded error and close connection
+    # Evaluator decides what its request and prediction formats will be
+    # based on what was advertised to it.
+    # This time evaluator is reaching out to predictor to send its decision
+    # so predictor can handle incoming and outgoing payload accordingly.
+    # If the evaluator was too dumb and still sent REQUEST and PREDICTION format
+    # that Predictor does not support, close connection with that evaluator.
+    
     prefix = client_socket.recv(4)
     if not prefix:
         print("Evaluator disconnected before sending preferred format.")
