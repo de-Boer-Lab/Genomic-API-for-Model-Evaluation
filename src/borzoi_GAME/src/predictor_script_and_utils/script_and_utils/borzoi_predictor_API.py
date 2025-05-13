@@ -37,7 +37,7 @@ BUFFER_SIZE = 65536
 
 # ------ ADDITION: Configuration for Wire-Format ------
 SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]] # Remove msgpack if not supported
-SUPPORTED_PREDICTION_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]]
+SUPPORTED_PREDICTION_FORMATS = [fmt.lower() for fmt in ["msgpack"]] # JSON is always supported even when not mentioned
 
 def send_payload(sock, payload_obj, wire_fmt):
     
@@ -52,6 +52,7 @@ def send_payload(sock, payload_obj, wire_fmt):
     Returns:
         None
     """
+    
     try:
         if wire_fmt == "msgpack":
             body = msgpack.packb(payload_obj, use_bin_type=True)
@@ -95,10 +96,10 @@ def negotiate_format_with_evaluator(client_socket):
     # Evaluator decides what its request and prediction formats will be
     # based on what was advertised to it.
     # This time evaluator is reaching out to predictor to send its decision
-    # so predictor can handle incoming and outgoing payload accordingly.
-    # If the evaluator still somehow sent REQUEST and PREDICTION format
-    # that Predictor does not support, close connection 
-    # with that evaluator and send error.
+    # on the negotiated formats so predictor can handle incoming and outgoing
+    # payload accordingly. If the evaluator still somehow sent 
+    # REQUEST and PREDICTION formats that Predictor does not support,
+    # send error and close connection with that evaluator.
     
     # Receive choice length from Evaluator
     prefix = client_socket.recv(4)

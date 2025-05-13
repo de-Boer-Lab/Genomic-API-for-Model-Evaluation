@@ -250,7 +250,7 @@ def run_evaluator():
 
             # Unpack message length from 4 bytes
             msglen = struct.unpack('>I', msg_length)[0]
-            print(f"Expecting {msglen} bytes of data from the Predictor.")
+            print(f"Expecting {msglen} bytes of data in '{recv_fmt}' from the Predictor.")
             # Can comment out print commands other than for errors
             
             # Initialize the progress bar
