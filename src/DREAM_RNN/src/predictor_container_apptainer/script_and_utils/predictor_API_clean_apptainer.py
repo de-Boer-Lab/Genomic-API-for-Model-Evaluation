@@ -314,7 +314,7 @@ def recv_message_loop(client_socket):
             print(f"DREAM-RNN has adapter sequences hardcoded and does not take them from the Evaluator.")
         
         # Can add any additional error checking functons here
-        json_return_error_model = {'prediction_request_failed': {}}
+        json_return_error_model = {'prediction_request_failed': []}
         json_return_error_model = check_seqs_specifications(sequences, json_return_error_model)
 
         # --- Process prediction_ranges if provided ---
