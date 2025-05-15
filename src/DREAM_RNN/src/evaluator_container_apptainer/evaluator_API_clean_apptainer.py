@@ -67,7 +67,7 @@ def run_evaluator():
 
     try:
         # load in JSON file from evalutor_data if Predictor container was successful
-        jsonResult = check_duplicates(EVALUATOR_INPUT_PATH)
+        jsonResult = check_duplicates_from_json(EVALUATOR_INPUT_PATH)
         if jsonResult is None:
             sys.exit(1)
         jsonResult = json.dumps(jsonResult)

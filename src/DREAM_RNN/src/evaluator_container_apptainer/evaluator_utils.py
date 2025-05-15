@@ -4,7 +4,7 @@ import json
 from collections import Counter
 
 # function to check for duplicate keys in the JSON file
-def check_duplicates(json_file_path):
+def check_duplicates_from_json(json_file_path):
 
     """
     Parses a JSON file to detect and report any duplicate keys at the same level in the same object.
