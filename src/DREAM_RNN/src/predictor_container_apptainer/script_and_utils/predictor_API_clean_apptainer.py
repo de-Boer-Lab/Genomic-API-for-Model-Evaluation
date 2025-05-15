@@ -395,9 +395,6 @@ def run_predictor():
     # cell_type_matcher_ip = sys.argv[3]
     # cell_type_matcher_port = sys.argv[4]
 
-    #create error object
-    json_return_error = {}
-
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # bind the socket to a specific address and port
