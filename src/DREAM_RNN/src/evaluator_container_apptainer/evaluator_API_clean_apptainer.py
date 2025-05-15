@@ -6,7 +6,7 @@ import tqdm
 import struct
 import socket
 
-from collections import Counter
+from evaluator_utils import *
 
 # Get the absolute path of the script's directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,112 +18,18 @@ input_json = "evaluator_message_gosai_5seqs.json"
 if os.path.exists("/.singularity.d"):
     # Running inside the container
     EVALUATOR_DATA_DIR = "/evaluator_data"
-    PREDICTIONS_DIR = "/predictions"
 else:
     # Running outside the container
     EVALUATOR_CONTAINER_DIR = SCRIPT_DIR
     EVALUATOR_DATA_DIR = os.path.join(EVALUATOR_CONTAINER_DIR, "evaluator_data")
-    PREDICTIONS_DIR = os.path.join(EVALUATOR_CONTAINER_DIR, "predictions")
     
 EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_json)
-RETURN_FILE_PATH = os.path.join(PREDICTIONS_DIR, f"dreamRNN_predictions_{input_json}")
-
-# Validate input file path
-if not os.path.exists(EVALUATOR_INPUT_PATH):
-    print(f"Error: Input file '{EVALUATOR_INPUT_PATH}' does not exist.")
-    sys.exit(1)
-
-# Validate output directory
-output_dir = os.path.dirname(RETURN_FILE_PATH)
-if not os.path.exists(output_dir):
-    print(f"Error: Output directory '{output_dir}' does not exist.")
-    sys.exit(1)
     
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
 
 # Debug logs for validation
-print(f"Using input JSON: {EVALUATOR_INPUT_PATH}")
-print(f"Will save predictions to: {RETURN_FILE_PATH}")
-
-#function to check for duplicate keys in the JSON file
-def check_duplicates(json_file_path):
-
-    """
-    Parses a JSON file to detect and report any duplicate keys at the same level in the same object.
-    This function ensures that no keys are silently overwritten in dictionaries.
-
-    The function uses a helper to track the number of times each key appears during parsing,
-    leveraging the `object_pairs_hook` parameter of `json.load()` to intercept key-value pairs
-    before they are processed into a dictionary. If duplicates are detected at any level, they
-    are reported with their counts and paths. Keys reused in separate objects within arrays
-    (e.g., lists) are not considered duplicates.
-
-    Args:
-        json_file_path (str): The path to the JSON file to parse and check for duplicates.
-
-    Returns:
-        None:
-            - If no duplicates are found, returns None, prints "No duplicates found."
-            - If duplicates are found, prints the duplicate keys and their counts and returns None.
-    """
-
-    # Initialize a dictionary to track duplicate keys and their counts
-    duplicate_keys = {}
-
-    # Helper function to detect duplicates during JSON parsing
-    def detect_duplicates(pairs):
-
-        """
-        Detects duplicate keys during JSON parsing and counts occurrences of each key.
-
-        This function intercepts the key-value pairs provided by `json.load` and ensures that
-        duplicate keys are flagged. It constructs the dictionary normally but counts how often
-        each key appears, recording any keys that occur more than once.
-
-        Args:
-            pairs (list of tuple): A list of key-value pairs at the current level of the JSON.
-
-        Returns:
-            dict: A dictionary created from the key-value pairs.
-        """
-
-        # Use a local Counter to count occurrences of keys at this level
-        local_counts = Counter()
-        result_dict = {}
-        for key, value in pairs:
-            # Increment the count for each key
-            local_counts[key] += 1
-            # If the key is a duplicate, record it in the duplicate_keys dictionary
-            if local_counts[key] > 1:
-                duplicate_keys[key] = local_counts[key]
-            # Add the key-value pair to the resulting dictionary
-            result_dict[key] = value
-        return result_dict
-
-    try:
-        # Open and parse the JSON file, using the helper to track duplicates
-        with open(json_file_path, 'r') as file:
-            data = json.load(file, object_pairs_hook=detect_duplicates)
-
-        # Report duplicates if any were found
-        if duplicate_keys:
-            print("Duplicate keys found:")
-            for key, count in duplicate_keys.items():
-                print(f"Key: {key}, Count: {count}")
-            return None  # Indicate that the JSON contains duplicates
-        else:
-            print("No duplicates found.")
-            return data
-
-    except FileNotFoundError:
-        # Handle the case where the file is not found
-        print(f"File not found: {json_file_path}")
-        return None
-    except json.JSONDecodeError as e:
-        # Handle invalid JSON format errors
-        print(f"Invalid JSON in file '{json_file_path}': {e}")
-        return None
+print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
 def run_evaluator():
     host = sys.argv[1]
