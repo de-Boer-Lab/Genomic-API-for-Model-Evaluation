@@ -17,21 +17,12 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if os.path.exists('/.singularity.d'):
     # Running inside the container
     print("Running inside the container...🥡")
-    DREAM_DIR = "/dreamRNN_API_script"
     HELP_FILE = "/predictor_container_apptainer/predictor_help_message.json"
 else:
     # Running outside the container
     print("Running outside the container...📋")
     PREDICTOR_CONTAINER_DIR = os.path.dirname(SCRIPT_DIR)
-    DREAM_DIR = os.path.join(PREDICTOR_CONTAINER_DIR, "dreamRNN_API_script")
     HELP_FILE = os.path.join(SCRIPT_DIR, 'predictor_help_message.json')
-
-# Add DREAM_DIR to the Python path
-if DREAM_DIR not in sys.path:
-    sys.path.insert(0, DREAM_DIR)
-
-# Import from the dreamRNN_predict script
-from dreamRNN_predict import *
 
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
@@ -402,7 +393,7 @@ def recv_message_loop(client_socket):
             current_prediction_task['species_actual']  = 'homo_sapiens'
 
             # Add predictions dictionary to the JSON
-            model_predictions = predict_dream_rnn(sequences, include_rev=True)
+            model_predictions = fake_model_point(sequences, include_rev=True)
             current_prediction_task['predictions'] = model_predictions
             # Append results for current prediction task to the main JSON object
             json_return['prediction_tasks'].append(current_prediction_task)
