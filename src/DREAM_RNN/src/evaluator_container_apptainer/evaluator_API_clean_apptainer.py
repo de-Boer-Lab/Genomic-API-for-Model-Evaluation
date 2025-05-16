@@ -129,7 +129,7 @@ def run_evaluator():
         os.makedirs(output_dir, exist_ok=True)
         print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
         
-    RETURN_FILE_PATH = os.path.join(output_dir, f"borzoi_predictions_{input_file}")
+    RETURN_FILE_PATH = os.path.join(output_dir, f"dreamRNN_predictions_{input_file}")
         
     # Try creating a socket
     try:
