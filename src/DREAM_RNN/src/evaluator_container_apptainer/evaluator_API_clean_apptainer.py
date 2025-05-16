@@ -12,8 +12,8 @@ from evaluator_utils import *
 # Get the absolute path of the script's directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Define the input JSON file name
-input_json = "evaluator_message_gosai_5seqs.json"
+# Define the input file name
+input_file = "evaluator_message_gosai_5seqs.json"
 
 # Determine if running inside a container or not
 if os.path.exists("/.singularity.d"):
@@ -21,16 +21,98 @@ if os.path.exists("/.singularity.d"):
     EVALUATOR_DATA_DIR = "/evaluator_data"
 else:
     # Running outside the container
-    EVALUATOR_CONTAINER_DIR = SCRIPT_DIR
-    EVALUATOR_DATA_DIR = os.path.join(EVALUATOR_CONTAINER_DIR, "evaluator_data")
+    EVALUATOR_DATA_DIR = os.path.join(SCRIPT_DIR, "evaluator_data")
     
-EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_json)
+EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_file)
     
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
 
 # Debug logs for validation
 print(f"Using input file: {EVALUATOR_INPUT_PATH}")
+
+# ------ ADDITION: Configuration for Wire-Format ------
+REQUEST_FORMAT = "JSON"
+REQUEST_FORMAT = REQUEST_FORMAT.lower() # for case-insensitive matching
+
+# Compute send format before connecting to Predictor
+PREDICTION_FORMAT = "json"
+PREDICTION_FORMAT = PREDICTION_FORMAT.lower()
+
+# ADDITION: Enable negotiation
+def negotiate_format_with_predictor(connection):
+    
+    """
+    1. Read the advertised formats from Predictor:
+        - "predictor_request_formats"    (what Predictor can RECEIVE)
+        - "predictor_prediction_formats" (what Predictor can SEND BACK)
+    2. Choose send_format = REQUEST_FORMAT if in predictor_request_formats else "json"
+    3. Choose recv_format = PREDICTION_FORMAT if in predictor_prediction_formats else 
+    4. Send back {"request_format": send_format, "prediction_format": recv_format}
+    
+    Returns:
+        Agreed (send_format, recv_format)
+    """
+    
+    # Receive advert length from Predictor
+    prefix = connection.recv(4)
+    if not prefix:
+        print("Failed to receive supported formats from Predictor.")
+        sys.exit(1)    
+    supported_fmt_len = struct.unpack(">I", prefix)[0]
+    
+    # Read the advert payload
+    supported_fmt = b""
+    while len(supported_fmt) < supported_fmt_len:
+        chunk = connection.recv(BUFFER_SIZE)
+        if not chunk:
+            print("Could not receive Predictor's supported wire_format. Closing connection!")
+            sys.exit(1)
+        supported_fmt += chunk
+        
+    # Parse JSON advert
+    try:
+        supported = json.loads(supported_fmt.decode("utf-8"))
+        pred_request_fmts = [f.lower() for f in supported.get("predictor_request_formats")]
+        pred_prediction_fmts = [f.lower() for f in supported.get("predictor_prediction_formats")]
+    except Exception as e:
+        print("Error: Could not parse Predictor's supported formats")
+        sys.exit(1)
+        
+    # JSON should always be accepted
+    if "json" not in pred_request_fmts:
+        pred_request_fmts.append("json")
+    if "json" not in pred_prediction_fmts:
+        pred_prediction_fmts.append("json")
+    print(f"Predictor can receive: {pred_request_fmts}")
+    print(f"Predictor can send back: {pred_prediction_fmts}")
+    
+    # Decide request format having parsed what Predictor can support
+    if REQUEST_FORMAT in pred_request_fmts:
+        send_format = REQUEST_FORMAT
+    else:
+        send_format = "json"
+        if REQUEST_FORMAT != "json":
+            print(f"WARNING: REQUEST_FORMAT='{REQUEST_FORMAT}' not supported by Predictor; Using JSON")
+    
+    # Decide prediction format
+    if PREDICTION_FORMAT in pred_prediction_fmts:
+        recv_format = PREDICTION_FORMAT
+    else: 
+        recv_format = "json"
+        if PREDICTION_FORMAT != "json":
+            print(f"WARNING: PREDICTION_FORMAT='{PREDICTION_FORMAT}' not supported by Predictor; Using JSON")
+    
+    # Send Evaluator decision back
+    choice = json.dumps({
+        "request_format": send_format,
+        "prediction_format": recv_format
+        }).encode('utf-8')
+    connection.sendall(struct.pack(">I", len(choice)))
+    connection.sendall(choice)
+    print(f"Negotiated send format: {send_format}")
+    print(f"Negotiated receive format: {recv_format}")
+    return send_format, recv_format
 
 def run_evaluator():
     host = sys.argv[1]
@@ -44,8 +126,10 @@ def run_evaluator():
 
     # Validate output directory
     if not os.path.exists(output_dir):
-        print(f"Error: Output directory '{output_dir}' does not exist.")
-        sys.exit(1)
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
+        
+    RETURN_FILE_PATH = os.path.join(output_dir, f"borzoi_predictions_{input_file}")
         
     # Try creating a socket
     try:
@@ -54,54 +138,90 @@ def run_evaluator():
     except socket.error as e:
         print ("server_error: Error creating socket: %s" % e)
         sys.exit(1)
-
-    try:
-        # establish connection with predictor server
-        connection.connect((host, port))
-        print(f"Connected to Predictor on {host}:{port}")
-    except socket.gaierror as e:
-        print ("Address-related error connecting to server: %s" % e)
-        sys.exit(1)
-    except socket.error as e:
-        print ("server_error: Connection error: %s" % e)
-        sys.exit(1)
-
-    try:
-        # load in JSON file from evalutor_data if Predictor container was successful
-        jsonResult = check_duplicates_from_json(EVALUATOR_INPUT_PATH)
-        if jsonResult is None:
+        
+    # Re-try Parameters
+    RETRY_INTERVAL = 30 # 30 seconds 
+    MAX_RETRIES = 50
+    attempt = 0
+    connected = False
+    
+    while attempt < MAX_RETRIES and not connected:
+        try:
+            # establish connection with predictor server
+            connection.connect((host, port))
+            print(f"Connected to Predictor on {host}:{port}")
+            connected = True
+        except socket.gaierror as e:
+            print ("Address-related error connecting to server: %s" % e)
             sys.exit(1)
-        jsonResult = json.dumps(jsonResult)
+        except socket.error as e:
+            attempt += 1
+            print ("server_error: Connection error: %s" % e)
+            if attempt < MAX_RETRIES:
+                print(f"Retrying in {RETRY_INTERVAL} seconds... (Attempt {attempt} of {MAX_RETRIES})")
+                for _ in tqdm.tqdm(range(RETRY_INTERVAL), desc="Waiting to retry connection", unit="s"):
+                    time.sleep(1)
+            else:
+                print(f"Tried connecting {attempt} times. Exceeded maximum number of retries. Exiting...")
+                sys.exit(1)
+                
+    # Negotiate wire format
+    send_fmt, recv_fmt = negotiate_format_with_predictor(connection)
+    
+    # Load in input file from evalutor_data if Predictor connection was successful
+    # Validate it though check_duplicates function
+    # ADDITION: Load and validate
+    
+    # If input is .txt, adjust accordingly and 
+    # use `check_duplicates_from_string`, 
+    # assuming JSON string was created using `create_json`
+    try:
+        data_dict = check_duplicates_from_json(EVALUATOR_INPUT_PATH)
+        if data_dict is None:
+            sys.exit(1)
     except json.JSONDecodeError as e:
         print("Invalid JSON syntax:", e)
-
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error processing JSON file '{EVALUATOR_INPUT_PATH}': {e}")
+        sys.exit(1)
+    
+    if data_dict is None:
+        print("Couldn't load and validate the input data!")
+        sys.exit(1)
+    
+    # Prepare payload -- Serialize
+    print(f"Serializing request to Predictor as '{send_fmt}'")
+    try:
+        payload_bytes = json.dumps(data_dict).encode("utf-8")
+        print(f"Sending payload serialized as JSON")
+    except Exception as e:
+        print(f"Error packing JSON: {e}")
+        sys.exit(1)
+    
     # first send the total bytes we are transmitting to the Predictor
     # This is used to stop the recv() process
-    # send the evaluator json to the predictor server
+    # send the evaluator data to the predictor server
     try:
-        # Length prefixing
-        # Send Evaluator JSON length as a 4-byte integer
-        jsonResult_bytes = jsonResult.encode("utf-8")
-        jsonResults_total_bytes = len(jsonResult_bytes)
-
-        connection.sendall(struct.pack('>I', jsonResults_total_bytes))
-        print(f"Sent evaluator request length {jsonResults_total_bytes} bytes")
-
-        connection.sendall(jsonResult_bytes)
-
+        payload_bytes_len = len(payload_bytes)
+        connection.sendall(struct.pack(">I", payload_bytes_len))
+        print(f"Sent evaluator request length {payload_bytes_len} bytes!")
+        
+        # Now send the actual payload
+        connection.sendall(payload_bytes)
     except socket.error as e:
-        print ("server_error: Error sending evaluator_file: %s" % e)
+        print (f"server_error: Error sending payload: {e}")
         sys.exit(1)
 
 # ---------------------- %%%%%%%---------------
-    # receive message from the server
-    json_data_recv = b''
+    # Receive message from the server
+    data_recv = b''
     while True:
-        # Before receiving JSON from Predictor
-        # Receive length of the incoming JSON message (4-byte integer)
+        # Before receiving predictions/ payload from Predictor
+        # Receive length of the incoming message (4-byte integer)
         # Can change to 8-byte integer by changing .recv(4) to .recv(8)
         # and replacing format string '>I' to '>Q'
-        # Step 1
+        # Step 1: length prefix
         try:
             msg_length = connection.recv(4)
             if not msg_length:
@@ -111,7 +231,7 @@ def run_evaluator():
 
             # Unpack message length from 4 bytes
             msglen = struct.unpack('>I', msg_length)[0]
-            print(f"Expecting {msglen} bytes of data from the Predictor.")
+            print(f"Expecting {msglen} bytes of data in '{recv_fmt}' from the Predictor.")
             # Can comment out print commands other than for errors
             
             # Initialize the progress bar
@@ -119,24 +239,22 @@ def run_evaluator():
                                  desc="Receiving Predictor Response",
                                  unit_scale=True, unit_divisor=1024)
 
-            #Step 2
+            # Step 2: the payload
             # Now we want to receive the actual JSON in packets
-            
-            while len(json_data_recv) < msglen:
+            while len(data_recv) < msglen:
                 packet = connection.recv(BUFFER_SIZE)
                 if not packet:
                     print("Connection closed unexpectedly.")
                     break
-                json_data_recv += packet
+                data_recv += packet
                 progress.update(len(packet))
-                #print(f"Received packet of {len(packet)} bytes, total received: {len(data)} bytes")
            
             # Close the progress bar when done
             progress.close()
             
-            # Decode and display the received data if all of it is received
-            if len(json_data_recv) == msglen:
-                print("Predictor return received completely!")
+            # Decode data if all of it is received
+            if len(data_recv) == msglen:
+                print("Predictor response received completely!")
                 break
             else:
                 print("Data received was incomplete or corrupted.")
@@ -149,22 +267,23 @@ def run_evaluator():
 
     # Parse and save Predictor response
     try:
-        predictor_response_full = json_data_recv
-        predictor_json = predictor_response_full.decode("utf-8")
-        predictor_json = json.loads(predictor_json)
-        
-        output_file = os.path.join(output_dir, os.path.basename(RETURN_FILE_PATH))
+        print("De-serializing Predictor response as JSON")
+        predictor_data = json.loads(data_recv.decode("utf-8"))
+        output_file = RETURN_FILE_PATH
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(predictor_json, f, ensure_ascii=False, indent=4)
+            json.dump(predictor_data, f,
+                      ensure_ascii=False, indent=4, 
+                      separators=(",", ": "))
         print(f"Predictions saved to {output_file}")
-        
     except (json.JSONDecodeError, IOError) as e:
         print(f"Error saving predictions: {e}")
         sys.exit(1)
-
-# ---------------------- %%%%%%%---------------
-
-    connection.close()
-    print("Connection to server closed")
-
-run_evaluator()
+    except Exception as e:
+        print(f"Error saving predictions: {e}")
+        sys.exit(1)
+    finally:
+        connection.close()
+        print("Connection to server closed")   
+    
+if __name__ == '__main__':
+    run_evaluator()
