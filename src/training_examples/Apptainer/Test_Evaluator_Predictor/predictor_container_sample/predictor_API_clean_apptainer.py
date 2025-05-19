@@ -393,8 +393,7 @@ def recv_message_loop(client_socket):
             current_prediction_task['species_actual']  = 'homo_sapiens'
 
             # Add predictions dictionary to the JSON
-            model_predictions = fake_model_point(sequences, include_rev=True)
-            current_prediction_task['predictions'] = model_predictions
+            fake_model_point(sequences, current_prediction_task)
             # Append results for current prediction task to the main JSON object
             json_return['prediction_tasks'].append(current_prediction_task)
             
