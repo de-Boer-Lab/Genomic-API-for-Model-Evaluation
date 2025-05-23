@@ -40,7 +40,7 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 4. Start the test Evaluator
 
     ```bash
-    apptainer run \ 
+    apptainer run \
         -B /path/to/evaluator_data:/evaluator_data  \
         -B /path/to/predictions:/predictions  \
         evaluator.sif HOST PORT /predictions
@@ -49,7 +49,7 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
     Example:
 
     ```bash
-    apptainer run \ 
+    apptainer run \
         -B /path/to/evaluator_data:/evaluator_data  \
         -B /path/to/predictions:/predictions  \
         evaluator.sif 172.16.47.243 5000 /predictions

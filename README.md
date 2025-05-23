@@ -27,7 +27,7 @@ The files and communication between APIs is done using python sockets. Scripts f
 
 Examples of Evaluator and Predictor messages can be found in `/example_JSON_files` folder. Formats for json files can be checked using the following link: <https://jsonformatter.curiousconcept.com>
 
-Examples of containerized evaluators and predictors can be found in `/src` folder. 
+Examples of containerized evaluators and predictors can be found in `/src` folder.
 
 | Evaluator     | Zenodo Download link|Description |
 | ----------- | ----------- | ----------- |
@@ -49,7 +49,7 @@ P: Sure thing :) One moment please...
 
 P: Psst! Hey CellMatcher! I was asked for cellX, but I have no clue that that is, can I have a little help?
 
-CM: Sure thing! cellX is similar to your cellY, so you should use that for your predictions instead. 
+CM: Sure thing! cellX is similar to your cellY, so you should use that for your predictions instead.
 
 P: Here you go, Evaluator - i'm sending you a .json file back with all the predictions for cellY.
 
