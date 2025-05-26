@@ -1,0 +1,18 @@
+{
+  "request": "predict",
+  "readout": "track",
+  "prediction_tasks": [
+    {
+      "name": "gosai_synthetic_sequences",
+      "type": "expression",
+      "cell_type": "K562",
+      "scale": "linear",
+      "species": "homo_sapiens"
+    }
+  ],
+  "upstream_seq": "ATGCTT",
+  "downstream_seq": "GATCA",
+  "sequences":{
+      "7:70038969:G:T:A:wC": "CCTGGTCTTTCTTGCTAAATAAACATATCGTGCATCATCCAGATCTTGCTGAAATTTGGGGGATATGCATTGAAGCAGCCCCTGTTTCTCCATGAAGGTTTATGTCTGTGAGCCTGGCTGTGCAGTTGGGAGGCCTGGGGGAGAGGTCATGCTTCTACCATGGCGTTTTCCATTTTCCTTAAAATGTGCCTCAGCAACAG"
+    }
+}

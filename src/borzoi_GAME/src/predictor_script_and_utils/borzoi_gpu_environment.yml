@@ -94,6 +94,7 @@ dependencies:
       - markupsafe==2.1.5
       - matplotlib==3.7.5
       - ml-dtypes==0.3.2
+      - msgpack==1.1.0
       - natsort==7.1.1
       - ncls==0.0.68
       - networkx==2.8.8

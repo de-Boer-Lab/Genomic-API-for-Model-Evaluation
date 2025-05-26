@@ -5,6 +5,7 @@ import json
 import tqdm
 import struct
 import socket
+import msgpack
 
 from error_message_functions_updated import *
 from api_preprocessing_utils import *
@@ -34,91 +35,222 @@ from borzoi_predict_codebase import *
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
 
+# ------ ADDITION: Configuration for Wire-Format ------
+SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]] # Remove msgpack if not supported
+SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["msgpack"]] # JSON is always supported even when not mentioned
+
+def send_payload(sock, payload_obj, wire_fmt):
+    
+    """
+    Helper to pack and send JSON or MsgPack, prefix with 4-byte length, and send.
+    
+    Args:
+        sock: Client socket
+        payload_obj: Payload being sent to Evaluator
+        wire_fmt: The format to send the payload_obj in
+    
+    Returns:
+        None
+    """
+    
+    try:
+        if wire_fmt == "msgpack":
+            body = msgpack.packb(payload_obj, use_bin_type=True)
+        else:
+            body = json.dumps(payload_obj).encode("utf-8")
+        # Length-prefix
+        sock.sendall(struct.pack(">I", len(body)))
+        sock.sendall(body)
+    except socket.error as e:
+        print(f"server_error: Error sending payload: {e}")
+        sock.close()
+
+def negotiate_format_with_evaluator(client_socket):
+    
+    """
+    1. Send advert JSON with:
+         - "predictor_supported_request_formats"    (what Predictor can RECEIVE)
+         - "predictor_supported_response_formats" (what Predictor can SEND BACK)
+    2. Read back Evaluator choice JSON with:
+         - "request_format"    (what Evaluator will use to send)
+         - "response_format"       (what Evaluator expects back)
+    3. Validate both against SUPPORTED_REQUEST_FORMATS 
+       and SUPPORTED_RESPONSE_FORMATS, respectively
+    
+    Returns:
+        Agreed (request_fmt, response_fmt) on success;
+        (None, None) Send error JSON and close the 
+        connection with Evaluator on failure.
+    """
+    
+    # Advertise
+    supported_fmts = {
+        "predictor_supported_request_formats": SUPPORTED_REQUEST_FORMATS,
+        "predictor_supported_response_formats": SUPPORTED_RESPONSE_FORMATS
+        }
+    supported_fmts_bytes = json.dumps(supported_fmts).encode('utf-8')
+    client_socket.sendall(struct.pack(">I", len(supported_fmts_bytes)))
+    client_socket.sendall(supported_fmts_bytes)
+    print(f"Advertised formats: {supported_fmts}")
+    
+    # Evaluator decides what its request and prediction formats will be
+    # based on what was advertised to it.
+    # This time evaluator is reaching out to predictor to send its decision
+    # on the negotiated formats so predictor can handle incoming and outgoing
+    # payload accordingly. If the evaluator still somehow sent 
+    # REQUEST and PREDICTION formats that Predictor does not support,
+    # send error and close connection with that evaluator.
+    
+    # Receive choice length from Evaluator
+    prefix = client_socket.recv(4)
+    if not prefix:
+        print("Evaluator disconnected before sending preferred format.")
+        client_socket.close()
+        return None, None
+    choice_len = struct.unpack(">I", prefix)[0]
+    
+    choice_recv = b""
+    while len(choice_recv) < choice_len:
+        chunk = client_socket.recv(BUFFER_SIZE) # This can change to receive the exact data length
+        if not chunk:
+            print("Error: incomplete choice payload. Closing connection!")
+            client_socket.close()
+            return None, None
+        choice_recv += chunk
+    
+    # Receive Evaluator choice and validate
+    try:
+        preferences = json.loads(choice_recv.decode("utf-8"))
+        request_fmt = preferences["request_format"].lower()       # Evaluator -> Predictor
+        response_fmt = preferences["response_format"].lower() # Predictor -> Evaluator
+        print(f"Evaluator will send request(s) in: {request_fmt}")
+        print(f"Evaluator excpects predictions in: {response_fmt}")
+    except Exception as e:
+        send_payload(client_socket,
+                     {"error": "bad_payload -- cannot parse format choice"},
+                     "json")
+        print(f"Error parsing evaluator choice: {e}")
+        client_socket.close()
+        return None, None
+    
+    # If unsupported, send error back as JSON and close 
+    # The client will close before reaching this but this 
+    # is a server side-check, in case client doesn't.
+    # Lastly, JSON is always accepted even in cases where
+    # Predictor does not mention that in 
+    # SUPPORTED_REQUEST_FORMATS and SUPPORTED_RESPONSE_FORMATS
+    accept_request_format = (request_fmt == "json") or (request_fmt in SUPPORTED_REQUEST_FORMATS)
+    accept_response_format = (response_fmt == "json") or (response_fmt in SUPPORTED_RESPONSE_FORMATS)
+    
+    if not accept_request_format or not accept_response_format:
+        err = {
+            "error": (
+                f"Unsupported formats: request must be one of {SUPPORTED_REQUEST_FORMATS}, "
+                f"prediction must be one of {SUPPORTED_RESPONSE_FORMATS}"
+            )
+        }
+        send_payload(client_socket, err, "json")
+        print(f"Unsupported choice (request={request_fmt}, prediction={response_fmt}); closing.")
+        client_socket.close()
+        return None, None
+    
+    return request_fmt, response_fmt
+
 def recv_message_loop(client_socket):
+    
+    # --- Perform the one-time handshake ---
+    request_fmt, response_fmt = negotiate_format_with_evaluator(client_socket)
+    if request_fmt is None or response_fmt is None:
+        print("Send/Receive wire-format negotiation failed.")
+        print("Closing connection with this Evaluator!")
+        return None
+    
     # Step 1: Receive total bytes (length) of the Evaluator's request 
     # Step 2: Receive file from Evaluator
 
     # ---------------------- Receive Evaluator JSON ----------------------
-    while True:
-        # Initialize data to store a new message on each iteration
-        json_data_recv = b''
-        # Before receiving JSON from Evaluator
+    connection_active = True
+    while connection_active:
+        # Before receiving data from Evaluator
         # Receive length of the incoming JSON message (4-byte integer)
         # Can change to 8-byte integer by changing .recv(4) to .recv(8)
         # and replacing format string '>I' to '>Q'
-        # Step 1
+        
         try:
+            # Step 1: Read length prefix
             msg_length = client_socket.recv(4)
             if not msg_length:
-                print("Failed to receive message length. Closing connection.")
+                print("No further message length received. Closing connection.")
+                print("This message can also show up even if all of the requests were complete -- please confirm!")
                 client_socket.close()
                 break # Exit the loop if no message length is received
 
             # Unpack message length from 4 bytes
             msglen = struct.unpack('>I', msg_length)[0]
-            print(f"Expecting {msglen} bytes of data from the Evaluator.")
+            print(f"Expecting {msglen} bytes of data from the Evaluator ({request_fmt}).")
             
+            # Step 2: Now receive the actual payload in packets
+            
+            # Initialize data to store a new message on each iteration
+            # Clear data_recv variable so multiple requests can be made
+            data_recv = b'' # formerly, json_data_recv
             # Initialize the progress bar
             progress = tqdm.tqdm(range(msglen), unit="B", 
                                  desc="Receiving Evaluator Request(s)",
                                  unit_scale=True, unit_divisor=1024)
-
-            # Step 2
-            # Now we want to receive the actual JSON in packets
-            while len(json_data_recv) < msglen:
-                packet = client_socket.recv(BUFFER_SIZE)
-                if not packet:
-                    print("Connection closed unexpectedly.")
-                    break
-                json_data_recv += packet
-                progress.update(len(packet))
-                # print(f"Received packet of {len(packet)} bytes, total received: {len(data)} bytes")
+            try:
+                while len(data_recv) < msglen:
+                    packet = client_socket.recv(BUFFER_SIZE) # can change
+                    if not packet:
+                        print("Connection closed unexpectedly.")
+                        break
+                    data_recv += packet
+                    progress.update(len(packet))
+            finally:
+                # Close the progress bar when done
+                progress.close()
             
-            # Close the progress bar when done
-            progress.close()
-            
-            # Decode and display the received data if all of it is received
-            if len(json_data_recv) == msglen:
+            # Verify if all of the data is received
+            if len(data_recv) == msglen:
                 print("Evaluator request received completely")
                 pass
             else:
                 print("Data received was incomplete or corrupted.")
                 break
+                
         except Exception as e:
             print(f"Error while receiving data: {e}")
             client_socket.close()
             break  # Break the loop on exception
         
-        # ---------------------- Process Received JSON ----------------------
-        evaluator_request_full = json_data_recv
-        evaluator_json = evaluator_request_full.decode("utf-8")
-        evaluator_json = json.loads(evaluator_json)
+        # ---------------------- Process Received File ----------------------
+        
+        # --- Decode incoming payload into dict ---
+        # This is to standardize payload received in any wire_format
+        # so it can go through error-checking
+        try:
+            if request_fmt == "msgpack":
+                print(f"Unpacking {request_fmt} payload")
+                evaluator_json = msgpack.unpackb(data_recv, raw=False)
+            else:
+                print(f"Unpacking {request_fmt} payload")
+                evaluator_json = json.loads(data_recv.decode("utf-8"))
+        except Exception as e:
+            print(f"Error while decoding incoming payload: {e}")
+            send_payload(client_socket, 
+                         {"error": 
+                             "bad_payload -- error while decoding incoming payload"},
+                         "json")
+            break
 
-        # group these functions
-        json_return_error = {'bad_prediction_request': []}
-
-        # if only a "help" was requested return the predictor information file
+        # If only a "help" was requested return the predictor information file
         if evaluator_json['request'] == "help":
-
             # model builder should place help file in predictor folder
-            help_file = HELP_FILE
             print(f"Help requested! Sending {HELP_FILE}...")
-            jsonResult_help = json.load(open(help_file))
-
-            jsonResult_help = json.dumps(jsonResult_help)
-            try:
-                jsonResult_help_bytes = jsonResult_help.encode("utf-8")
-                jsonResult_help_total_bytes = len(jsonResult_help_bytes)
-                client_socket.sendall(struct.pack('>I', jsonResult_help_total_bytes))
-                client_socket.sendall(jsonResult_help_bytes)
-                continue
-            except socket.error as e:
-                print("server_error: Error sending help response: %s" % e)
-            # finally:
-                client_socket.close()
-                # server.close()
-                print("Connection to client closed")
-                # sys.exit(0)
+            jsonResult_help = json.load(open(HELP_FILE))
+            send_payload(client_socket, jsonResult_help, "json")
+            client_socket.close()
+            break
                 
         # --- MODEL-SPECIFIC: Determine readout type ---
         readout_type = evaluator_json.get('readout', "track")
@@ -127,44 +259,25 @@ def recv_message_loop(client_socket):
         # Handle unsupported `interaction_matrix` readout
         if readout_type == "interaction_matrix":
             print("Borzoi cannot handle 'interaction_matrix' readout type. Exiting gracefully!")
-            json_return_error = {'bad_prediction_request': ["Borzoi cannot process 'interaction_matrix' readout type."]}
-            json_string = json.dumps(json_return_error)
-            try:
-                json_bytes = json_string.encode("utf-8")
-                total_bytes = len(json_bytes)
-                client_socket.sendall(struct.pack('>I', total_bytes))
-                client_socket.sendall(json_bytes)
-                continue
-            except socket.error as e:
-                print("server_error: Error sending error response: %s" % e)
-            # finally:
-                client_socket.close()
-                # server.close()
-                print("Connection to client closed")
-                break
-                # sys.exit(0)
-
+            json_return_error = {'bad_prediction_request': 
+                ["Borzoi cannot process 'interaction_matrix' readout type."]}
+            send_payload(client_socket, json_return_error, "json")
+            client_socket.close()
+            print("Connection to client closed")
+            break
+        
         # re-usable error checking functions
+        # group these functions
+        json_return_error = {'bad_prediction_request': []}
         json_return_error = check_mandatory_keys(evaluator_json.keys(), json_return_error)
         json_return_error = check_request(evaluator_json['request'], json_return_error)
         json_return_error = check_prediction_task_mandatory_keys(evaluator_json['prediction_tasks'], json_return_error)
         # if any of the mandatory keys are missing immediately return an error to the evaluator
         if any(json_return_error.values()) == True:
-            json_string = json.dumps(json_return_error)
-            try:
-                jsonResult_error_bytes = json_string.encode("utf-8")
-                jsonResult_error_total_bytes = len(jsonResult_error_bytes)
-                client_socket.sendall(struct.pack('>I', jsonResult_error_total_bytes))
-                client_socket.sendall(jsonResult_error_bytes)
-                continue
-            except socket.error as e:
-                print("server_error: Error sending error response: %s" % e)
-            # finally:
-                client_socket.close()
-                # server.close()
-                print("Connection to client closed")
-                # sys.exit(1)
-                break
+            print("Validation error; sending error JSON!")
+            send_payload(client_socket, json_return_error, "json")
+            client_socket.close()
+            break
         else:
             json_return_error = check_key_values_readout(evaluator_json['readout'], json_return_error)
             json_return_error = check_prediction_task_name(evaluator_json['prediction_tasks'], json_return_error)
@@ -190,21 +303,10 @@ def recv_message_loop(client_socket):
             
             # if any errors were caught return them all to evaluator
             if any(json_return_error.values()) == True:
-                json_string = json.dumps(json_return_error)
-                try:
-                    jsonResult_error_bytes = json_string.encode("utf-8")
-                    jsonResult_error_total_bytes = len(jsonResult_error_bytes)
-                    client_socket.sendall(struct.pack('>I', jsonResult_error_total_bytes))
-                    client_socket.sendall(jsonResult_error_bytes)
-                    continue
-                except socket.error as e:
-                    print("server_error: Error sending error response: %s" % e)
-                # finally:
-                    client_socket.close()
-                    # server.close()
-                    print("Connection to client closed")
-                    # sys.exit(1)
-                    break
+                print("Validation error; sending error JSON!")
+                send_payload(client_socket, json_return_error, "json")
+                client_socket.close()
+                break
 
         # ---------------------- Process Sequences and Prediction Ranges ----------------------
         # Extract sequences to predict
@@ -256,22 +358,11 @@ def recv_message_loop(client_socket):
 
         # if anything is caught don't run the model and return to evaluator to fix
         if any(json_return_error_model.values()) == True:
-            json_string = json.dumps(json_return_error_model)
-            try:
-                jsonResult_bytes = json_string.encode("utf-8")
-                jsonResults_total_bytes = len(jsonResult_bytes)
-                client_socket.sendall(struct.pack('>I', jsonResults_total_bytes))
-                client_socket.sendall(jsonResult_bytes)
-                continue
-            except socket.error as e:
-                print("server_error: Error sending error response: %s" % e)
-            # finally:
-                client_socket.close()
-                # server.close()
-                print("Connection to client closed")
-                # sys.exit(1)
-                break
-
+            print("Sequence spec errors; sending error JSON")
+            send_payload(client_socket, json_return_error_model, "json")
+            client_socket.close()
+            break
+        
         # ---------------------- Extract Prediction Tasks and Run the Model ----------------------
         # Start big loop here for all the prediction_tasks
         # Connect to cell type matching container in cases of multi-task models
@@ -300,20 +391,11 @@ def recv_message_loop(client_socket):
             # Wrap the error string into error payload 
             json_return_error_model[
                 'prediction_request_failed'].append(task_predictions)
-            json_string = json.dumps(json_return_error_model)
-            try:
-                json_bytes = json_string.encode("utf-8")
-                total_bytes = len(json_bytes)
-                client_socket.sendall(struct.pack('>I', total_bytes))
-                client_socket.sendall(json_bytes)
-                print("Sent prediction error back; closing connection with this Evaluator")
-                continue
-            except socket.error as e:
-                print("server_error: Error sending error response: %s" % e)
-                client_socket.close()
-                print("Connection to client closed")
-                break
-
+            print("Model error; sending error JSON")
+            send_payload(client_socket, json_return_error_model, "json")
+            client_socket.close()
+            break
+        
         # Now format predictions to API JSON structure
         # Create JSON to return
         json_return = {
@@ -363,28 +445,8 @@ def recv_message_loop(client_socket):
             # Append results for current prediction task to the main JSON object
             json_return['prediction_tasks'].append(current_prediction_task)
 
-        # Convert dictionary to JSON object and send back to evaluator
-        json_string = json.dumps(json_return)
-        try:
-            jsonResult_bytes = json_string.encode("utf-8")
-            jsonResults_total_bytes = len(jsonResult_bytes)
-            client_socket.sendall(struct.pack('>I', jsonResults_total_bytes))
-            client_socket.sendall(jsonResult_bytes)
-            continue
-        except socket.error as e:
-            print("server_error: Error sending prediction response: %s" % e)
-        # finally:
-            client_socket.close()
-            # server.close()
-            print("Connection to client closed")
-            # sys.exit(0)
-            break
-
-        # # ---------------------- Close Connection Sockets ----------------------
-        # client_socket.close()
-        # print("Connection to client closed")
-        # # close server socket
-        # server.close()
+        # Convert dictionary to wire_format object and send back to evaluator
+        send_payload(client_socket, json_return, response_fmt)
 
 def run_predictor():
 
@@ -392,9 +454,6 @@ def run_predictor():
     predictor_port = int(sys.argv[2])
     # cell_type_matcher_ip = sys.argv[3]
     # cell_type_matcher_port = sys.argv[4]
-
-    #create error object
-    json_return_error = {}
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -408,7 +467,8 @@ def run_predictor():
     # can take multiple requests (and not just multiple tasks per evaluator)
     
     # This loop allows the Predictor server to stay running so that different Evaluators can connect
-    while True:
+    server_running = True
+    while server_running:
         try:
             print("Waiting for an Evaluator to connect")
             # accept incoming connections
@@ -419,4 +479,5 @@ def run_predictor():
         except Exception as e:
             print(f"Error accepting client: {e}")
     
-run_predictor()
+if __name__ == '__main__':
+    run_predictor()
