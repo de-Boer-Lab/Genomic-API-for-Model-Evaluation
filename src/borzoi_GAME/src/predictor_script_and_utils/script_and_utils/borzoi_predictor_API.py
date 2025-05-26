@@ -37,7 +37,7 @@ BUFFER_SIZE = 65536
 
 # ------ ADDITION: Configuration for Wire-Format ------
 SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]] # Remove msgpack if not supported
-SUPPORTED_PREDICTION_FORMATS = [fmt.lower() for fmt in ["msgpack"]] # JSON is always supported even when not mentioned
+SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["msgpack"]] # JSON is always supported even when not mentioned
 
 def send_payload(sock, payload_obj, wire_fmt):
     
@@ -69,24 +69,24 @@ def negotiate_format_with_evaluator(client_socket):
     
     """
     1. Send advert JSON with:
-         - "predictor_request_formats"    (what Predictor can RECEIVE)
-         - "predictor_prediction_formats" (what Predictor can SEND BACK)
+         - "predictor_supported_request_formats"    (what Predictor can RECEIVE)
+         - "predictor_supported_response_formats" (what Predictor can SEND BACK)
     2. Read back Evaluator choice JSON with:
          - "request_format"    (what Evaluator will use to send)
-         - "prediction_format" (what Evaluator expects back)
+         - "response_format"       (what Evaluator expects back)
     3. Validate both against SUPPORTED_REQUEST_FORMATS 
-       and SUPPORTED_PREDICTION_FORMATS, respectively
+       and SUPPORTED_RESPONSE_FORMATS, respectively
     
     Returns:
-        Agreed (request_fmt, prediction_fmt) on success;
+        Agreed (request_fmt, response_fmt) on success;
         (None, None) Send error JSON and close the 
         connection with Evaluator on failure.
     """
     
     # Advertise
     supported_fmts = {
-        "predictor_request_formats": SUPPORTED_REQUEST_FORMATS,
-        "predictor_prediction_formats": SUPPORTED_PREDICTION_FORMATS
+        "predictor_supported_request_formats": SUPPORTED_REQUEST_FORMATS,
+        "predictor_supported_response_formats": SUPPORTED_RESPONSE_FORMATS
         }
     supported_fmts_bytes = json.dumps(supported_fmts).encode('utf-8')
     client_socket.sendall(struct.pack(">I", len(supported_fmts_bytes)))
@@ -122,9 +122,9 @@ def negotiate_format_with_evaluator(client_socket):
     try:
         preferences = json.loads(choice_recv.decode("utf-8"))
         request_fmt = preferences["request_format"].lower()       # Evaluator -> Predictor
-        prediction_fmt = preferences["prediction_format"].lower() # Predictor -> Evaluator
+        response_fmt = preferences["response_format"].lower() # Predictor -> Evaluator
         print(f"Evaluator will send request(s) in: {request_fmt}")
-        print(f"Evaluator excpects predictions in: {prediction_fmt}")
+        print(f"Evaluator excpects predictions in: {response_fmt}")
     except Exception as e:
         send_payload(client_socket,
                      {"error": "bad_payload -- cannot parse format choice"},
@@ -138,29 +138,29 @@ def negotiate_format_with_evaluator(client_socket):
     # is a server side-check, in case client doesn't.
     # Lastly, JSON is always accepted even in cases where
     # Predictor does not mention that in 
-    # SUPPORTED_REQUEST_FORMATS and SUPPORTED_PREDICTION_FORMATS
+    # SUPPORTED_REQUEST_FORMATS and SUPPORTED_RESPONSE_FORMATS
     accept_request_format = (request_fmt == "json") or (request_fmt in SUPPORTED_REQUEST_FORMATS)
-    accept_prediction_format = (prediction_fmt == "json") or (prediction_fmt in SUPPORTED_PREDICTION_FORMATS)
+    accept_response_format = (response_fmt == "json") or (response_fmt in SUPPORTED_RESPONSE_FORMATS)
     
-    if not accept_request_format or not accept_prediction_format:
+    if not accept_request_format or not accept_response_format:
         err = {
             "error": (
                 f"Unsupported formats: request must be one of {SUPPORTED_REQUEST_FORMATS}, "
-                f"prediction must be one of {SUPPORTED_PREDICTION_FORMATS}"
+                f"prediction must be one of {SUPPORTED_RESPONSE_FORMATS}"
             )
         }
         send_payload(client_socket, err, "json")
-        print(f"Unsupported choice (request={request_fmt}, prediction={prediction_fmt}); closing.")
+        print(f"Unsupported choice (request={request_fmt}, prediction={response_fmt}); closing.")
         client_socket.close()
         return None, None
     
-    return request_fmt, prediction_fmt
+    return request_fmt, response_fmt
 
 def recv_message_loop(client_socket):
     
     # --- Perform the one-time handshake ---
-    request_fmt, prediction_fmt = negotiate_format_with_evaluator(client_socket)
-    if request_fmt is None or prediction_fmt is None:
+    request_fmt, response_fmt = negotiate_format_with_evaluator(client_socket)
+    if request_fmt is None or response_fmt is None:
         print("Send/Receive wire-format negotiation failed.")
         print("Closing connection with this Evaluator!")
         return None
@@ -446,7 +446,7 @@ def recv_message_loop(client_socket):
             json_return['prediction_tasks'].append(current_prediction_task)
 
         # Convert dictionary to wire_format object and send back to evaluator
-        send_payload(client_socket, json_return, prediction_fmt)
+        send_payload(client_socket, json_return, response_fmt)
 
 def run_predictor():
 
