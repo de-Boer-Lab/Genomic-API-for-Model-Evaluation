@@ -1,4 +1,3 @@
-#Oct 30th, 2024
 import os
 import sys
 import json
@@ -39,19 +38,19 @@ REQUEST_FORMAT = "JSON"
 REQUEST_FORMAT = REQUEST_FORMAT.lower() # for case-insensitive matching
 
 # Compute send format before connecting to Predictor
-PREDICTION_FORMAT = "msgpack"
-PREDICTION_FORMAT = PREDICTION_FORMAT.lower()
+RESPONSE_FORMAT = "msgpack"
+RESPONSE_FORMAT = RESPONSE_FORMAT.lower()
 
 # ADDITION: Enable negotiation
 def negotiate_format_with_predictor(connection):
     
     """
     1. Read the advertised formats from Predictor:
-        - "predictor_request_formats"    (what Predictor can RECEIVE)
-        - "predictor_prediction_formats" (what Predictor can SEND BACK)
-    2. Choose send_format = REQUEST_FORMAT if in predictor_request_formats else "json"
-    3. Choose recv_format = PREDICTION_FORMAT if in predictor_prediction_formats else 
-    4. Send back {"request_format": send_format, "prediction_format": recv_format}
+        - "predictor_supported_request_formats"    (what Predictor can RECEIVE)
+        - "predictor_supported_response_formats" (what Predictor can SEND BACK)
+    2. Choose send_format = REQUEST_FORMAT if in predictor_supported_request_formats else "json"
+    3. Choose recv_format = RESPONSE_FORMAT if in predictor_supported_response_formats else 
+    4. Send back {"request_format": send_format, "response_format": recv_format}
     
     Returns:
         Agreed (send_format, recv_format)
@@ -76,8 +75,8 @@ def negotiate_format_with_predictor(connection):
     # Parse JSON advert
     try:
         supported = json.loads(supported_fmt.decode("utf-8"))
-        pred_request_fmts = [f.lower() for f in supported.get("predictor_request_formats")]
-        pred_prediction_fmts = [f.lower() for f in supported.get("predictor_prediction_formats")]
+        pred_request_fmts = [f.lower() for f in supported.get("predictor_supported_request_formats")]
+        pred_response_fmts = [f.lower() for f in supported.get("predictor_supported_response_formats")]
     except Exception as e:
         print("Error: Could not parse Predictor's supported formats")
         sys.exit(1)
@@ -85,10 +84,10 @@ def negotiate_format_with_predictor(connection):
     # JSON should always be accepted
     if "json" not in pred_request_fmts:
         pred_request_fmts.append("json")
-    if "json" not in pred_prediction_fmts:
-        pred_prediction_fmts.append("json")
+    if "json" not in pred_response_fmts:
+        pred_response_fmts.append("json")
     print(f"Predictor can receive: {pred_request_fmts}")
-    print(f"Predictor can send back: {pred_prediction_fmts}")
+    print(f"Predictor can send back: {pred_response_fmts}")
     
     # Decide request format having parsed what Predictor can support
     if REQUEST_FORMAT in pred_request_fmts:
@@ -98,18 +97,18 @@ def negotiate_format_with_predictor(connection):
         if REQUEST_FORMAT != "json":
             print(f"WARNING: REQUEST_FORMAT='{REQUEST_FORMAT}' not supported by Predictor; Using JSON")
     
-    # Decide prediction format
-    if PREDICTION_FORMAT in pred_prediction_fmts:
-        recv_format = PREDICTION_FORMAT
+    # Decide response format
+    if RESPONSE_FORMAT in pred_response_fmts:
+        recv_format = RESPONSE_FORMAT
     else: 
         recv_format = "json"
-        if PREDICTION_FORMAT != "json":
-            print(f"WARNING: PREDICTION_FORMAT='{PREDICTION_FORMAT}' not supported by Predictor; Using JSON")
+        if RESPONSE_FORMAT != "json":
+            print(f"WARNING: RESPONSE_FORMAT='{RESPONSE_FORMAT}' not supported by Predictor; Using JSON")
     
     # Send Evaluator decision back
     choice = json.dumps({
         "request_format": send_format,
-        "prediction_format": recv_format
+        "response_format": recv_format
         }).encode('utf-8')
     connection.sendall(struct.pack(">I", len(choice)))
     connection.sendall(choice)
