@@ -1,4 +1,3 @@
-# Jan 15, 2025
 # gosai_evaluator.py
 import os
 import sys
@@ -15,7 +14,7 @@ from evaluator_utils import *
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # File name for input sequences
-input_txt = "41586_2024_8070_MOESM4_ESM.txt"
+input_file = "41586_2024_8070_MOESM4_ESM.txt"
 
 #Determine if running inside a container or not
 if os.path.exists("/.singularity.d"):
@@ -23,11 +22,11 @@ if os.path.exists("/.singularity.d"):
     EVALUATOR_DATA_DIR = "/evaluator_data"
 else:
     #Running outside the container
-    EVALURATOR_DATA_DIR = os.path.join(SCRIPT_DIR, "evaluator_data")
+    EVALUATOR_DATA_DIR = os.path.join(SCRIPT_DIR, "evaluator_data")
 
-EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_txt)
+EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_file)
 
-output_json_filename = f"gosai_mpra_predictions_{input_txt.replace(".txt", "")}.json"
+output_json_filename = f"gosai_mpra_predictions_{input_file.replace(".txt", "")}.json"
 
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
@@ -210,7 +209,7 @@ def run_evaluator():
 
     # first send the total bytes we are transmitting to the Predictor
     # This is used to stop the recv() process
-    # send the evaluator json to the predictor server
+    # send the evaluator data to the predictor server
     try:
         payload_bytes_len = len(payload_bytes)
         connection.sendall(struct.pack(">I", payload_bytes_len))
