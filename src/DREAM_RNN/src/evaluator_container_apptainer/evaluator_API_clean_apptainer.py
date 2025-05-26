@@ -44,10 +44,10 @@ def negotiate_format_with_predictor(connection):
     
     """
     1. Read the advertised formats from Predictor:
-        - "predictor_request_formats"    (what Predictor can RECEIVE)
-        - "predictor_response_formats" (what Predictor can SEND BACK)
-    2. Choose send_format = REQUEST_FORMAT if in predictor_request_formats else "json"
-    3. Choose recv_format = RESPONSE_FORMAT if in predictor_response_formats else 
+        - "predictor_supported_request_formats"    (what Predictor can RECEIVE)
+        - "predictor_supported_response_formats" (what Predictor can SEND BACK)
+    2. Choose send_format = REQUEST_FORMAT if in predictor_supported_request_formats else "json"
+    3. Choose recv_format = RESPONSE_FORMAT if in predictor_supported_response_formats else "json"
     4. Send back {"request_format": send_format, "response_format": recv_format}
     
     Returns:
@@ -73,8 +73,8 @@ def negotiate_format_with_predictor(connection):
     # Parse JSON advert
     try:
         supported = json.loads(supported_fmt.decode("utf-8"))
-        pred_request_fmts = [f.lower() for f in supported.get("predictor_request_formats")]
-        pred_response_fmts = [f.lower() for f in supported.get("predictor_response_formats")]
+        pred_request_fmts = [f.lower() for f in supported.get("predictor_supported_request_formats")]
+        pred_response_fmts = [f.lower() for f in supported.get("predictor_supported_response_formats")]
     except Exception as e:
         print("Error: Could not parse Predictor's supported formats")
         sys.exit(1)
