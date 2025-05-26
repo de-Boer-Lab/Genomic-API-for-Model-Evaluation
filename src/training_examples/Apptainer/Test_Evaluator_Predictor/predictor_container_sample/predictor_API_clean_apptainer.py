@@ -1,4 +1,3 @@
-#Oct 30th, 2024
 import os
 import sys
 import json
