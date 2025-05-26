@@ -15,10 +15,10 @@ def check_seqs_specifications(sequences, json_return_error_model):
             json_return_error_model['prediction_request_failed'].append(
                 f"length of a sequence in {key} is greater than {max_length} bases"
                 )
-        if "N" in value:
-            json_return_error_model['prediction_request_failed'].append(
-                f"sequence in {key} has an invalid character present: N"
-                )
+        # if "N" in value:
+        #     json_return_error_model['prediction_request_failed'].append(
+        #         f"sequence in {key} has an invalid character present: N"
+        #         )
     return(json_return_error_model)
 
 def fake_model_point(sequences, json_dict):
