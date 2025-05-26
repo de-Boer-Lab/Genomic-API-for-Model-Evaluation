@@ -140,7 +140,7 @@ def check_duplicates_from_string(json_string):
         print(f"Invalid JSON: {e}")
         return None
     
-# Function for check duplicates if input file is in JSON format
+# Function for check duplicates if input file is in JSON format 
 
 def check_duplicates_from_json(json_file_path):
     """
