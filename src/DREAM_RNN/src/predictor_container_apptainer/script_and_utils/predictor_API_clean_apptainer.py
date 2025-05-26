@@ -66,8 +66,8 @@ def negotiate_format_with_evaluator(client_socket):
     
     """
     1. Send advert JSON with:
-         - "predictor_request_formats"    (what Predictor can RECEIVE)
-         - "predictor_response_formats" (what Predictor can SEND BACK)
+         - "predictor_supported_request_formats"    (what Predictor can RECEIVE)
+         - "predictor_supported_response_formats" (what Predictor can SEND BACK)
     2. Read back Evaluator choice JSON with:
          - "request_format"    (what Evaluator will use to send)
          - "response_format"       (what Evaluator expects back)
@@ -82,8 +82,8 @@ def negotiate_format_with_evaluator(client_socket):
     
     # Advertise
     supported_fmts = {
-        "predictor_request_formats": SUPPORTED_REQUEST_FORMATS,
-        "predictor_response_formats": SUPPORTED_RESPONSE_FORMATS
+        "predictor_supported_request_formats": SUPPORTED_REQUEST_FORMATS,
+        "predictor_supported_response_formats": SUPPORTED_RESPONSE_FORMATS
         }
     supported_fmts_bytes = json.dumps(supported_fmts).encode('utf-8')
     client_socket.sendall(struct.pack(">I", len(supported_fmts_bytes)))
