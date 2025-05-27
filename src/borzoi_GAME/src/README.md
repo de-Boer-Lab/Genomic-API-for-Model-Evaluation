@@ -33,7 +33,7 @@ To run a test prediction using the Borzoi container and sample Evaluator contain
     `apptainer run --nv --containall borzoi_human_predictor.sif HOST PORT`
 
     Example:
-    `apptainer run --nv --containall borzoi_human_predictor.sif 172.16.47.243 5000`
+    `apptainer run --nv --containall borzoi_human_predictor.sif 172.16.47.xxx 5000`
 
     **Understanding the Flags:**
 
@@ -55,10 +55,10 @@ To run a test prediction using the Borzoi container and sample Evaluator contain
     apptainer run --containall \
         -B absolute/path/to/evaluator_data:/evaluator_data \
         -B absolute/path/to/predictions:/predictions \
-        borzoi_evaluator.sif 172.16.47.244 5000 /predictions
+        borzoi_evaluator.sif 172.16.47.xxx 5000 /predictions
     ```
 
-    The `-B` mounts local directories so that the Evaluator container can read in the JSON file from a local folder and write the prediction to the locally created `/predictions` folder.
+    The `-B` flag mounts local directories so that the Evaluator container can read the input file and write the resulting predictions back to the mounted `/predictions` directory.
 
 5. If the Evaluator-Prediction communication was successful a JSON file will be found in the `predictions/` folder.
 
