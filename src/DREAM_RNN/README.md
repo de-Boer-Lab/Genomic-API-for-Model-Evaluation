@@ -20,8 +20,10 @@ DREAM_RNN/
     │   ├── evaluator.def                                # Evaluator container definition file
     │   ├── evaluator.sif                                # Evaluator container image (not included on Github due to storage restrictions)
     │   ├── evaluator_API_clean_apptainer.py             # Evaluator API script
+    │   ├── evaluator_utils.py                           # Evaluator utility script with helpers
     │   ├── evaluator_data
     │   │   ├── evaluator_input_sample_test.json         # Sample input JSON for evaluator
+    │   │   ├── evaluator_message_gosai_5seqs.json       # Gosai 5 test sequences
     │   │   ├── evaluator_message_more_complex.json      # Complex evaluator input example
     │   │   └── evaluator_message_simple_test.json       # Simple evaluator input example
     │   └── predictions/
@@ -39,11 +41,11 @@ DREAM_RNN/
         │   └── prixfixe/                                 # Model framework scripts
         ├── predictor.def                                 # Predictor container definition file
         ├── predictor.sif                                 # Predictor container image (not included on Github due to storage restrictions)
-        └── script_and_utils                              # Additional utility scripts
-            ├── api_preprocessing_utils.py
-            ├── error_message_functions_updated.py
-            ├── predictor_API_clean_apptainer.py
-            └── predictor_help_message.json
+        └── script_and_utils                              # Additional scripts
+            ├── api_preprocessing_utils.py                # Predictor utility script
+            ├── error_message_functions_updated.py        # Error checking scripts  
+            ├── predictor_API_clean_apptainer.py          # Predictor API script
+            └── predictor_help_message.json               # Help messsage file
 ```
 
 ---
@@ -52,7 +54,7 @@ DREAM_RNN/
 
 ## **2. Understanding the API**
 
-### **2.1. Evaluator API**
+### **2.1. Example Evaluator API**
 
 - **Purpose**: Interfaces with the Predictor API to send input and receive predictions. It handles input validation, data transfer, and output storage.
 - **Core Script**: `evaluator_API_clean_apptainer.py`.
@@ -60,16 +62,21 @@ DREAM_RNN/
     1. **Dynamic Path Handling**:
         - Uses `os.path.exists` to determine if the script is running inside the container.
         - Adjusts paths to input (`EVALUATOR_INPUT_PATH`) and output (`RETURN_FILE_PATH`) accordingly.
-    2. **Input Validation**:
+    2. **Wire-Format Negotiation**:
+        - Upon connecting, it automatically negotiates a data format with the Predictor.
+        - It receives a list of supported formats from the Predictor and confirms a choice. For this DREAM-RNN implementation, the Predictor will only offer JSON, so the negotiation will always result in using JSON.
+    3. **Connection Retries**:
+        - If the initial connection to the Predictor fails, it automatically retries several times (`50` attempts every `30` seconds) before exiting. This adds robustness against temporary network issues or if the Predictor is slow to start.
+    4. **Input Validation**:
         - Ensures the presence of the required input JSON file and the output directory.
         - Validates the JSON file for duplicate keys using the `check_duplicates` function.
-    3. **Socket Communication**:
+    5. **Socket Communication**:
         - Establishes a TCP socket connection with the Predictor server.
         - Implements length prefixing for the JSON payload to ensure reliable data transfer.
-    4. **Data Transfer**:
+    6. **Data Transfer**:
         - Sends the input JSON file (after validation) to the Predictor API over the established connection.
         - Receives predictions as a JSON response, ensuring data integrity and completeness.
-    5. **Output Management**:
+    7. **Output Management**:
         - Dynamically determines where to save the prediction results:
             - Inside the container: `/predictions/`.
             - Outside the container: The host-mounted directory mapped to `predictions/`.
@@ -92,6 +99,7 @@ DREAM_RNN/
         - Adjusts the path to the DREAM-RNN model (`DREAM_DIR`) and helper files (`HELP_FILE`) accordingly.
     2. **Socket Communication**:
         - **Server Setup**: Creates and binds a TCP socket to listen for incoming requests from the Evaluator API.
+        - **Wire-Format Negotiation**: As soon as an Evaluator connects, the Predictor advertises its supported data formats. For this model, it will only offer JSON, as a more efficient format like MsgPack is not implemented. It then waits for the Evaluator to confirm the JSON choice before proceeding to receive the main request.
         - **Length Prefixing**: Uses a 4-byte length prefix for receiving and sending JSON payloads reliably.
     3. **Request Validation**:
         - Validates mandatory keys (`request`, `prediction_tasks`, etc.) and values in the incoming JSON request using error-checking functions.
