@@ -25,6 +25,7 @@ However, if you are building the container using the provided definition file, e
 ```bash
 /path/to/evaluator_script_and_utils/
 ├── borzoi_evaluator_API.py
+├── evaluator_utils.py
 ├── evaluator.def
 ├── evaluator.sif
 ├── evaluator_data/
