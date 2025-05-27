@@ -17,6 +17,7 @@ However, if you are building the container using the provided definition file, e
 ├── evaluator.def
 ├── evaluator.sif
 ├── evaluator_API_clean_apptainer.py
+├── evaluator_utils.py
 ├── evaluator_data
 │   ├── evaluator_input_sample_test.json
 │   ├── evaluator_message_more_complex.json
