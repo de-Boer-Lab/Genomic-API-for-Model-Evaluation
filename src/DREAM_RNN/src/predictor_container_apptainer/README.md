@@ -19,10 +19,6 @@ However, if you are building the container using the provided definition file, e
 ├── predictor.def
 ├── predictor.sif
 ├── dreamRNN_API_script
-│   ├── data
-│   │   ├── evaluator_input_sample_test.json
-│   │   ├── evaluator_message_more_complex.json
-│   │   └── evaluator_message_simple_test.json
 │   ├── dreamRNN_predict.py
 │   ├── dream_rnn_k562_model_weight
 │   │   └── model_best.pth
@@ -43,13 +39,13 @@ apptainer build predictor.sif predictor.def
 ### Run the container
 
 ```bash
-apptainer run predictor.sif HOST PORT
+apptainer run --containall predictor.sif HOST PORT
 ```
 
 ## Details
 
 - The container receives data via a TCP socket and doesn’t require mounted data directories.
-- Replace `HOST` and `PORT` with the server and port configuration for the evaluator.
+- The `HOST` and `PORT` arguments specify the IP address and port that the predictor server will listen on for incoming connections from an evaluator.
 
 ## Purpose
 
@@ -59,7 +55,7 @@ apptainer run predictor.sif HOST PORT
 ## Example Command
 
 ```bash
-apptainer run predictor.sif 172.16.47.244 5000
+apptainer run --containall predictor.sif 172.16.47.244 5000
 ```
 
 ## Arguments
@@ -79,7 +75,9 @@ apptainer run predictor.sif 172.16.47.244 5000
 ```
 
 - `export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"`:
-*Why it is required:* By default, Apptainer automatically mounts host directories (like /home directory, /tmp, /proc, /sys, and /dev) into the container. This can inadvertently expose host data or cause conflicts. Setting this variable disables those automatic mounts so that only explicitly bound directories (using the -B flag) will be available inside the container.
+*Why it is required:* By default, Apptainer automatically mounts host directories (like /home directory, /tmp, /proc, /sys, and /dev) into the container. This can inadvertently expose host data or cause conflicts. Setting this variable disables those automatic mounts so that only explicitly bound directories (using the `-B` flag) will be available inside the container.
+
+*However:* The `--containall` flag, used at runtime, provides the second and most complete layer of isolation by blocking all unexpected host directories, variables, and settings.
 
 - `export LC_ALL=C`:
 This sets the container to use the default “C” (POSIX) locale for consistent sorting, formatting, and error messages, regardless of the host’s locale settings.

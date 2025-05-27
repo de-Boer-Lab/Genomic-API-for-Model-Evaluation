@@ -29,7 +29,6 @@ DREAM_RNN/
     │   └── predictions/
     └── predictor_container_apptainer
         ├── dreamRNN_API_script
-        │   ├── data/
         │   ├── dreamRNN_predict.py                      # DREAM_RNN prediction script
         │   ├── dream_rnn_k562_model_weight              # Pre-trained model weights
         │   │   ├── all_losses.json
@@ -302,7 +301,21 @@ Once the definition files for the Evaluator and Predictor APIs are configured, t
 
 ---
 
-### **3.3. Running the Predictor API**
+### **3.3. Best Practices for Container Isolation**
+
+For maximum security and reproducibility, it is highly recommended to run both containers with the `--containall` flag.
+
+This flag creates a strictly isolated environment, preventing the container from accessing host files (like `/home`, `/tmp`) or external environment variables. This practice is critical for reproducible run as it ensures the container execution is not accidentally influenced by the host system.
+
+**Layered Isolation Apprroach**
+    - Definition file (`.def`): The containers are built with `APPTAINER_NO_MOUNT` to provide a safe default. This setting prevents the most common host directories from being automatically mounted, making the container inherently more isolated.
+    - Runtime (`--containall`): While `APPTAINER_NO_MOUNT` is good, it only blocks specific default paths. The `--containall` flag provides complete isolation by blocking all unexpected host directories, variables, and settings. This is the best practice to guarantee a run is entirely isolated.
+
+When running the Evaluator container, remember to use the `-B` flag to create a controlled mount for the data and predictions, even when using `--containall`.
+
+---
+
+### **3.4. Running the Predictor API**
 
 **Important: The Predictor container must be started before the Evaluator container. This is because the Evaluator relies on an active socket connection to the Predictor for communication.**
 
@@ -311,7 +324,7 @@ Once the definition files for the Evaluator and Predictor APIs are configured, t
     The Predictor API must be running first since it listens for incoming connections from the Evaluator. Use the following command to start the Predictor:
 
     ```bash
-    apptainer run predictor.sif HOST PORT
+    apptainer run --containall predictor.sif HOST PORT
     ```
 
     - Replace `HOST` with the server's IP, which can be found using `hostname -I`, and `PORT` with the desired [port number](https://www.geeksforgeeks.org/50-common-ports-you-should-know/).
@@ -327,14 +340,14 @@ Once the definition files for the Evaluator and Predictor APIs are configured, t
 
 ---
 
-### **3.4. Running the Evaluator API**
+### **3.5. Running the Evaluator API**
 
 1. **Mount the required directories**
 
     After confirming that the Predictor is running, start the Evaluator container:
 
     ```bash
-    apptainer run \
+    apptainer run --containall \
        -B absolute/path/to/evaluator_data:/evaluator_data \
        -B absolute/path/to/predictions:/predictions \
        evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
@@ -349,7 +362,7 @@ Once the definition files for the Evaluator and Predictor APIs are configured, t
     - Example:
 
         ```bash
-        apptainer run \
+        apptainer run --containall \
           -B /local/path/to/evaluator_data:/evaluator_data \
           -B /local/path/to/predictions:/predictions \
           evaluator.sif 172.16.47.244 5000 /predictions
