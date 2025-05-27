@@ -61,7 +61,7 @@ apptainer run --containall \
 apptainer run --containall \
     -B absolute/path/to/evaluator_data:/evaluator_data \
     -B absolute/path/to/predictions:/predictions \
-    evaluator.sif 172.16.47.244 5000 /predictions
+    evaluator.sif 172.16.47.xxx 5000 /predictions
 ```
 
 ## Arguments
