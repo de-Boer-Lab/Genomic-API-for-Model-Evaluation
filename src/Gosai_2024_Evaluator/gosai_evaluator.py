@@ -6,6 +6,7 @@ import time
 import tqdm
 import struct
 import socket
+import msgpack
 import pandas as pd
 
 from evaluator_utils import *
