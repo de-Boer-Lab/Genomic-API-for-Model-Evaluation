@@ -27,7 +27,7 @@ else:
 
 EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_file)
 
-output_json_filename = f"gosai_mpra_predictions_{input_file.replace(".txt", "")}.json"
+output_json_filename = f'gosai_mpra_predictions_{input_file.replace(".txt", "")}.json'
 
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
