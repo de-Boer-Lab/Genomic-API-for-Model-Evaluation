@@ -393,12 +393,12 @@ pre code {
 <td>“readout”: “track”</td>
 </tr>
 <tr class="odd">
-<td><code>prediction_task</code></td>
+<td><code>prediction_tasks</code></td>
 <td><code>array of objects</code> - Required</td>
 <td>Each object must contain the following keys: <code>name</code>,
 <code>type</code>, <code>cell_type</code>, <code>species</code>,
 <code>scale</code>(optional).</td>
-<td>“prediction_task”: [<br> {<br>   “name”: “task1”,<br>   “type”:
+<td>“prediction_tasks”: [<br> {<br>   “name”: “task1”,<br>   “type”:
 “expression”,<br>  “cell_type”: “iPSC”,<br>  “scale”:
 “linear”,<br>  “species”: “homo_sapiens” <br> }<br>]</td>
 </tr>
@@ -510,18 +510,25 @@ order</p>
 <td>“task”: “predict”</td>
 </tr>
 <tr class="even">
+<td><code>predictor_name</code></td>
+<td><code>string</code>- Required</td>
+<td>Predictor name (to be used as identifier for Evaluators)</td>
+<td>“predictor_name”: “deboerModel_2025”</td>
+</tr>
+<tr class="odd">
 <td><code>bin_size</code></td>
 <td><code>integer</code> - Required for track based models</td>
 <td>Resolution of the model’s predictions.</td>
 <td>“bin_size” : 1</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>prediction_task</code></td>
 <td><code>array of objects</code> - Required</td>
 <td>Each object must contain the following keys: <code>name</code>,
 <code>type_requested</code>,<code>type_actual</code>,
 <code>cell_type_requested</code>, <code>cell_type_actual</code>,
-<code>species_requested</code>, <code>species_actual</code>,
+<code>species_requested</code>,
+<code>species_actual</code>,<code>prediction</code>,
 <code>scale_prediction_requested</code> (optional),
 <code>scale_prediction_actual</code> (optional),
 <code>aggregation_replicates</code> (optional).</td>
@@ -531,7 +538,7 @@ order</p>
 “K562”,<br>  “cell_type_actual”:
 “bone_marrow_cell_line”,<br>  “species_requested”:
 “homo_sapiens”,<br>  “species_actual”:
-“homo_sapeins”,<br>  “scale_prediction_requested”: “linear”,
+“homo_sapiens”,<br>  “scale_prediction_requested”: “linear”,
 <br>  “scale_prediction_actual”:
 “linear”,<br>  “aggregation_replicates”: “mean”,<br>   “predictions”:
 { <br>     “seq1”: [12.2, 5, 6, ..],<br>     “seq2”: [1.1, 12, 0.00,
@@ -539,81 +546,84 @@ order</p>
 3.0, 0.001, ..],<br>    “control”: [0, 0, 0, ..]
 <br>   }<br> }<br>]</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>name</code></td>
 <td><code>string</code> - Required</td>
 <td>Unique identifier for each prediction task array matched from
 Evaluator.</td>
 <td>“name”: “task_for_model”</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>type_requested</code></td>
 <td><code>string</code> - Required</td>
-<td>Prediction type requested: : [“accessibility”, “binding_molecule” ,
-expression”, “chromatin_confirmation”]. “binding_<molecule>” can be for
+<td>Prediction type requested: [“accessibility”, “binding_molecule” ,
+“expression”, “chromatin_confirmation”]. “binding_<molecule>” can be for
 any type of binding assay (ex. CHIP-Seq, H3k27ac) and the text trailing
 the “_” should be all lower case.</td>
 <td>“type_requested”: “expression”</td>
 </tr>
-<tr class="even">
-<td><code>type_actual</code></td>
-<td><code>string</code> - Required</td>
-<td>Prediction type completed by Predictor.</td>
-<td>“type_actual”: “expression”</td>
-</tr>
 <tr class="odd">
+<td><code>type_actual</code></td>
+<td><code>array of string(s)</code> - Required</td>
+<td>Prediction type(s) completed by Predictor. In many cases will be the
+assay the model predicted. If multiple tracks were averaged in a
+multi-task model they should be included here. ex. [“dnase”,
+“atac-seq”]</td>
+<td>“type_actual”: [“expression”]</td>
+</tr>
+<tr class="even">
 <td><code>cell_type_requested</code></td>
 <td><code>string</code>- Required</td>
 <td>Cell type requested by Predictor.</td>
-<td>“cell_type_requested”: [“HEPG2”]</td>
+<td>“cell_type_requested”: “HEPG2”</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>cell_type_actual</code></td>
 <td><code>string</code>- Required</td>
 <td>Cell type returned by Predictor. Predictor can choose to use cell
 type/cell line ontology container which will returned the closest
 matched cell type that the Predictor has.</td>
-<td>“cell_type_actual”: [“HEPG2”]</td>
+<td>“cell_type_actual”: “HEPG2”</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>species_requested</code></td>
 <td><code>string</code> - Required</td>
 <td>What species was requested by the Predictor.</td>
 <td>“species_requested”: “homo_sapiens”</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>species_actual</code></td>
 <td><code>string</code> - Required</td>
 <td>What species was used by the Predictor.</td>
 <td>“species_actual”: “homo_sapiens”</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>scale_prediction_requested</code></td>
 <td><code>string</code> - Optional</td>
 <td>Evaluator requested scaling for predictions: [“linear”, “log”].</td>
 <td>“scale_prediction_requested”: “log”</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>scale_prediction_actual</code></td>
 <td><code>string</code> - Optional</td>
 <td>How did the Predictor scale the predictions (if at all): [“linear”,
 “log”] .</td>
 <td>“scale_prediction_actual”: “log”</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>aggregation_replicates</code></td>
 <td><code>string</code>- Optional</td>
 <td>How replicates were aggregated.</td>
 <td>“aggregation_replicates”: “mean”</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>aggregation_bins</code></td>
 <td><code>string</code>- Optional</td>
 <td>How bins in track based models were aggregated to produce point
 predictions.</td>
 <td>“aggregation_bins”: “mean”</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>predictions</code></td>
 <td><code>object</code>- Required</td>
 <td>Objects of key-value pairs where keys are strings and values are
