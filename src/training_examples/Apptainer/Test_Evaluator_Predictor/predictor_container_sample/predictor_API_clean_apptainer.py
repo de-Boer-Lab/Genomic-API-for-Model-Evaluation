@@ -28,7 +28,7 @@ BUFFER_SIZE = 65536
 
 # ------ ADDITION: Configuration for Wire-Format ------
 SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json"]] # Removed msgpack -- not supported
-SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["json"]] # JSON is always supported even when not mentioned
+SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["msgpack"]] # JSON is always supported even when not mentioned
 
 def send_payload(sock, payload_obj, wire_fmt):
     
