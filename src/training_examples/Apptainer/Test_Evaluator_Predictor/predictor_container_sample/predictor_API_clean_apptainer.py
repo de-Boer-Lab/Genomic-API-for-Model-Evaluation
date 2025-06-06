@@ -28,7 +28,7 @@ BUFFER_SIZE = 65536
 
 # ------ ADDITION: Configuration for Wire-Format ------
 SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json"]] # Removed msgpack -- not supported
-SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["json"]] # JSON is always supported even when not mentioned
+SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["msgpack"]] # JSON is always supported even when not mentioned
 
 def send_payload(sock, payload_obj, wire_fmt):
     
@@ -362,6 +362,7 @@ def recv_message_loop(client_socket):
 
         # Create JSON to return
         json_return = {'request': evaluator_json['request']}
+        json_return['predictor_name'] = "deBoerTest_model"
         # Prediction task is an array of objects for all requested tasks
         json_return['prediction_tasks'] = []
         # Loop through all the prediction tasks

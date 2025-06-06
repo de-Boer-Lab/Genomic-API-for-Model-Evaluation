@@ -15,7 +15,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Define the input file name
 # This example Evaluator can only take .json/.msgpack inputs
 # ALERT: Variable names will change -- JSON-specific names will be changed
-input_file = "evaluator_message_gosai_1seq_test.json"
+input_file = "evaluator_message_more_complex.json"
 
 # Determine if running inside a container or not
 if os.path.exists("/.singularity.d"):
