@@ -362,6 +362,7 @@ def recv_message_loop(client_socket):
 
         # Create JSON to return
         json_return = {'request': evaluator_json['request']}
+        json_return['predictor_name'] = "deBoerTest_model"
         # Prediction task is an array of objects for all requested tasks
         json_return['prediction_tasks'] = []
         # Loop through all the prediction tasks
