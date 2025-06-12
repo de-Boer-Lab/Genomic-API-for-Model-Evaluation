@@ -412,7 +412,7 @@ pre code {
 <td><code>type</code></td>
 <td><code>string</code> - Required</td>
 <td>Prediction type you want predicted: [“accessibility”,
-“binding_molecule” , expression”, “chromatin_confirmation”].
+“binding_molecule” , expression”, “chromatin_conformation”].
 “binding_<molecule>” can be for any type of binding assay (ex. CHIP-Seq,
 H3k27ac) and the text trailing the “_” should be all lower case and
 without any special characters. <code>expression</code> by default
@@ -528,10 +528,10 @@ order</p>
 <code>type_requested</code>,<code>type_actual</code>,
 <code>cell_type_requested</code>, <code>cell_type_actual</code>,
 <code>species_requested</code>,
-<code>species_actual</code>,<code>prediction</code>,
+<code>species_actual</code>,<code>predictions</code>,
 <code>scale_prediction_requested</code> (optional),
 <code>scale_prediction_actual</code> (optional),
-<code>aggregation_replicates</code> (optional).</td>
+<code>aggregation</code> (optional object).</td>
 <td>“prediction_task”: [<br> {<br>   “name”: “task1”,<br>
   “type_requested”: “expression”,<br>  “type_actual”:
 “expression”,<br>  “cell_type_requested”:
@@ -539,12 +539,11 @@ order</p>
 “bone_marrow_cell_line”,<br>  “species_requested”:
 “homo_sapiens”,<br>  “species_actual”:
 “homo_sapiens”,<br>  “scale_prediction_requested”: “linear”,
-<br>  “scale_prediction_actual”:
-“linear”,<br>  “aggregation_replicates”: “mean”,<br>   “predictions”:
-{ <br>     “seq1”: [12.2, 5, 6, ..],<br>     “seq2”: [1.1, 12, 0.00,
-..],<br>    “random_seq”: [100.1, 50, 0.5, ..],<br>    “enhancer”: [4,
-3.0, 0.001, ..],<br>    “control”: [0, 0, 0, ..]
-<br>   }<br> }<br>]</td>
+<br>  “scale_prediction_actual”: “linear”,<br>  “aggregation”: {“bins”:
+“mean”},<br>   “predictions”: { <br>     “seq1”: [12.2, 5, 6, ..],<br>
+    “seq2”: [1.1, 12, 0.00, ..],<br>    “random_seq”: [100.1, 50, 0.5,
+..],<br>    “enhancer”: [4, 3.0, 0.001, ..],<br>    “control”: [0, 0, 0,
+..] <br>   }<br> }<br>]</td>
 </tr>
 <tr class="odd">
 <td><code>name</code></td>
@@ -557,7 +556,7 @@ Evaluator.</td>
 <td><code>type_requested</code></td>
 <td><code>string</code> - Required</td>
 <td>Prediction type requested: [“accessibility”, “binding_molecule” ,
-“expression”, “chromatin_confirmation”]. “binding_<molecule>” can be for
+“expression”, “chromatin_conformation”]. “binding_<molecule>” can be for
 any type of binding assay (ex. CHIP-Seq, H3k27ac) and the text trailing
 the “_” should be all lower case.</td>
 <td>“type_requested”: “expression”</td>
@@ -611,19 +610,15 @@ matched cell type that the Predictor has.</td>
 <td>“scale_prediction_actual”: “log”</td>
 </tr>
 <tr class="even">
-<td><code>aggregation_replicates</code></td>
-<td><code>string</code>- Optional</td>
-<td>How replicates were aggregated.</td>
-<td>“aggregation_replicates”: “mean”</td>
+<td><code>aggregation</code></td>
+<td><code>object</code>- Optional</td>
+<td>Contains information about how replicates, bins and/or tracks were
+aggregated. Values can be any descriptive string and Predictor builders
+only need to include those that they used.</td>
+<td>“aggregation”: {<br>   “replicates”: “mean”,<br>   “bins”:
+“mean”,<br>  “tracks”: “special mathematical formula”<br> }</td>
 </tr>
 <tr class="odd">
-<td><code>aggregation_bins</code></td>
-<td><code>string</code>- Optional</td>
-<td>How bins in track based models were aggregated to produce point
-predictions.</td>
-<td>“aggregation_bins”: “mean”</td>
-</tr>
-<tr class="even">
 <td><code>predictions</code></td>
 <td><code>object</code>- Required</td>
 <td>Objects of key-value pairs where keys are strings and values are
