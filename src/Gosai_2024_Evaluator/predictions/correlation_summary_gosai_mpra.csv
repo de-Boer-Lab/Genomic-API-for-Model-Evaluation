@@ -1,0 +1,4 @@
+Evaluator	Predictor Identifier	Task	Requested Cell Type	Predicted Cell Type	Metric
+gosai_mpra	DREAM-RNN_Human_K562_0_20250612-234823.083031	expression	K562	K562	Pearson r: 0.9007852851359283
+gosai_mpra	DREAM-RNN_Human_K562_1_20250612-234823.089236	expression	HEPG2	K562	Pearson r: 0.9047508994548503
+gosai_mpra	DREAM-RNN_Human_K562_2_20250612-234823.095308	expression	SKNSH	K562	Pearson r: 0.8535725056792823

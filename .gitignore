@@ -5,6 +5,9 @@
 # Ignoring the containers since they are huge
 *.sif
 
+# macOS system files
+*.DS_Store
+
 # Ignore Python cache files
 __pycache__/
 *.pyc
@@ -12,3 +15,6 @@ __pycache__/
 # Ignore specific test scripts and environment .def file
 /src/borzoi_GAME/src/test_scripts
 /src/borzoi_GAME/src/predictor_script_and_utils/borzoi_gpu_env.def
+# Large text file for Gosai MPRA
+/src/Gosai_2024_Evaluator/evaluator_data/41586_2024_8070_MOESM4_ESM.txt
+

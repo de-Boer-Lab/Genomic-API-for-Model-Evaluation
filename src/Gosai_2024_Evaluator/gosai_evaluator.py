@@ -8,14 +8,19 @@ import struct
 import socket
 import msgpack
 import pandas as pd
+from datetime import datetime, timezone
 
 from evaluator_utils import *
+from correlation_calculator import *
 
 # Get the absolute path of the script's directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # File name for input sequences
 input_file = "41586_2024_8070_MOESM4_ESM.txt"
+
+# Evaluator name
+EVALUATOR_NAME = "gosai_mpra"
 
 #Determine if running inside a container or not
 if os.path.exists("/.singularity.d"):
@@ -27,7 +32,7 @@ else:
 
 EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_file)
 
-output_json_filename = f'gosai_mpra_predictions_{input_file.replace(".txt", "")}.json'
+output_filename_base = f'{EVALUATOR_NAME}_predictions_{input_file.replace(".txt", "")}' # predictor_name will be added to this upon receiving the response
 
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
@@ -35,7 +40,7 @@ BUFFER_SIZE = 65536
 # Debug logs for validation
 print(f"Using input file: {EVALUATOR_INPUT_PATH}")
 
-# ------ ADDITION: Configuration for Wire-Format ------
+# ------ Configuration for Wire-Format ------
 REQUEST_FORMAT = "JSON"
 REQUEST_FORMAT = REQUEST_FORMAT.lower() # for case-insensitive matching
 
@@ -43,7 +48,7 @@ REQUEST_FORMAT = REQUEST_FORMAT.lower() # for case-insensitive matching
 RESPONSE_FORMAT = "msgpack"
 RESPONSE_FORMAT = RESPONSE_FORMAT.lower()
 
-# ADDITION: Enable negotiation
+# Enable negotiation
 def negotiate_format_with_predictor(connection):
     
     """
@@ -118,10 +123,14 @@ def negotiate_format_with_predictor(connection):
     print(f"Negotiated receive format: {recv_format}")
     return send_format, recv_format
 
-def run_evaluator():
-    host = sys.argv[1]
-    port = int(sys.argv[2])
-    output_dir = sys.argv[3]
+def run_evaluator(host, port, output_dir):
+    """
+    Connects to Predictor, preprocesses, sends request, receives response,
+    saves the response, and returns fill path to the file.
+
+    Returns:
+        output_file (str): The full path to the saved predictions JSON file; None if unable.
+    """
     
     # Validate evaluator input file exists
     if not os.path.exists(EVALUATOR_INPUT_PATH):
@@ -132,10 +141,6 @@ def run_evaluator():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
         print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
-    
-    # Compute the full RETURN_FILE_PATH using the provided output directory
-    RETURN_FILE_PATH = os.path.join(output_dir, output_json_filename)
-    print(f"Will save predictions to: {RETURN_FILE_PATH}")
         
     # Try creating a socket
     try:
@@ -268,9 +273,8 @@ def run_evaluator():
                 print("Data received was incomplete or corrupted.")
                 break
 
-
         except socket.error as e:
-            print ("server_error: Error receiving predictions: %s" % e)
+            print("server_error: Error receiving predictions: %s" % e)
             sys.exit(1)
 
 # Parse and save Predictor response
@@ -293,18 +297,152 @@ def run_evaluator():
                 print(f"Error saving predictions: {e}")
                 sys.exit(1)
         
+        # ADDITION: Construct file name after receiving predictor_name
+        predictor_name_received = predictor_data.get("predictor_name", None)
+        predictor_name = predictor_name_received.replace(" ", "_").replace("/", "_")
+        output_json_filename = f"{output_filename_base}_from_{predictor_name}.json"
+        
+        # Compute the full RETURN_FILE_PATH using the provided output directory
+        RETURN_FILE_PATH = os.path.join(output_dir, output_json_filename)
+        print(f"Will save predictions to: {RETURN_FILE_PATH}")
+        
         output_file = RETURN_FILE_PATH
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(predictor_data, f,
+            json.dump(predictor_data, f,                                                                                                  
                       ensure_ascii=False, indent=4, 
                       separators=(",", ": "))
         print(f"Predictions saved to {output_file}")
+        return output_file # NOTE: This is now being returned so the __main__ block knows where the predictions are stored
+    
     except Exception as e:
         print(f"Error saving predictions: {e}")
         sys.exit(1)
+        return None
     finally:
         connection.close()
         print("Connection to server closed")   
     
 if __name__ == '__main__':
-    run_evaluator()
+    
+    host_arg = sys.argv[1]
+    port_arg = int(sys.argv[2])
+    output_dir_arg = sys.argv[3]
+    
+    saved_predictions_path = run_evaluator(host_arg, port_arg, output_dir_arg)
+    
+    # Correlation calculation
+    # NOTE: Every evaluator will do this slightly differently depending on how the data is presented  
+    if os.path.exists(saved_predictions_path):
+        print("----- Starting Evaluation Calculation and Saving as CSV -----")
+        MEASURED_DATA_PATH = EVALUATOR_INPUT_PATH # NOTE: This may not be the same for other evaluators
+        print(f"Using measured data from: {MEASURED_DATA_PATH}")
+        print(f"Using predictions from: {saved_predictions_path}")
+        print(f"Correlation metadata will be saved in {output_dir_arg}")
+        
+        seq_column = "IDs" # This can change depending on data
+        measured_value_columns_map = {
+            "K562": "K562_log2FC",
+            "HEPG2": "HepG2_log2FC", 
+            "SKNSH": "SKNSH_log2FC"
+        }
+        
+        chromosome_column = "chr" # If provided
+        chromosomes_to_filter_list = None 
+        
+        correlation_summary_filename = f"correlation_summary_{EVALUATOR_NAME}.csv"
+        correlation_summary_filepath = os.path.join(output_dir_arg, correlation_summary_filename)
+        
+        # Initialize an empty list to get summary for all tasks
+        all_task_correlation_results = []
+        
+        try:
+            # Load measured data file and predictions file ONCE (not with every function call).
+            # NOTE: Evaluator builders: If measured_file_path is not a tab-separated file,
+            # this line (pd.read_csv) will need to be adjusted or replaced with the
+            # appropriate pandas read function (e.g., pd.read_excel, pd.read_csv with different sep)
+            # or custom loading logic (e.g., for .npy files).
+            measured_df = pd.read_csv(MEASURED_DATA_PATH, sep='\t', header=0)
+            
+            # Now load predictions
+            with open(saved_predictions_path, 'r') as f:
+                predictions_file_content = json.load(f)
+            
+            # Extract Predictor Name
+            predictor_name_base = predictions_file_content.get("predictor_name", None) # Resort to None if predictor name is not available
+            
+            if (
+                "prediction_tasks" not in predictions_file_content or
+                # Also flag cases in case prediction_tasks key is returned empty
+                not predictions_file_content["prediction_tasks"] or
+                # And flag if any 'predictions' keys are empty
+                any(not key.get("predictions") for key in predictions_file_content["prediction_tasks"])
+            ):
+                print("WARNING: 'prediction_tasks' key missing, empty, or one of the tasks has empty predictions.")
+            else:
+                # Loop through each prediction_task from Predictor
+                # Calculate the correlation for each task seperately
+                for task_index, single_task_data_dict in enumerate(predictions_file_content["prediction_tasks"]):
+                    if not isinstance(single_task_data_dict, dict):
+                        print(f"WARNING: Task item at index {task_index} is not a dictionary. Skipping!")
+                        continue
+                    
+                    # Extract metadata from this task
+                    task_type_actual = single_task_data_dict.get("type_actual")
+                    predicted_cell_type = single_task_data_dict.get("cell_type_actual")
+                    # We also want to extract the cell_type_requested to map it to measured_value_columns_map
+                    requested_cell_type = single_task_data_dict.get("cell_type_requested")
+                    
+                    # Find the correspoding measured data column from the map
+                    measured_col_for_task = measured_value_columns_map.get(requested_cell_type)
+                    
+                    print(f"\nProcessing task {task_index+1} (Cell Type: {predicted_cell_type}). Correlating against measured column '{measured_col_for_task}'.")
+                    
+                    # Call the correlation calculation function
+                    task_correlation_dict = calculate_task_correlation(
+                        measured_df=measured_df,
+                        single_task_data=single_task_data_dict,
+                        measured_value_column=measured_col_for_task,
+                        seq_id_column=seq_column # chromosome_column and chromosomes_to_filter_list can be added as arguments
+                    )
+                    
+                    if task_correlation_dict:
+                        pearson_r_value = task_correlation_dict.get('pearson_r')
+                        
+                        # Get UTC timestamp for predictor_name
+                        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S.%f")
+                        # And append it to the predictor_name
+                        predictor_identifier = f"{predictor_name_base}_{task_index}_{timestamp}" if predictor_name_base else f"UnknownPredictor_{task_index}_{timestamp}"
+                        
+                        all_task_correlation_results.append({
+                            "Evaluator": EVALUATOR_NAME,
+                            "Predictor Identifier": predictor_identifier,
+                            "Task": task_correlation_dict.get("task_type", None),
+                            "Requested Cell Type": requested_cell_type,
+                            "Predicted Cell Type": task_correlation_dict.get("cell_type_actual", None),
+                            "Metric": f"Pearson r: {pearson_r_value}"
+                        })
+
+        except Exception as e:
+            print(f"An error occurred during correlation calculation: {e}")
+            
+        # Once all the data is received, save them all into a summary CSV
+        # print(all_task_correlation_results)
+        if all_task_correlation_results:
+            summary_df = pd.DataFrame(all_task_correlation_results)
+            csv_file_exists: bool = os.path.isfile(correlation_summary_filepath)
+            try:
+                summary_df.to_csv(correlation_summary_filepath, mode='a',
+                                  sep='\t', header=(not csv_file_exists), index=False)
+                if csv_file_exists:
+                    print("Appended to existing summary CSV file")
+                else:
+                    print("Created a new summary CSV file")
+                print(f"Saved correlation summary to {correlation_summary_filepath}!")
+            except IOError as e:
+                print("\nNo correlation resuls were saved!")
+
+    else:
+        print("Evaluator run did not complete successfully.")
+        print(f"Predictions file not found in '{saved_predictions_path}'.")
+        print("Skipping correlation calculation!")
+    
