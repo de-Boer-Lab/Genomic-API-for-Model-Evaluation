@@ -395,7 +395,8 @@ if __name__ == '__main__':
                     # Find the correspoding measured data column from the map
                     measured_col_for_task = measured_value_columns_map.get(requested_cell_type)
                     
-                    print(f"\nProcessing task {task_index+1} (Cell Type: {predicted_cell_type}). Correlating against measured column '{measured_col_for_task}'.")
+                    print(f"\nProcessing task {task_index+1} (Cell Type: {predicted_cell_type}). Correlating against measured column '{measured_col_for_task}'\
+                    for requested cell type '{requested_cell_type}'.")
                     
                     # Call the correlation calculation function
                     task_correlation_dict = calculate_task_correlation(
