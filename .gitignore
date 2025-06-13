@@ -15,6 +15,7 @@ __pycache__/
 # Ignore specific test scripts and environment .def file
 /src/borzoi_GAME/src/test_scripts
 /src/borzoi_GAME/src/predictor_script_and_utils/borzoi_gpu_env.def
-# Large text file for Gosai MPRA
+# Large text file and predictions JSON for Gosai MPRA
 /src/Gosai_2024_Evaluator/evaluator_data/41586_2024_8070_MOESM4_ESM.txt
-
+/src/Gosai_2024_Evaluator/predictions/predictions.json
+/src/Gosai_2024_Evaluator/predictions/gosai_mpra_predictions_41586_2024_8070_MOESM4_ESM.json
