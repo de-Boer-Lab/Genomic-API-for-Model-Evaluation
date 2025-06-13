@@ -25,6 +25,7 @@ However, if you are building the container using the provided definition file, e
 ```bash
 /path/to/evaluator_script_and_utils/
 ├── borzoi_evaluator_API.py
+├── evaluator_utils.py
 ├── evaluator.def
 ├── evaluator.sif
 ├── evaluator_data/
@@ -40,7 +41,7 @@ apptainer build evaluator.sif evaluator.def
 ### Bind these directories and run the container
 
 ```bash
-apptainer run \
+apptainer run --containall \
     -B absolute/path/to/evaluator_data:/evaluator_data \
     -B absolute/path/to/predictions:/predictions \
     evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
@@ -58,10 +59,10 @@ apptainer run \
 ## Example Command
 
 ```bash
-apptainer run \
+apptainer run --containall \
     -B absolute/path/to/evaluator_data:/evaluator_data \
     -B absolute/path/to/predictions:/predictions \
-    evaluator.sif 172.16.47.244 5000 /predictions
+    evaluator.sif 172.16.47.xxx 5000 /predictions
 ```
 
 ## Arguments
@@ -81,7 +82,9 @@ apptainer run \
 ```
 
 - `export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"`:
-*Why it is required:* By default, Apptainer automatically mounts host directories (like /home directory, /tmp, /proc, /sys, and /dev) into the container. This can inadvertently expose host data or cause conflicts. Setting this variable disables those automatic mounts so that only explicitly bound directories (using the -B flag) will be available inside the container.
+*Why it is required:* By default, Apptainer automatically mounts host directories (like /home directory, /tmp, /proc, /sys, and /dev) into the container. This can inadvertently expose host data or cause conflicts. Setting this variable disables those automatic mounts so that only explicitly bound directories (using the `-B` flag) will be available inside the container.
+
+*However:* The `--containall` flag, used at runtime, provides the second and most complete layer of isolation by blocking all unexpected host directories, variables, and settings.
 
 - `export LC_ALL=C`:
 This sets the container to use the default “C” (POSIX) locale for consistent sorting, formatting, and error messages, regardless of the host’s locale settings.
@@ -93,4 +96,4 @@ This prepends /usr/local/bin (as defined within the container) to the PATH, ensu
 
 - [Apptainer Documentation:](https://apptainer.org/docs/user/latest/)
 - [HEP Softwate Foundation -- Introduction to Apptainer/Singularity:](https://hsf-training.github.io/hsf-training-singularity-webpage/)
-- - [NSC: Using Apptainer on Berzelius](https://www.nsc.liu.se/support/systems/berzelius-software/berzelius-apptainer/)
+- [NSC: Using Apptainer on Berzelius](https://www.nsc.liu.se/support/systems/berzelius-software/berzelius-apptainer/)

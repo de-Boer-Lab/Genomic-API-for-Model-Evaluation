@@ -99,7 +99,7 @@ apptainer build borzoi_human_predictor.sif predictor.def
 ### Run the container
 
 ```bash
-apptainer run --nv borzoi_human_predictor.sif HOST PORT
+apptainer run --nv --containall borzoi_human_predictor.sif HOST PORT
 ```
 
 ## Details
@@ -107,6 +107,7 @@ apptainer run --nv borzoi_human_predictor.sif HOST PORT
 - The container receives data via a TCP socket and does not require mounted data directories.
 - Replace `HOST` and `PORT` with the server and port configuration for the evaluator to connect to.
 - The `--nv` flag sets up the environment of the container to use an NVIDIA GPU and CUDA libraries to run a CUDA-enabled application.
+- The `--containall` flag ensures a clean, isolated environment for reproducible runs.
 
 ## Purpose
 
@@ -116,7 +117,7 @@ apptainer run --nv borzoi_human_predictor.sif HOST PORT
 ## Example Command
 
 ```bash
-apptainer run --nv borzoi_human_predictor.sif 172.16.47.244 5000
+apptainer run --nv --containall borzoi_human_predictor.sif 172.16.47.xxx 5000
 ```
 
 ## Arguments
@@ -141,7 +142,9 @@ apptainer run --nv borzoi_human_predictor.sif 172.16.47.244 5000
 ```
 
 - `export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"`:
-*Why it is required:* By default, Apptainer automatically mounts host directories (like /home directory, /tmp, /proc, /sys, and /dev) into the container. This can inadvertently expose host data or cause conflicts. Setting this variable disables those automatic mounts so that only explicitly bound directories (using the -B flag) will be available inside the container.
+*Why it is required:* By default, Apptainer automatically mounts host directories (like /home directory, /tmp, /proc, /sys, and /dev) into the container. This can inadvertently expose host data or cause conflicts. Setting this variable disables those automatic mounts so that only explicitly bound directories (using the `-B` flag) will be available inside the container.
+
+*However:* The `--containall` flag, used at runtime, provides the second and most complete layer of isolation by blocking all unexpected host directories, variables, and settings.
 
 ### Additional Links for Reference
 

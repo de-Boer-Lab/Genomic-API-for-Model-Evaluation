@@ -30,15 +30,20 @@ To run a test prediction using the Borzoi container and sample Evaluator contain
 
 3. Start the BORZOI Predictor with the IP address and PORT arguments
 
-    `apptainer run --nv borzoi_human_predictor.sif HOST PORT`
+    `apptainer run --nv --containall borzoi_human_predictor.sif HOST PORT`
 
     Example:
-    `apptainer run --nv borzoi_human_predictor.sif 172.16.47.243 5000`
+    `apptainer run --nv --containall borzoi_human_predictor.sif 172.16.47.xxx 5000`
+
+    **Understanding the Flags:**
+
+    - `--nv`: (Required for Borzoi) This enables the container to access the NVIDIA GPU drivers installed on your host machine.
+    - `--containall`: (Recommended Best Practice) This ensures the container runs in a clean, isolated environment, which is critical for reproducibility.
 
 4. Start the test Evaluator
 
     ```bash
-    apptainer run \
+    apptainer run --containall \
         -B absolute/path/to/evaluator_data:/evaluator_data \
         -B absolute/path/to/predictions:/predictions \
         borzoi_evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
@@ -47,13 +52,13 @@ To run a test prediction using the Borzoi container and sample Evaluator contain
     Example:
 
     ```bash
-    apptainer run \
+    apptainer run --containall \
         -B absolute/path/to/evaluator_data:/evaluator_data \
         -B absolute/path/to/predictions:/predictions \
-        borzoi_evaluator.sif 172.16.47.244 5000 /predictions
+        borzoi_evaluator.sif 172.16.47.xxx 5000 /predictions
     ```
 
-    The `-B` mounts local directories so that the Evaluator container can read in the JSON file from a local folder and write the prediction to the locally created `/predictions` folder.
+    The `-B` flag mounts local directories so that the Evaluator container can read the input file and write the resulting predictions back to the mounted `/predictions` directory.
 
 5. If the Evaluator-Prediction communication was successful a JSON file will be found in the `predictions/` folder.
 
