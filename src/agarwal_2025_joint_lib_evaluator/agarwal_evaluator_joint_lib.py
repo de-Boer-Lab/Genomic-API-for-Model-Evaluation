@@ -32,7 +32,7 @@ else:
     
 EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_file)
 
-output_filename_base = f'{EVALUATOR_NAME}_predictions_{input_file.replace(".xlsx", "")}.json'
+output_filename_base = f'{EVALUATOR_NAME}_predictions_{input_file.replace(".xlsx", "")}'
     
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
