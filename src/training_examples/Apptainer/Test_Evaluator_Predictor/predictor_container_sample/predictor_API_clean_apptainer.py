@@ -12,7 +12,10 @@ from deBoerTest_model import *
 # Get the absolute path of the script's directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Determine if running inside a container or not
+# Hardcode name of this Predictor. It will be added to ALL responses.
+PREDICTOR_NAME = "deBoerTest_Model"
+
+# Determine if running inside a container or notps
 if os.path.exists('/.singularity.d'):
     # Running inside the container
     print("Running inside the container...🥡")
@@ -27,7 +30,7 @@ else:
 BUFFER_SIZE = 65536
 
 # ------ ADDITION: Configuration for Wire-Format ------
-SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json"]] # Removed msgpack -- not supported
+SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["json", "msgpack"]]
 SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["msgpack"]] # JSON is always supported even when not mentioned
 
 def send_payload(sock, payload_obj, wire_fmt):
@@ -43,12 +46,17 @@ def send_payload(sock, payload_obj, wire_fmt):
     Returns:
         None
     """
+    print("--- Preparing final payload ---")
+    final_payload = {}
+    if isinstance(payload_obj, dict):
+        final_payload['predictor_name'] = PREDICTOR_NAME # NOTE: this is needed for all payload to have the predictor_name
+        final_payload.update(payload_obj)
     
     try:
         if wire_fmt == "msgpack":
-            body = msgpack.packb(payload_obj, use_bin_type=True)
+            body = msgpack.packb(final_payload, use_bin_type=True)
         else:
-            body = json.dumps(payload_obj).encode("utf-8")
+            body = json.dumps(final_payload).encode("utf-8")
         # Length-prefix
         sock.sendall(struct.pack(">I", len(body)))
         sock.sendall(body)
@@ -362,7 +370,6 @@ def recv_message_loop(client_socket):
 
         # Create JSON to return
         json_return = {'request': evaluator_json['request']}
-        json_return['predictor_name'] = "deBoerTest_model"
         # Prediction task is an array of objects for all requested tasks
         json_return['prediction_tasks'] = []
         # Loop through all the prediction tasks
@@ -393,7 +400,13 @@ def recv_message_loop(client_socket):
             current_prediction_task['species_actual']  = 'homo_sapiens'
 
             # Add predictions dictionary to the JSON
-            fake_model_point(sequences, current_prediction_task)
+            raw_predictions = fake_model_point(sequences)
+            
+           # Now, wrap each prediction in a list as required by the evaluator
+            list_wrapped_predictions = {
+                seq_id: [value] for seq_id, value in raw_predictions.items()
+            }
+            current_prediction_task['predictions'] = list_wrapped_predictions
             # Append results for current prediction task to the main JSON object
             json_return['prediction_tasks'].append(current_prediction_task)
             

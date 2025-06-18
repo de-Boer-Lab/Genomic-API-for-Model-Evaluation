@@ -6,7 +6,7 @@ import tqdm
 
 ## model specific checks that cause a "prediction_request_failed" error
 def check_seqs_specifications(sequences, json_return_error_model):
-    max_length = 600000
+    max_length = 400000
     for sequence in sequences:
         value = sequences[sequence]
         key = sequence
@@ -21,13 +21,12 @@ def check_seqs_specifications(sequences, json_return_error_model):
         #         )
     return(json_return_error_model)
 
-def fake_model_point(sequences, json_dict):
+def fake_model_point(sequences):
     predictions = {}
     # Use tqdm to show progress as we process each sequence.
     for sequence in tqdm.tqdm(sequences, desc="Processing sequences (point prediction)", unit="seq"):
-        predictions[sequence] = [random.randint(0, 1)]
-    json_dict['predictions'] = predictions
-    return json_dict
+        predictions[sequence] = random.randint(0, 1)
+    return predictions
 
 def fake_model_track(sequences, json_dict):
     predictions = {}
@@ -35,7 +34,7 @@ def fake_model_track(sequences, json_dict):
     for sequence in tqdm.tqdm(sequences,
                               desc="Processing sequences (track prediction)",
                               unit="seq"):
-        predictions[sequence] = list(np.random.randint(low=0, high=50, size=100))
+        predictions[sequence] = np.random.randint(low=0, high=50, size=100)
     json_dict['predictions'] = predictions
     return json_dict
 

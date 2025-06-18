@@ -11,28 +11,37 @@ Stage: build
 %environment
     export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
     export LC_ALL=C
-    export PATH="/opt/conda/bin:$PATH"
-    export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
+    # export PATH="/opt/conda/bin:$PATH"
+    # export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
 
 %post
+    # Install system packages needed for conda and building extensions
+    echo "Installing system dependencies..."
+    apt-get update && \
+    apt-get install -y --no-install-recommends python3-pip bzip2 ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
     # Set permissions for copied files
     echo "Setting permissions..."
     chmod -R 755 /predictor_container_sample
 
     echo "Installing Python dependencies..."
     python -m pip install --upgrade pip
-    pip3 install --no-cache-dir numpy pandas tqdm
+    pip3 install --no-cache-dir numpy pandas tqdm msgpack
+
 %runscript
     exec python3 /predictor_container_sample/predictor_API_clean_apptainer.py "$@"
 
 %startscript
     exec python3 /predictor_container_sample/predictor_API_clean_apptainer.py "$@"
 
-%test
-
 %labels
     Test_Predictor
-    Date 2024-11-19
+    Date 2025-06-17
 
 %help
-    This is a container for a sample predictor
+    This is a container for a sample predictor. It includes:
+    - Predictor script for sequence processing and error handling.
+    - Script for `deBoerTest_model`, which is integrated into the predictor as the dummy model.
+    - Support scripts like `api_preprocessing_utils.py`, `error_message_functions_updated.py`, and `predictor_help_message.json`.
+    

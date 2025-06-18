@@ -6,6 +6,9 @@ import tqdm
 import struct
 import socket
 import msgpack
+import numpy as np
+import pandas as pd
+from datetime import datetime, timezone
 
 from evaluator_utils import *
 
@@ -15,7 +18,10 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Define the input file name
 # This example Evaluator can only take .json/.msgpack inputs
 # ALERT: Variable names will change -- JSON-specific names will be changed
-input_file = "evaluator_message_more_complex.json"
+input_file = "evaluator_message_simple_test.json"
+
+# Evaluator name for predictions file and metrics CSV
+EVALUATOR_NAME = "test_evaluator"
 
 # Determine if running inside a container or not
 if os.path.exists("/.singularity.d"):
@@ -26,6 +32,8 @@ else:
     EVALUATOR_DATA_DIR = os.path.join(SCRIPT_DIR, "evaluator_data")
     
 EVALUATOR_INPUT_PATH = os.path.join(EVALUATOR_DATA_DIR, input_file)
+
+output_filename_base = f'{EVALUATOR_NAME}_predictions_{input_file.replace("json", "")}'
     
 # Set buffer size for TCP
 BUFFER_SIZE = 65536
@@ -116,10 +124,14 @@ def negotiate_format_with_predictor(connection):
     print(f"Negotiated receive format: {recv_format}")
     return send_format, recv_format
     
-def run_evaluator():
-    host = sys.argv[1]
-    port = int(sys.argv[2])
-    output_dir = sys.argv[3]
+def run_evaluator(host, port, output_dir):
+    """
+    Connects to Predictor, preprocesses, sends request, receives response,
+    saves the response, and returns fill path to the file.
+
+    Returns:
+        output_file (str): The full path to the saved predictions JSON file; None if unable.
+    """
     
     # Validate input JSON file
     if not os.path.exists(EVALUATOR_INPUT_PATH):
@@ -131,7 +143,7 @@ def run_evaluator():
         os.makedirs(output_dir, exist_ok=True)
         print(f"Output directory '{output_dir}' did not exist. Created it successfully!")
         
-    RETURN_FILE_PATH = os.path.join(output_dir, f"training_predictions_{input_file}")
+    # RETURN_FILE_PATH = os.path.join(output_dir, f"training_predictions_{input_file}")
         
     # Try creating a socket
     try:
@@ -278,7 +290,6 @@ def run_evaluator():
                 print("Data received was incomplete or corrupted.")
                 break
 
-
         except socket.error as e:
             print ("server_error: Error receiving predictions: %s" % e)
             sys.exit(1)
@@ -302,6 +313,15 @@ def run_evaluator():
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Error saving predictions: {e}")
                 sys.exit(1)
+
+        # ADDITION: Construct file name after receiving predictor_name
+        predictor_name_received = predictor_data.get("predictor_name", "UnknownPredictor")
+        predictor_name = predictor_name_received.replace(" ", "_").replace("/", "_")
+        output_json_filename = f"{output_filename_base}_from_{predictor_name}.json"
+        
+        # Compute the full RETURN_FILE_PATH using the provided output directory
+        RETURN_FILE_PATH = os.path.join(output_dir, output_json_filename)
+        print(f"Will save predictions to: {RETURN_FILE_PATH}")
         
         output_file = RETURN_FILE_PATH
         with open(output_file, 'w', encoding='utf-8') as f:
@@ -309,12 +329,96 @@ def run_evaluator():
                       ensure_ascii=False, indent=4, 
                       separators=(",", ": "))
         print(f"Predictions saved to {output_file}")
+        return output_file # NOTE: This is now being returned so the __main__ block knows where the predictions are stored
+        
     except Exception as e:
         print(f"Error saving predictions: {e}")
         sys.exit(1)
+        return None
     finally:
         connection.close()
         print("Connection to server closed")   
     
 if __name__ == '__main__':
-    run_evaluator()
+
+    host_arg = sys.argv[1]
+    port_arg = int(sys.argv[2])
+    output_dir_arg = sys.argv[3]
+    
+    saved_predictions_path = run_evaluator(host_arg, port_arg, output_dir_arg)
+    
+    # Fake correlation calculation. Just extract predictor name for identifier and leave the rest as test and generate a random correlation.
+    # NOTE: Every evaluator will do this slightly differently depending on how the data is presented  
+    if os.path.exists(saved_predictions_path):
+        print("----- Starting Fake Evaluation Calculation and Saving as CSV -----")
+        # MEASURED_DATA_PATH = EVALUATOR_INPUT_PATH # NOTE: This may not be the same for other evaluators
+        # print(f"Using measured data from: {MEASURED_DATA_PATH}")
+        print(f"Using predictions from: {saved_predictions_path}")
+        print(f"Correlation metadata will be saved in {output_dir_arg}")
+        
+        correlation_summary_filename = f"fake_correlation_summary_{EVALUATOR_NAME}.csv"
+        correlation_summary_filepath = os.path.join(output_dir_arg, correlation_summary_filename)
+
+        try:
+            with open(saved_predictions_path, 'r') as f:
+                predictions_file_content = json.load(f)
+    
+            predictor_name = predictions_file_content.get("predictor_name", None)
+        
+            # Initialize an empty list to get summary for all tasks
+            all_task_correlation_results = []
+            
+            if (
+                "prediction_tasks" not in predictions_file_content or
+                # Also flag cases in case prediction_tasks key is returned empty
+                not predictions_file_content["prediction_tasks"] or
+                # And flag if any 'predictions' keys are empty
+                any(not key.get("predictions") for key in predictions_file_content["prediction_tasks"])
+            ):
+                print("WARNING: 'prediction_tasks' key missing, empty, or one of the tasks has empty predictions.")
+            else:
+                # Loop through each prediction_task from Predictor
+                # Calculate the correlation for each task seperately
+                for task_index, single_task_data_dict in enumerate(predictions_file_content["prediction_tasks"]):
+                    if not isinstance(single_task_data_dict, dict):
+                        print(f"WARNING: Task item at index {task_index} is not a dictionary. Skipping!")
+                        continue
+                    fake_pearson_r = np.random.uniform(0.85, 0.99)
+                    
+                    # Get UTC timestamp for predictor_name
+                    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S.%f")
+                    # And append it to the predictor_name
+                    predictor_identifier = f"{predictor_name}_{task_index}_{timestamp}" if predictor_name else f"UnknownPredictor_{task_index}_{timestamp}"
+                    
+                    all_task_correlation_results.append({
+                        "Evaluator": EVALUATOR_NAME,
+                        "Predictor Identifier": predictor_identifier,
+                        "Task": single_task_data_dict.get("type_actual", None),
+                        "Requested Cell Type": single_task_data_dict.get("cell_type_requested", None),
+                        "Predicted Cell Type": single_task_data_dict.get("cell_type_actual", None),
+                        "Metric": f"Fake Pearson r: {fake_pearson_r:.4f}"
+                    })
+                
+        except Exception as e:
+            print(f"An error occurred during correlation calculation: {e}")
+            
+        # Once all the data is received, save them all into a summary CSV
+        # print(all_task_correlation_results)
+        if all_task_correlation_results:
+            summary_df = pd.DataFrame(all_task_correlation_results)
+            csv_file_exists: bool = os.path.isfile(correlation_summary_filepath)
+            try:
+                summary_df.to_csv(correlation_summary_filepath, mode='a',
+                                  sep='\t', header=(not csv_file_exists), index=False)
+                if csv_file_exists:
+                    print("Appended to existing summary CSV file")
+                else:
+                    print("Created a new summary CSV file")
+                print(f"Saved correlation summary to {correlation_summary_filepath}!")
+            except IOError as e:
+                print("\nNo correlation resuls were saved!")
+
+    else:
+        print("Evaluator run did not complete successfully.")
+        print(f"Predictions file not found in '{saved_predictions_path}'.")
+        print("Skipping correlation calculation!")
