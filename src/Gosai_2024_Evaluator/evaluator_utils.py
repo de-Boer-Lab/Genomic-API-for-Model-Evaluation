@@ -20,9 +20,23 @@ def create_json(input_data):
     }
     json_evaluator["prediction_tasks"] = [
         {
-            "name": "gosai_synthetic_sequences",
+            "name": "gosai_mpra_sequences_k562",
             "type": "expression", 
             "cell_type": "K562",
+            "scale": "linear",
+            "species": "homo_sapiens"
+        },
+        {
+            "name": "gosai_mpra_sequences_hepg2",
+            "type": "expression", 
+            "cell_type": "HEPG2",
+            "scale": "linear",
+            "species": "homo_sapiens"
+        },
+        {
+            "name": "gosai_mpra_sequences_sknsh",
+            "type": "accessibility", 
+            "cell_type": "SKNSH",
             "scale": "linear",
             "species": "homo_sapiens"
         }
