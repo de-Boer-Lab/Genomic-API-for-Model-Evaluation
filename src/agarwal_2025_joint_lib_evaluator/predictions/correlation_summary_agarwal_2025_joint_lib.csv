@@ -1,0 +1,4 @@
+Evaluator	Predictor Identifier	Task	Requested Cell Type	Predicted Cell Type	Metric
+agarwal_2025_joint_lib	DREAM-RNN_Human_K562_0_20250616-225056.003467	expression	WTC11	K562	Pearson r: 0.5189246797862591
+agarwal_2025_joint_lib	DREAM-RNN_Human_K562_1_20250616-225056.172637	expression	K562	K562	Pearson r: 0.7824259594851293
+agarwal_2025_joint_lib	DREAM-RNN_Human_K562_2_20250616-225056.273386	expression	HEPG2	K562	Pearson r: 0.5171068243517535
