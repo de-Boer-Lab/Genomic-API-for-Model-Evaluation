@@ -1,5 +1,4 @@
 # correlation_calculator.py
-# import json
 import pandas as pd
 from scipy.stats import pearsonr
 import numpy as np
@@ -151,65 +150,3 @@ if __name__ == '__main__':
         seq_id_column='IDs'
     )
     print(f"Test Result K562: {result}")
-
-# # print(predictions_file['prediction_tasks'][0]['predictions'])
-# # Predictions dict is inside the first element of the `prediction_tasks`
-# predictions_dict = predictions_file['prediction_tasks'][0]['predictions'] # Gets the predictions key:value dict
-# print(type(predictions_dict))
-# print(len(predictions_dict))
-
-# # for value in predictions_dict.values():
-# #     predictions.append(value[0])
-
-# # print(len(predictions))
-# # #measured = measured['K562_log2FC'].to_list()
-
-# #print(predictions_dict)
-
-# #df = pd.DataFrame(predictions_dict)
-# #rint(df)
-
-# df = pd.DataFrame(list(predictions_dict.items()), columns=['IDs', 'Value'])
-# print(df.head())
-
-# # Extract first element from lists
-# df['Value'] = df['Value'].apply(lambda x: x[0] if isinstance(x, list) else x)
-# print(df)
-# print(measured) # Just the input file
-# merged_df = pd.merge(measured, df, on='IDs', how='left')
-# print(merged_df)
-# print(merged_df.shape)
-# nan_count = df.isna().sum().sum()
-# print(nan_count) # prints 0 -- no NaNs
-
-# # duplicates = merged_df[merged_df.duplicated(subset='Value', keep=False)]
-# # duplicates = merged_df[merged_df.duplicated(subset='IDs', keep=False)]
-
-# # print(duplicates)
-
-# filter_values = ['1', '3', '6']
-
-# # Filter DataFrame
-# filtered_df = merged_df[merged_df['chr'].isin(filter_values)]
-# filtered_df = merged_df
-# print("HI")
-# print(filtered_df.shape)
-# print(filtered_df)
-
-# # Calculate Pearson's r and p-value
-# r, p_value = pearsonr(filtered_df['Value'], filtered_df['K562_log2FC'])
-# print(r)
-
-
-# Keep only matched rows
-# matched_df = df.dropna(subset=['Matched_Value'])
-#
-#
-# ### add some basic performance metric calculations
-# mse = metrics.mean_squared_error(measured, predictions)
-# pearsonr = scipy.stats.pearsonr(measured, predictions)
-# f1_score = sklearn.metrics.f1_score(measured, predictions, average="weighted")
-#
-# print(mse)
-# print(pearsonr)
-# print(f1_score)

@@ -5,6 +5,7 @@ Stage: build
 %files
     gosai_evaluator.py /Gosai_2024_Evaluator/gosai_evaluator.py
     evaluator_utils.py /Gosai_2024_Evaluator/evaluator_utils.py
+    correlation_calculator.py /Gosai_2024_Evaluator/correlation_calculator.py
 
 %environment
     # Prevent automatic binding of host directories
@@ -16,12 +17,12 @@ Stage: build
 %post
     echo "Installing system dependencies..."
     apt-get update && \
-    apt-get install -y --no-install-recommends python3-pip wget bzip2 ca-certificates && \
+    apt-get install -y --no-install-recommends python3-pip bzip2 ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
     echo "Installing Python dependencies..."
     python -m pip install --upgrade pip
-    pip3 install --no-cache-dir numpy pandas tqdm
+    pip3 install --no-cache-dir numpy pandas tqdm msgpack
 
     #echo "Setting permissions for directories and script..."
     echo "Setting permissions for directories and script..."
@@ -41,17 +42,21 @@ Stage: build
 
 
 %labels
-    Author "Ishika Luthra"
-    Version "1.2"
+    Authors "Ishika Luthra, Satyam Priyadarshi"
+    Version "4.0"
     Description "This container is the Evaluator set up for the Gosai 2024 paper MPRA data."
 
 %help
     This container includes:
     - Evaluator API script for genomic sequence evaluation.
+    - Evaluator utility script with helper functions.
+    - Correlation calculator script.
     - Installed Python dependencies required by the Evaluator.
 
-    **Usage:**
-    Before running, ensure you have the following directory structure on the host:
+    **Usage**:
+    We encourage using pre-built containers for this Evaluator that is hosted on Zenodo.
+
+    However, if you are building the container using this definition file, ensure you have the following directory structure on the host:
     ```
     /path/to/Gosai_2024_Evaluator/
     ├── evaluator.def
@@ -59,6 +64,7 @@ Stage: build
     ├── evaluator_data
     │   └── 41586_2024_8070_MOESM4_ESM.txt
     ├── evaluator_utils.py
+    ├── correlation_calculator.py
     └── predictions/
     ```
 
@@ -69,7 +75,7 @@ Stage: build
 
     Bind these directories and run the container:
     ```bash
-    apptainer run \
+    apptainer run --containall \
       -B /path/to/Gosai_2024_Evaluator/evaluator_data:/evaluator_data \
       -B /path/to/Gosai_2024_Evaluator/predictions:/predictions \
       gosai_evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
@@ -81,7 +87,7 @@ Stage: build
 
     **Example Command:**
     ```bash
-    apptainer run \
+    apptainer run --containall \
       -B /path/to/Gosai_2024_Evaluator/evaluator_data:/evaluator_data \
       -B /path/to/Gosai_2024_Evaluator/predictions:/predictions \
       gosai_evaluator.sif 172.16.47.244 5000 /predictions
