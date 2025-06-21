@@ -1,5 +1,4 @@
 # correlation_calculator.py
-# import json
 import pandas as pd
 from scipy.stats import pearsonr
 import numpy as np
