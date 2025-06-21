@@ -22,9 +22,8 @@ Stage: build
 
     echo "Installing Python dependencies..."
     python -m pip install --upgrade pip
-    pip3 install --no-cache-dir numpy pandas tqdm msgpack
+    pip3 install --no-cache-dir numpy pandas tqdm msgpack scipy
 
-    #echo "Setting permissions for directories and script..."
     echo "Setting permissions for directories and script..."
     chmod -R 755 /Gosai_2024_Evaluator
 
@@ -90,7 +89,7 @@ Stage: build
     apptainer run --containall \
       -B /path/to/Gosai_2024_Evaluator/evaluator_data:/evaluator_data \
       -B /path/to/Gosai_2024_Evaluator/predictions:/predictions \
-      gosai_evaluator.sif 172.16.47.244 5000 /predictions
+      gosai_evaluator.sif 172.**.47.*** 5000 /predictions
     ```
 
     **Arguments:**
