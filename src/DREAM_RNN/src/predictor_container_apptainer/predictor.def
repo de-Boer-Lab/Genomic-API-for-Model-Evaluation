@@ -22,7 +22,7 @@ Stage: build
 %post
     echo "Installing system dependencies..."
     apt-get update && \
-    apt-get install -y --no-install-recommends wget bzip2 ca-certificates && \
+    apt-get install -y --no-install-recommends bzip2 ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
     echo "Setting up Miniconda..."
@@ -62,7 +62,7 @@ Stage: build
 
 %labels
     Author "Satyam Priyadarshi"
-    Version "3.0"
+    Version "4.0"
     Description "This container is the Predictor set up for Genomic API for Model Evaluation using the DREAM-RNN model."
 
 %help
