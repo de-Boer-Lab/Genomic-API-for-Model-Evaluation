@@ -22,7 +22,7 @@ Stage: build
 %post
     echo "Installing system dependencies..."
     apt-get update && \
-    apt-get install -y --no-install-recommends bzip2 ca-certificates && \
+    apt-get install -y --no-install-recommends wget bzip2 ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
     echo "Setting up Miniconda..."
