@@ -12,6 +12,9 @@ from api_preprocessing_utils import *
 # Get the absolute path of the script's directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Hardcode name of this Predictor. It will be added to ALL responses.
+PREDICTOR_NAME = "DREAM-RNN_Human_K562"
+
 # Determine if running inside a container or not
 if os.path.exists('/.singularity.d'):
     # Running inside the container
@@ -52,12 +55,18 @@ def send_payload(sock, payload_obj, wire_fmt):
     Returns:
         None
     """
+    print("--- Preparing final payload ---")
+    final_payload = {}
+    if isinstance(payload_obj, dict):
+        final_payload['predictor_name'] = PREDICTOR_NAME # NOTE: this is needed for all payload to have the predictor_name
+        final_payload.update(payload_obj)
     
     try:
-        body = json.dumps(payload_obj).encode("utf-8")
+        body = json.dumps(final_payload).encode("utf-8")
         # Length-prefix
         sock.sendall(struct.pack(">I", len(body)))
         sock.sendall(body)
+        print("Payload sent to Evaluator!")
     except socket.error as e:
         print(f"server_error: Error sending payload: {e}")
         sock.close()

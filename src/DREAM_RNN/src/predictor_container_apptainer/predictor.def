@@ -62,7 +62,7 @@ Stage: build
 
 %labels
     Author "Satyam Priyadarshi"
-    Version "3.0"
+    Version "4.0"
     Description "This container is the Predictor set up for Genomic API for Model Evaluation using the DREAM-RNN model."
 
 %help
