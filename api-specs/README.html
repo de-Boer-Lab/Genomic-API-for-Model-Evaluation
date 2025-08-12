@@ -830,28 +830,34 @@ choose what to return here. <br> •Duplicate sequence ID key in
 <h3>Evaluator Output file specifications</h3>
 <table>
 <colgroup>
-<col width="8%" />
-<col width="13%" />
-<col width="25%" />
-<col width="26%" />
-<col width="26%" />
+<col width="5%" />
+<col width="9%" />
+<col width="16%" />
+<col width="17%" />
+<col width="17%" />
+<col width="17%" />
+<col width="17%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th>Evaluator</th>
-<th>Predictor_Identifier</th>
-<th>Task</th>
-<th>Cell_Type</th>
+<th>Evaluator_name</th>
+<th>Description</th>
+<th>Predictor_name</th>
+<th>Time_stamp</th>
 <th>Metric</th>
+<th>Value</th>
+<th>Prediction_task(s)_data</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>my_evaluator</td>
-<td>returned_predictor_name_UNIXTIMESTAMP</td>
-<td>type_actual</td>
-<td>cell_type_actual</td>
-<td>whatever_metric_was_uesd</td>
+<td>Evaluator Name</td>
+<td>Description of the evaluation task</td>
+<td>returned predictor_name</td>
+<td>UNIXTIMESTAMP</td>
+<td>Evaluation metric</td>
+<td>Evaluation metric value</td>
+<td>Data used to calculate the metric as a dictionary</td>
 </tr>
 </tbody>
 </table>

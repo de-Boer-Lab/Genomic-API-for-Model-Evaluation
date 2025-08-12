@@ -81,9 +81,9 @@ We encourage Predictor builders to return error messages in the format show belo
 | `prediction_request_failed` | `array of strings` |Evaluator message was valid -  model prediction was incomplete. | •"seq_z" in `sequences` has an invalid character present. <br> •Model cannot handle sequence lengths this large. <br>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `server_error`              | `array of strings` | Backend issue.     | •Socket communication failed. <br> •Wifi error. <br> •Memory error (eg. due to large batch size, due to large .json file).                                                                                                                                                                                                                                                                                                            
 ### Evaluator Output file specifications
-| Evaluator  | Predictor_Identifier     | Task       | Cell_Type | Metric |
-|------|----------|------------------|-------------------|-------------------|
-|my_evaluator| returned_predictor_name_UNIXTIMESTAMP | type_actual | cell_type_actual| whatever_metric_was_used|
+| Evaluator_name  | Description     | Predictor_name       | Time_stamp | Metric | Value | Prediction_task(s)_data
+|------|----------|------------------|-------------------|-------------------|-------------------|-------------------|
+|Evaluator Name| Description of the evaluation task | returned predictor_name | UNIXTIMESTAMP| Evaluation metric | Evaluation metric value | Data used to calculate the metric as a dictionary|
 
 
 
