@@ -1,6 +1,6 @@
 # How to submit jobs using GAME
 
-When jobs are submitted to a HPC cluster we cannot control which job will be started first which creates complications when trying to create server-client connections since the server must be started first. The following documentation outlines how to launch jobs using Evaluator and Predictor containers. 
+When jobs are submitted to a HPC cluster we cannot control which job will be started first which creates complications when trying to create server-client connections since the server must be started first. The following documentation outlines how to launch jobs using Evaluator and Predictor containers. A similar setup can be used to connect Predictor containers to Matcher_HOST and Matcher_PORT.
 
 There are a few ways that a server-client connection can be established when submitting jobs.
 

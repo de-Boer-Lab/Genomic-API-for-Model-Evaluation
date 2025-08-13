@@ -28,4 +28,4 @@ echo "$server_host:$server_port" > /path/to/predictor_info.txt
 echo "Server running on $server_host at port $server_port"
 
 #Run command for the Predictor container
-apptainer run --nv /scratch/st-cdeboer-1/iluthra/GAME_API/DREAMRNN/predictor.sif "$server_host" "$server_port"
+apptainer run --nv --containall /path_to/predictor.sif "$server_host" "$server_port"

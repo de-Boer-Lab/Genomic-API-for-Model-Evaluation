@@ -18,7 +18,7 @@ module load apptainer
 cd $SLURM_SUBMIT_DIR
 
 # Wait for the server info file
-while [ ! -f /scratch/st-cdeboer-1/iluthra/GAME_API/predictor_info.txt ]; do
+while [ ! -f /path/to/predictor_info.txt ]; do
     echo "Waiting for server info..."
     sleep 5
 done
@@ -30,4 +30,4 @@ server_port=$(echo $server_info | cut -d':' -f2)
 
 echo "Connecting to server at $server_host on port $server_port"
 #Run command for the Evaluator container
-apptainer run --nv -B /arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Gosai_2024_Evaluator/evaluator_data/:/evaluator_data -B /scratch/st-cdeboer-1/iluthra/GAME_API/Gosai_Evaluator/predictions/:/predictions /arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Gosai_2024_Evaluator/gosai_evaluator.sif "$server_host" "$server_port" /predictions/
+apptainer run --nv --containall -B /path_to/evaluator_data/:/evaluator_data -B /path_to/predictions/:/predictions /path_to/gosai_evaluator.sif "$server_host" "$server_port" /predictions/
