@@ -1,6 +1,6 @@
 # How to submit jobs using GAME
 
-When jobs are submitted to a HPC cluster we cannot control which job will be started first which creates complications when trying to create server-client connections since the server must be started first. The following documentation outlines how to launch jobs using Evaluator and Predictor containers. A similar setup can be used to connect Predictor containers to Matcher_HOST and Matcher_PORT.
+When jobs are submitted to a HPC cluster we cannot control which job will be started first which creates complications when trying to create server-client connections since the server must be started first. The following documentation outlines how to launch jobs using Evaluator and Predictor containers. 
 
 There are a few ways that a server-client connection can be established when submitting jobs.
 
@@ -12,7 +12,22 @@ There are a few ways that a server-client connection can be established when sub
 
 3. The Predictor reads in the HOST and PORT and passes those into the `apptainer run` command. 
 
-We recommend this approach as is works across all HPC systems and schedulers. 
+A similar setup can be used to connect Predictor containers to Matcher_HOST and Matcher_PORT. We recommend this approach as it works across all HPC systems and schedulers. 
+
+#### To run a Predictor that requires a Matcher
+
+`qsub matcher_job.sh`
+
+`qsub predictor_job.sh`
+
+`qsub evaluator_job.sh`
+
+#### To run a Predictor that does not use a Matcher
+
+`qsub predictor_job_noMatcher.sh`
+
+`qsub evaluator_job_noMatcher.sh`
+
 
 ### More options coming soon
 

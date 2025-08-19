@@ -1,31 +1,41 @@
 #!/bin/bash
-#SBATCH --time=5:00:00           # Request 5 hours of runtime
+#SBATCH --time=1:00:00           # Request 1 hours of runtime
 #SBATCH --account=st-cdeboer-1-gpu      # Specify your allocation code
 #SBATCH --nodes=1                 # Request 1 node
-#SBATCH --ntasks=1                # Request 1 task
+#SBATCH --ntasks=2                # Request 1 task
 #SBATCH --cpus-per-task=1         # request 1 cpu per task
-#SBATCH --gpus=2
-#SBATCH --mem=32G                  # Request 2 GB of memory
-#SBATCH --job-name=dream      # Specify the job name
-#SBATCH -e /path/to/pred_err.txt           # Specify the error file.
-#SBATCH -o /path/to/pred_output.txt           # Specify the output file
-
+#SBATCH --gpus=1
+#SBATCH --mem=32G                  # Request 32 GB of memory
+#SBATCH --job-name=borzoi      # Specify the job name
+#SBATCH -e /path_to/pred_err.txt           # Specify the error file. The %j will be replaced by the Slurm job id.
+#SBATCH -o /path_to/pred_output.txt           # Specify the output file
+#SBATCH --mail-user=ishika.luthra@ubc.ca
+#SBATCH --mail-type=ALL
 # Load necessary software modules
-module load gcc/7.5.0
-module load apptainer
 
+module load gcc
+module load apptainer
 # Navigate to the job's working directory
 cd $SLURM_SUBMIT_DIR
-
 gpu=$(hostname -I)
-echo "Server running on $gpu"
+echo "Predictor running on $gpu"
 
-# Save the server node hostname and port to a shared file
-server_host=$(hostname -I | cut -d' ' -f2)
-server_port=$((RANDOM % 5000 + 20000))  # Random port in range 20000-25000
+predictor_host=$(hostname -I | cut -d' ' -f2)
+predictor_port=$((RANDOM % 5000 + 20000))  # Random port in range 20000-25000
 
-echo "$server_host:$server_port" > /path/to/predictor_info.txt
-echo "Server running on $server_host at port $server_port"
+#Get matcher information
+# Wait for the server info file
+while [ ! -f "$PWD/matcher_info.txt" ]; do
+    echo "Waiting for Matcher info..."
+    sleep 5
+done
 
-#Run command for the Predictor container
-apptainer run --nv --containall /path_to/predictor.sif "$server_host" "$server_port"
+# Read the Matcher's hostname and port
+matcher_info=$(cat "$PWD/matcher_info.txt")
+matcher_host=$(echo $matcher_info | cut -d':' -f1)
+matcher_port=$(echo $matcher_info | cut -d':' -f2)
+
+echo "$predictor_host:$predictor_port" > "$PWD/predictor_info.txt"
+echo "Predictor running on $predictor_host at port $predictor_port"
+
+apptainer run --nv --containall /path_to/borzoi_human_predictor.sif "$predictor_host" "$predictor_port" "$matcher_host" "$matcher_port"
