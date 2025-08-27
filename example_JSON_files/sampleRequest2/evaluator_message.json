@@ -1,7 +1,7 @@
 {
     "request": "predict",
     "readout": "track",
-    "prediction_task": [
+    "prediction_tasks": [
         {
             "name": "task1",
             "type": "expression",
@@ -31,6 +31,6 @@
         "seq2": [],
         "random_seq": [10,10],
         "enhancer": [100,110],
-        "control": [2,5],
+        "control": [2,5]
     }
 }

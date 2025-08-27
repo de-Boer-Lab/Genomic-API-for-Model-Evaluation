@@ -1,100 +1,91 @@
 {
-    "request": "predict",
-    "bin_size": 1,
-    "prediction_task": [
-        {
-            "name": "task1",
-            "type_requested": "expression",
-            "type_actual": "expression",
-            "cell_type_requested": "HEPG2",
-            "cell_type_actual": "HEPG2",
-            "species_requested": "homo_sapiens",
-            "species_actual": "homo_sapiens",
-            "scale_prediction_requested": "log",
-            "scale_prediction_actual": "log",
-            "aggregation_replicates": "mean",
-            "predictions": {
-                "seq1": [12.2,5,6,..],
-                "seq2": [1.1,12,0,..],
-                "random_seq": [100.1,50,0.5,..],
-                "enhancer": [4,3,0.01,..],
-                "control": [0,0,0,..],
-            }
-        },
-        {
-            "name": "ishika_trick",
-            "type_actual": "accessibility",
-            "cell_type_requested": "K562",
-            "cell_type_actual": "bone_marrow_cell_line",
-            "species_requested": "homo_sapiens",
-            "species_actual": "homo_sapiens",
-            "scale_prediction_requested": "log",
-            "scale_prediction_actual": "log",
-            "predictions": {
-                "seq1": [
-                    12.2,
-                    5,
-                    6
-                ],
-                "seq2": [
-                    1.1,
-                    12,
-                    0
-                ],
-                "random_seq": [
-                    100.1,
-                    50,
-                    0.5
-                ],
-                "enhancer": [
-                    4,
-                    3,
-                    0.001
-                ],
-                "control": [
-                    0,
-                    0,
-                    0
-                ]
-            }
-        },
-        {
-            "name": "task3",
-            "type_requested": "binding_CTCF",
-            "type_actual": "binding_CTCF",
-            "scale_prediction_requested": "log",
-            "scale_prediction_actual": "log",
-            "cell_type_requested": "HEPG2",
-            "cell_type_actual": "healthy_adult_liver",
-            "species_requested": "homo_sapiens",
-            "species_actual": "homo_sapiens",
-            "predictions": {
-                "seq1": [
-                    12.2,
-                    5,
-                    6
-                ],
-                "seq2": [
-                    1.1,
-                    12,
-                    0
-                ],
-                "random_seq": [
-                    100.1,
-                    50,
-                    0.5
-                ],
-                "enhancer": [
-                    4,
-                    3,
-                    0.001
-                ],
-                "control": [
-                    0,
-                    0,
-                    0
-                ]
-            }
-        }
-    ]
+   "request":"predict",
+   "matcher_version":"V1",
+   "predictor_name":"track_predictor",
+   "bin_size":1,
+   "prediction_tasks":[
+      {
+         "name":"task1",
+         "type_requested":"expression",
+         "type_actual":[
+            "RNA-seq"
+         ],
+         "cell_type_requested":"HEPG2",
+         "cell_type_actual":"HEPG2",
+         "species_requested":"homo_sapiens",
+         "species_actual":"homo_sapiens",
+         "scale_prediction_requested":"log",
+         "scale_prediction_actual":"log",
+         "aggregation":{
+            "replicates":"mean"
+         },
+         "predictions":{
+            "seq1":[
+               12.2,
+               5,
+               6
+            ],
+            "seq2":[
+               1.1,
+               12,
+               0
+            ],
+            "random_seq":[
+               100.1,
+               50,
+               0.5
+            ],
+            "enhancer":[
+               4,
+               3,
+               0.01
+            ],
+            "control":[
+               0,
+               0,
+               0
+            ]
+         }
+      },
+      {
+         "name":"ishika_trick",
+         "type_requested":"accessibility",
+         "type_actual":[
+            "ATAC"
+         ],
+         "cell_type_requested":"K562",
+         "cell_type_actual":"bone_marrow_cell_line",
+         "species_requested":"homo_sapiens",
+         "species_actual":"homo_sapiens",
+         "scale_prediction_requested":"log",
+         "scale_prediction_actual":"log",
+         "predictions":{
+            "seq1":[
+               12.2,
+               5,
+               6
+            ],
+            "seq2":[
+               1.1,
+               12,
+               0
+            ],
+            "random_seq":[
+               100.1,
+               50,
+               0.5
+            ],
+            "enhancer":[
+               4,
+               3,
+               0.001
+            ],
+            "control":[
+               0,
+               0,
+               0
+            ]
+         }
+      }
+   ]
 }
