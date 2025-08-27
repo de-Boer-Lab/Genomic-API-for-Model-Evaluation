@@ -32,12 +32,13 @@ Examples of containerized evaluators and predictors can be found in `/src` folde
 | Evaluator     | Zenodo Download link|Description |
 | ----------- | ----------- | ----------- |
 | Gosai MPRA - Genomic     |<https://zenodo.org/records/14920112>       |  Gosai et al. (2024), <https://doi.org/10.1038/s41586-024-08070-z> : 776,474 genomic sequences (200bp), measured in K562 (erythroid precursors), HepG2 (hepatocytes) and SK-N-SH (neuroblastoma) |
-| Agarwal Joint Library     |<https://zenodo.org/records/15061469>       |  Agarwal et al. (2025), <https://doi.org/10.1038/s41586-024-08430-9> : 60,000 candidate cis-regulatory elements (cCREs), including enhancers and promoters systematically tested across HepG2, K562, and WTC11 cell lines, along with positive and negative control sequences. Each element is represented by a 230-bp oligonucleotide. |
+| Agarwal Joint Library     |<https://zenodo.org/records/16956039>       |  Agarwal et al. (2025), <https://doi.org/10.1038/s41586-024-08430-9> : 56,982 candidate cis-regulatory elements (cCREs), including enhancers and promoters systematically tested across HepG2, K562, and WTC11 cell lines, along with positive and negative control sequences. Each element is represented by a 230-bp oligonucleotide. |
 
 | Predictor     | Zenodo Download link | Description|
 | ----------- | ----------- | ----------- |
-| DREAMRNN      |<https://zenodo.org/records/14920340>       |  Rafi et al. (2024), <https://doi.org/10.1038/s41587-024-02414-w> : DREAMRNN Architecture trained on human K562 cells     |
-| Borzoi      |<https://zenodo.org/records/14969579>       |  Linder et al. (2025), <https://doi.org/10.1038/s41588-024-02053-6> : Borzoi human model is trained on human RNA-seq data from ENCODE (with 866 datasets across diverse biosamples, including cell lines and adult tissues) and Genotype-Tissue Expression (GTEx) data (with 2-3 replicates for each tissue, processed by the recount3 project). The training dataset also includes epigenomic datasets from the Enformer model, such as CAGE, DNase-seq, ATAC-seq, and ChIP-seq tracks.     |
+| DREAMRNN      |<https://zenodo.org/records/16953257>       |  Rafi et al. (2024), <https://doi.org/10.1038/s41587-024-02414-w> : DREAMRNN Architecture trained on human K562 cells.     |
+| Borzoi      |<https://zenodo.org/records/16808873>       |  Linder et al. (2025), <https://doi.org/10.1038/s41588-024-02053-6> : Borzoi human model is trained on human RNA-seq data from ENCODE (with 866 datasets across diverse biosamples, including cell lines and adult tissues) and Genotype-Tissue Expression (GTEx) data (with 2-3 replicates for each tissue, processed by the recount3 project). The training dataset also includes epigenomic datasets from the Enformer model, such as CAGE, DNase-seq, ATAC-seq, and ChIP-seq tracks.     |
+| Enformer      |<https://zenodo.org/records/16953438>       |  Avsec et al. (2021), <https://doi.org/10.1038/s41592-021-01252-x> : Enformer is a transformer-based deep learning architecture that improves gene expression prediction by integrating information from long-range interactions up to 100 kb away. The model was trained in a multitask setting on 5,313 human and 1,643 mouse genomic tracks (including CAGE, DNase-seq, ATAC-seq, and ChIP-seq) and then fine-tuned on only the human datasets.     |
 
 #### Communication protocol example
 
@@ -57,13 +58,17 @@ P: Here you go, Evaluator - i'm sending you a .json file back with all the predi
 
 ### How should I get started?
 
+#### 0. I want to get access to all the GAME Modules that are currently publically accessible
+
+GAME Modules Repository: <https://github.com/de-Boer-Lab/GAME_modules>
+
 #### 1. I want to use one of the pre-built Predictor containers, where should I start
 
 <https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/blob/main/src/DREAM_RNN/src/Runnning_prebuilt_containers_tutorial.md>
 
-#### 2. I'm new to TCP sockets and want to test them out on my own <10 mins
+#### 2. I'm new to TCP sockets and want to test them out on my own < 10 mins
 
-<https://github.com/de-Boer-Lab/Genomic-Model-Evaluation-API/tree/main/src/training_examples/TCP_example>
+<https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/training_examples/TCP_example>
 
 #### 3. I feel like I understand (at a high level) how TCP sockets work and I'm excited to test out building 2 "test" Apptainer containers that will talk to each other <1 hour
 
