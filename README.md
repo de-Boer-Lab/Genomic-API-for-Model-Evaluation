@@ -58,7 +58,7 @@ P: Here you go, Evaluator - i'm sending you a .json file back with all the predi
 
 ### How should I get started?
 
-#### 0. I want to get access to all the GAME Modules that are currently publically accessible
+#### 0. I want to get access to all the GAME Modules that are currently publicly accessible
 
 GAME Modules Repository: <https://github.com/de-Boer-Lab/GAME_modules>
 
