@@ -86,7 +86,9 @@ We encourage Predictor builders to return error messages in the format show belo
 |------|----------|------------------|-------------------|-------------------|-------------------|-------------------|
 |Evaluator Name| Description of the evaluation task | returned predictor_name | UNIXTIMESTAMP| Evaluation metric | Evaluation metric value | Data used to calculate the metric as a dictionary|
 
+### Matcher request message
 
+The payload is a JSON object. To perform a match for a specific category (e.g. cell_type), you must provide both the `_requested` key and the _list key for that category. You can include pairs for any or all supported categories in a single request.
 
-
-
+| Key                 | Value type - Required/Optional                   | Description: Value options  | Example   |
+| `cell_type_requested`                 | `string` - Optional                   | Description: Value options  | Example   |
