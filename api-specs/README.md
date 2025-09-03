@@ -23,7 +23,7 @@ Notes: <br>
 2. all indexing is 0 based <br>
 3. to minimize any bias from the predictors we suggested randomizing your sequences so that there is no dependency on the order
 
-### Predictor return message
+### Predictor response message
 
 | Key                 | Value type - Required/Optional                   | Description: Value options  | Example   |
 |--------------|--------------|-------------------------------|--------------|
@@ -70,6 +70,7 @@ Message returned by Predictor:
 | `input_size`            | `Integer`- Optional | Number of base pairs of sequence that the model takes as input.                                                  | "input_size" : 500500 |
 | `bin_size`            | `Integer`- Optional | For models that predict across genomic tracks what is the base pair resolution.                                     | "bin_size": 10|
 | `expression_strand_specific` | `Boolean`- Optional | For models that predict expression, is the expression prediction strand specific or not. | "expression_strand_specific": true|
+
 ### Error messages
 
 Error messages that should be returned by the predictors in .json format. Error messages should be returned via one of the 3 possible keys so that the evaluators can "catch" the exception. Values can follow the format described below (any type) or other/additional ones can be added by the Predictor builders.
@@ -86,7 +87,26 @@ We encourage Predictor builders to return error messages in the format show belo
 |------|----------|------------------|-------------------|-------------------|-------------------|-------------------|
 |Evaluator Name| Description of the evaluation task | returned predictor_name | UNIXTIMESTAMP| Evaluation metric | Evaluation metric value | Data used to calculate the metric as a dictionary|
 
+### Matcher request message
+    
+The payload is a JSON object. To perform a match for a specific category (e.g. cell_type), you must provide both the `_requested` key and the `_list` key for that category. You can include pairs for any or all supported categories in a single request.
 
+#### NOTE: Currently, our examples of Predictors only match cell type, TF binding molecules, and histone markers requests; not species. This will change as we work to add more Predictors and as more Predictor builders contribute to the library of GAME modules.
 
+| Key                 | Value type - Required/Optional                   | Description  | Example   |
+| `cell_type_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the cell type requested by the Evaluator | `"Leukemia cell line"`   |
+| `cell_type_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["K562", "A549", "HepG2"]`   |
+| `species_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the species requested by the Evaluator | `"h_sap"`   |
+| `species_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["Homo sapiens", "Mus musculus"]`   |
+| `binding_molecule_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the binding molecule requested by the Evaluator | `"H3K4_trimethylation"`   |
+| `binding_molecule_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["CTCF", "H3K4me3", "POLR2A"]`   |
 
+### Matcher response message
 
+The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON payload containing the results of the matching tasks. An _actual key will be present for each category pair that was provided in the request.
+
+| Key                 | Value type                   | Description  | Example   |
+| `cell_type_actual`                 | `string` or `null`                   | The best match from the `cell_type_list` | `"K562"`   |
+| `species_actual`                 | `string` or `null`                   | The best match from the `species_list` | `"Homo sapiens"`   |
+| `binding_molecule_actual`                 | `string` or `null`                   | The best match from the `binding_molecule_list` | `"H3K4me3"`   |
+| `matcher_version`                 | `string`                   | The version of the Matcher that processed the request. | `"2.0"`   |
