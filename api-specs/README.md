@@ -104,7 +104,7 @@ The payload is a JSON object. To perform a match for a specific category (e.g. 
 
 ### Matcher response message
 
-The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON payload containing the results of the matching tasks. An _actual key will be present for each category pair that was provided in the request.
+The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON payload containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
 
 | Key                 | Value type                   | Description  | Example   |
 |--------------|--------------|-------------------------------|--------------|
