@@ -94,6 +94,7 @@ The payload is a JSON object. To perform a match for a specific category (e.g. 
 #### NOTE: Currently, our examples of Predictors only match cell type, TF binding molecules, and histone markers requests; not species. This will change as we work to add more Predictors and as more Predictor builders contribute to the library of GAME modules.
 
 | Key                 | Value type - Required/Optional                   | Description  | Example   |
+|--------------|--------------|-------------------------------|--------------|
 | `cell_type_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the cell type requested by the Evaluator | `"Leukemia cell line"`   |
 | `cell_type_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["K562", "A549", "HepG2"]`   |
 | `species_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the species requested by the Evaluator | `"h_sap"`   |
@@ -106,6 +107,7 @@ The payload is a JSON object. To perform a match for a specific category (e.g. 
 The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON payload containing the results of the matching tasks. An _actual key will be present for each category pair that was provided in the request.
 
 | Key                 | Value type                   | Description  | Example   |
+|--------------|--------------|-------------------------------|--------------|
 | `cell_type_actual`                 | `string` or `null`                   | The best match from the `cell_type_list` | `"K562"`   |
 | `species_actual`                 | `string` or `null`                   | The best match from the `species_list` | `"Homo sapiens"`   |
 | `binding_molecule_actual`                 | `string` or `null`                   | The best match from the `binding_molecule_list` | `"H3K4me3"`   |
