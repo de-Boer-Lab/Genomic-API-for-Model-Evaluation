@@ -22,7 +22,9 @@ echo "Server running on $gpu"
 
 # Save the server node hostname and port to a shared file
 server_host=$(hostname -I | cut -d' ' -f2)
-server_port=$((RANDOM % 5000 + 20000))  # Random port in range 20000-25000
+#Choose free port
+server_port=$(comm -23 <(seq 5000 6000 | sort) <(ss -tuln | awk '{print $5}' | grep -oE '[0-9]+$' | sort -u) | shuf | head -n 1)
+
 
 echo "$server_host:$server_port" > /path/to/predictor_info.txt
 echo "Server running on $server_host at port $server_port"

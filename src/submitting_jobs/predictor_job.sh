@@ -21,7 +21,9 @@ gpu=$(hostname -I)
 echo "Predictor running on $gpu"
 
 predictor_host=$(hostname -I | cut -d' ' -f2)
-predictor_port=$((RANDOM % 5000 + 20000))  # Random port in range 20000-25000
+#Choose free port to connect on
+predictor_port=$(comm -23 <(seq 5000 6000 | sort) <(ss -tuln | awk '{print $5}' | grep -oE '[0-9]+$' | sort -u) | shuf | head -n 1)
+
 
 #Get matcher information
 # Wait for the server info file

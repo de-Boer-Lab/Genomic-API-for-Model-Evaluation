@@ -23,7 +23,9 @@ echo "Matcher running on $gpu"
 # Save the server node hostname and port to a shared file
 #server_host=$(hostname)
 matcher_host=$(hostname -I | cut -d' ' -f2)
-matcher_port=$((RANDOM % 5000 + 20000))  # Random port in range 20000-25000
+#Choose free port
+matcher_port=$(comm -23 <(seq 5000 6000 | sort) <(ss -tuln | awk '{print $5}' | grep -oE '[0-9]+$' | sort -u) | shuf | head -n 1)
+
 
 echo "$matcher_host:$matcher_port" > "$PWD/matcher_info.txt"
 echo "Matcher is running on $matcher_host at port $matcher_port"
