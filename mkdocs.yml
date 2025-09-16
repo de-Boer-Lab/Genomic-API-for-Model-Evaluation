@@ -1,4 +1,5 @@
 site_name: Basic MkDocs Example Project
+docs_dir: '.'
 theme:
   name: readthedocs
   highlightjs: true
