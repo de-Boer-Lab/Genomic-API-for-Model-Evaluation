@@ -1,8 +1,3 @@
----
----
-
-<!-- # GAME: Genomic API for Model Evaluation -->
-
 ## API Reference
 
 GAME was designed for the functional genomics community to create seamless communication across pre-trained models and genomics datasets. It is a product of the feedback from many model and dataset experts and our hope is that it allows for long-lasting benchmarking of models. Models and datasets communicate via a set of predefined protocols through APIs. The common protocol enables any model to communicate with any dataset (although not all combinations may make sense).
