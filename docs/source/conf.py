@@ -20,7 +20,8 @@ extensions = [
     'sphinx.ext.autodoc',      # Read docstrings
     'sphinx.ext.napoleon',     # Support Google-style docstrings
     'sphinx.ext.viewcode',     # Link to source code
-    'myst_parser'              # Support Markdown (README.md)
+    'myst_parser',             # Support Markdown (README.md)
+    'sphinx_rtd_theme'
 ]
 
 templates_path = ['_templates']
