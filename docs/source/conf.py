@@ -16,15 +16,16 @@ author = 'Ishika Luthra, Satyam Priyadarshi'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
-
-templates_path = ['_templates']
-exclude_patterns = [
+extensions = [    
     'sphinx.ext.autodoc',      # Read docstrings
     'sphinx.ext.napoleon',     # Support Google-style docstrings
     'sphinx.ext.viewcode',     # Link to source code
-    'myst_parser'              # Support Markdown (README.md)
+    'myst_parser',             # Support Markdown (README.md)
+    'sphinx_rtd_theme'
 ]
+
+templates_path = ['_templates']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
 
