@@ -14,3 +14,4 @@ GAME: Genomic API for Model Evaluation documentation
    :caption: Contents:
 
    modules
+   FAQ
