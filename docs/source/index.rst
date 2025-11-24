@@ -11,6 +11,5 @@ GAME: Genomic API for Model Evaluation documentation
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    modules
