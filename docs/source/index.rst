@@ -6,7 +6,7 @@
 GAME: Genomic API for Model Evaluation documentation
 ====================================================
 
-.. include:: ../../README.md
+.. include:: /main_page.md
    :parser: myst_parser.sphinx_
 
 .. toctree::
