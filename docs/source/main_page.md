@@ -6,5 +6,4 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 
 ```{image} API.png
 :alt: Diagram
-:width: 400px
 ```
