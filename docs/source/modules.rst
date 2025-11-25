@@ -1,7 +1,7 @@
 .. toctree::
    :maxdepth: 4
 
-   API Specifications
+   API/index
    Using prebuilt containers
    Building your own containers
    Predictor Technical Specifications
