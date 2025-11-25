@@ -6,14 +6,12 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 :alt: Diagram
 ```
 
-:::::{grid} 2 3 3 4
+:::::{grid} 3
 
-::::{grid-item}
+::::{grid-item-card} Title1
 
-:::{card} Title
-:class-card: sd-text-black
-:img-alt: my text
-
+Header
+^^^
 Text
 :::
 
