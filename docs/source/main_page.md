@@ -6,31 +6,35 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 :alt: Diagram
 ```
 
+## Getting Started
+
 :::::{grid} 3
 
 ::::{grid-item-card} 
 :link: FAQ 
 :link-type: doc
 
-Text
+Explore the API Specifications
 :::
 
 ::::
 
 ::::{grid-item-card} 
-:link: modules/FAQ 
+:link: FAQ 
 :link-type: doc
 
-
-Content
+Get started with pre-built containers
 
 ::::
 
-::::{grid-item-card} :link: FAQ :link-type: doc
+::::{grid-item-card}
+:link: FAQ 
+:link-type: doc
 
-Building your own containers 2
-^^^
+Contribute your own modules to GAME
 
 ::::
 
 :::::
+
+If you use GAME for your research, please cite our preprint: 
