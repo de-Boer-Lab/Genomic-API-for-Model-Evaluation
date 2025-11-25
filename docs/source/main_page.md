@@ -8,15 +8,18 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 
 :::::{grid} 3
 
-::::{grid-item-card} :link: FAQ :link-type: doc
-
+::::{grid-item-card} 
+:link: FAQ 
+:link-type: doc
 
 Text
 :::
 
 ::::
 
-::::{grid-item-card} :link: FAQ :link-type: doc
+::::{grid-item-card} 
+:link: modules/FAQ 
+:link-type: doc
 
 
 Content
