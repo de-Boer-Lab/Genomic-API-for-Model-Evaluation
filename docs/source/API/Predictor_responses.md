@@ -18,3 +18,18 @@
 | `scale_prediction_actual` | `string` - Optional            | How did the Predictor scale the predictions (if at all): ["linear", "log"] .                                                                                                                                                   | "scale_prediction_actual": "log"    |
 |`aggregation`      | `object`- Optional           | Contains information about how replicates, bins and/or tracks were aggregated. Values can be any descriptive string and Predictor builders only need to include those that they used.                                                                                                                    | "aggregation": {<br>   "replicates": "mean",<br>   "bins": "mean",<br>  "tracks": "special mathematical formula"<br> }  |
 | `predictions`      | `object`- Required    | Objects of key-value pairs where keys are strings and values are arrays of floats/integers/base64. Each array of predictions can be a single value, a list of values for track predictions or a base64 string that encodes interaction matrices. The sequence ID keys are matched to the Evaluator sequence ID keys automatically by Predictor |"predictions": {<br>   "seq1": [12.2, 5, 6, ..],<br>   "seq2": [1.1, 12, 0.00, ..],<br>  "random_seq": [100.1, 50, 0.5, ..],<br>  "enhancer": [4, 3.0, 0.001, ..],<br>  "control": [0, 0, 0, ..] <br> } |
+| `trim_upstream`      | `object`- For track `readout` requests    | Objects of key-value pairs where keys are strings and values are integers. The sequence ID keys must match the `predictions` keys. |"trim_upstream": {<br>   "seq1": 5 ,<br>   "seq2": 0,<br>  "random_seq": 2,<br>  "enhancer": 1 ,<br>  "control":  0 <br> } |
+
+### Note on Binned Predictions and Sequence-Length Alignment
+
+Predictors that return **binned predictions** often include **"N" bases** in flanking bins. These can skew results when performing **base-pair (bp)–level evaluation**.
+
+When an Evaluator requests a track `readout` request:
+
+- The **expanded bp-level prediction** (for binned outputs) **must match the length of the input sequence**.
+- By default, if no `trim_upstream` parameter is returned, the Evaluator should **crop the predictions only at the downstream end**.
+- If a `trim_upstream` parameter *is* returned, the Evaluator should:
+  1. **Crop upstream** by the amount specified in `trim_upstream`.
+  2. **Crop the remaining required amount downstream** to ensure the final prediction length equals the sequence length.
+
+This ensures consistent evaluation and avoids artifacts introduced by binned predictions.
