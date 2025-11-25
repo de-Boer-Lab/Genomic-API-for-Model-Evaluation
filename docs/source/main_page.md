@@ -6,25 +6,36 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 :alt: Diagram
 ```
 
-::::{grid} 1 1 1 :gutter: 2
+:::::{grid} 2 3 3 4
 
-:::{card} Installation
-How to install AlphaGenome
-+++
-Follow the installation guide for step-by-step instructions.
+::::{grid-item}
 
-:::
+:::{card} Title
+:class-card: sd-text-black
+:img-alt: my text
 
-:::{card} Usage
-Running tutorials
-+++
-Step through example workflows with the AlphaGenome tutorials.
-:::
-
-:::{card} Reference
-API Documentation
-+++
-Reference documentation for all AlphaGenome functions and classes.
+Text
 :::
 
 ::::
+
+::::{grid-item-card} Title
+:img-alt:
+
+Header
+^^^
+Content
++++
+Footer
+::::
+
+::::{grid-item-card} Title
+
+Header
+^^^
+Content
++++
+Footer
+::::
+
+:::::
