@@ -1,15 +1,20 @@
-## REST API Methods
+### Predictor response message
 
-## Evaluator requests
-
-## Predictor responses
-
-## Retrive information about Predictor classes
-
-## Error messages
-
-## Matcher request message
-
-## Matcher response message
-
-test panel
+| Key                 | Value type - Required/Optional                   | Description: Value options  | Example   |
+|--------------|--------------|-------------------------------|--------------|
+| `request` | `string`- Required           | What request was completed by the model: ["predict", "help"]                                                                                                                                                                         | "task": "predict"      |
+| `matcher_version` | `string`- Optional           | If a Matcher was used by the Predictor its version should be returned to the Evaluator.                                                                                                                                                                         | "matcher_version": "V1"      |
+| `predictor_name` | `string`- Required           | Predictor name (to be used as identifier for Evaluators)                                                                                                                                                                         | "predictor_name": "deboerModel_2025"      |
+| `bin_size` | `integer` - Required for track based models           | Resolution of the model's predictions.                                                                                                                                                    | "bin_size" : 1          |
+| `prediction_tasks`  | `array of objects` - Required        | Each object must contain the following keys: `name`, `type_requested`,`type_actual`, `cell_type_requested`, `cell_type_actual`, `species_requested`, `species_actual`,`predictions`, `scale_prediction_requested` (optional), `scale_prediction_actual` (optional), `aggregation` (optional object).| "prediction_tasks": [<br> {<br>   "name": "task1",<br>   "type_requested": "expression",<br>  "type_actual": "expression",<br>  "cell_type_requested": "K562",<br>  "cell_type_actual": "bone_marrow_cell_line",<br>  "species_requested": "homo_sapiens",<br>  "species_actual": "homo_sapiens",<br>  "scale_prediction_requested": "linear", <br>  "scale_prediction_actual": "linear",<br>  "aggregation": {"bins": "mean"},<br>   "predictions": { <br>     "seq1": [12.2, 5, 6, ..],<br>     "seq2": [1.1, 12, 0.00, ..],<br>    "random_seq": [100.1, 50, 0.5, ..],<br>    "enhancer": [4, 3.0, 0.001, ..],<br>    "control": [0, 0, 0, ..] <br>   }<br> }<br>]|
+| `name`  | `string` - Required        | Unique identifier for each prediction task array matched from Evaluator.| "name": "task_for_model"|
+| `type_requested`  | `string` - Required        | Prediction type requested: ["accessibility", "binding_molecule" , "expression", "chromatin_conformation"]. "binding_<molecule>" can be for any type of binding assay (ex. CHIP-Seq, H3k27ac) and the text trailing the "_" should be all lower case.                                                                                                                                                                                        | "type_requested": "expression"                                                                                                                                         |
+| `type_actual`  |`array of string(s)` - Required        | Prediction type(s) completed by Predictor. In many cases will be the assay the model predicted. If multiple tracks were averaged in a multi-task model they should be included here. ex. ["dnase", "atac-seq"]               | "type_actual": ["expression"]|         
+|`cell_type_requested`       | `string`- Required | Cell type requested by Predictor.                                   | "cell_type_requested": "HEPG2" |
+| `cell_type_actual`       | `string`- Required | Cell type returned by Predictor. Predictor can choose to use cell type/cell line ontology container which will returned the closest matched cell type that the Predictor has.| "cell_type_actual": "HEPG2" |
+| `species_requested`        | `string` - Required       | What species was requested by the Predictor.  | "species_requested": "homo_sapiens" | 
+|`species_actual`        | `string` - Required       | What species was used by the Predictor.                                                                                                                                                                              | "species_actual": "homo_sapiens"|
+| `scale_prediction_requested` | `string` - Optional            | Evaluator requested scaling for predictions: ["linear", "log"].                                                                                                                                                    | "scale_prediction_requested": "log"       |
+| `scale_prediction_actual` | `string` - Optional            | How did the Predictor scale the predictions (if at all): ["linear", "log"] .                                                                                                                                                   | "scale_prediction_actual": "log"    |
+|`aggregation`      | `object`- Optional           | Contains information about how replicates, bins and/or tracks were aggregated. Values can be any descriptive string and Predictor builders only need to include those that they used.                                                                                                                    | "aggregation": {<br>   "replicates": "mean",<br>   "bins": "mean",<br>  "tracks": "special mathematical formula"<br> }  |
+| `predictions`      | `object`- Required    | Objects of key-value pairs where keys are strings and values are arrays of floats/integers/base64. Each array of predictions can be a single value, a list of values for track predictions or a base64 string that encodes interaction matrices. The sequence ID keys are matched to the Evaluator sequence ID keys automatically by Predictor |"predictions": {<br>   "seq1": [12.2, 5, 6, ..],<br>   "seq2": [1.1, 12, 0.00, ..],<br>  "random_seq": [100.1, 50, 0.5, ..],<br>  "enhancer": [4, 3.0, 0.001, ..],<br>  "control": [0, 0, 0, ..] <br> } |

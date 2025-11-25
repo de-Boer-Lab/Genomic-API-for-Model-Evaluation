@@ -12,31 +12,4 @@ GAME: API Specifications
    Matcher_request
    Matcher_response
 
-:::::{grid} 3
-
-::::{grid-item-card} 
-:link: Evaluator_requests 
-:link-type: doc
-
-Explore the API Specifications
-:::
-
-::::
-
-::::{grid-item-card} 
-:link: FAQ 
-:link-type: doc
-
-Get started with pre-built containers
-
-::::
-
-::::{grid-item-card}
-:link: FAQ 
-:link-type: doc
-
-Contribute your own modules to GAME
-
-::::
-
-:::::
+The following pages define the API Specifications for each of the modules.
