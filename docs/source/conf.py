@@ -21,7 +21,6 @@ extensions = [
     'sphinx.ext.napoleon',     # Support Google-style docstrings
     'sphinx.ext.viewcode',     # Link to source code
     'myst_parser',             # Support Markdown (README.md)
-    'sphinx_rtd_theme',
     'sphinx_book_theme'
 ]
 
