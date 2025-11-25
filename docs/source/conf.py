@@ -23,7 +23,12 @@ extensions = [
     'myst_parser',             # Support Markdown (README.md)
     'sphinx_book_theme'
 ]
-
+# Optional: enable MyST extensions
+myst_enable_extensions = [
+    "colon_fence",
+    "deflist",
+    "linkify",
+]
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
