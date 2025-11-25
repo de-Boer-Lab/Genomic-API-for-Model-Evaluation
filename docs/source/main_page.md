@@ -30,10 +30,9 @@ Content
 
 Building your own containers
 ^^^
-Content
+
 :link: FAQ
-:link-type: ref
-:link-alt: FAQ
+:link-type: doc
 ::::
 
 :::::
