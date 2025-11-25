@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-GAME: Genomic API for Model Evaluation documentation
+GAME: Genomic API for Model Evaluation
 ====================================================
 
 .. include:: /main_page.md
