@@ -8,12 +8,12 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 
 ::::{grid} 1 1 2 3 :gutter: 2
 
-:::{grid-item-card} :link: FAQ :link-type: doc FAQ ^^^^^^^^^^^^
+:::{grid-item-card} :link: FAQ :link-type: doc FAQ
 
 Install alphagenome locally. :::
 
-:::{grid-item-card} :link: Installation :link-type: doc Installation ^^^^^^^^^ The tutorials walk through example usage of the AlphaGenome model. :::
+:::{grid-item-card} :link: FAQ :link-type: doc FAQ  The tutorials walk through example usage of the AlphaGenome model. :::
 
-:::{grid-item-card} :link: Installation :link-type: doc Installation ^^^^^^^^^^^^^
+:::{grid-item-card} :link: FAQ :link-type: doc FAQ
 
 Reference documentation for the alphagenome package. ::: ::::
