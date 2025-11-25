@@ -9,7 +9,6 @@ GAME: API Specifications
    Predictor_responses
    help
    Error_messages
-   Matcher_request
-   Matcher_response
+   Matcher
 
 The following pages define the API Specifications for each of the modules.

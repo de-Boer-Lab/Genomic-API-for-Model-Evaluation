@@ -1,11 +1,24 @@
 ### Error messages
 
-Error messages that should be returned by the predictors in .json format. Error messages should be returned via one of the 3 possible keys so that the evaluators can "catch" the exception. Values can follow the format described below (any type) or other/additional ones can be added by the Predictor builders.
+Error messages that should be returned by the predictors in .json format. Values can follow the format described below (any type) or other/additional ones can be added by the Predictor builders.
 
-We encourage Predictor builders to return error messages in the format show below. Helper functions that have some basic error catching to build off can be found in the `src` folder. 
+We encourage Predictor builders to return error messages in the format show below using the appropriate HTTP error codes. 
 
-| Error Message Keys    | Value type |Description                                               | Example Values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-|-------------|-------------|----------------------------------------------|---------------------|
-| `bad_prediction_request`    | `array of strings` |Request was unacceptable - model did not run.          | •.json file is formatted incorrectly. <br> •Mandatory key `x` is missing in .json. <br> •`request` value is not recognized. Model developers can choose what to return here. <br>•Value in `type` is not recognized. Model developers can choose what to return here. <br> •Duplicate sequence ID key in `sequences`: sequence ID key `y` is duplicated. <br> •`prediction_ranges` are required to be integers. <br> •Sequence ids in `prediction_ranges` do not match those in `sequences`. <br> •Length of each sub-array in `prediction_ranges` should not be greater than 2. <br> •Sequence ID key `z` has an invalid character present. <br> |
-| `prediction_request_failed` | `array of strings` |Evaluator message was valid -  model prediction was incomplete. | •"seq_z" in `sequences` has an invalid character present. <br> •Model cannot handle sequence lengths this large. <br>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `server_error`              | `array of strings` | Backend issue.     | •Socket communication failed. <br> •Wifi error. <br> •Memory error (eg. due to large batch size, due to large .json file).                                
+---
+
+| Error Key                 | Type            | Status Code | Description                                                          | Examples of Messages |
+|----------------------------|----------------|-------------|----------------------------------------------------------------------|--------------------|
+| `bad_prediction_request`    | array of strings | 400         | The request was unacceptable; the model did not run.               | • JSON file is formatted incorrectly.<br>• Mandatory key missing (e.g., `readout`, `sequences`).<br>• Invalid `type` or `readout` value.<br>• Duplicate sequence ID keys.<br>• `prediction_ranges` not integers or mismatched with `sequences`.<br>• Invalid characters in sequence IDs. |
+| `prediction_request_failed` | array of strings | 422         | The request was valid, but the model could not complete the prediction. | • Sequence contains invalid characters.<br>• Model cannot handle sequence lengths this large. |
+| `server_error`              | array of strings | 500         | Backend/server issue that prevented prediction.                     | • Socket communication failed.<br>• Memory error (e.g., large batch or JSON file).<br>• Wifi/network error. |
+
+---
+
+### Notes
+
+- Each **error key** corresponds to a Python exception class in the Predictor:
+  - `bad_prediction_request` → `BadRequestError` (HTTP 400)  
+  - `prediction_request_failed` → `PredictionFailedError` (HTTP 422)  
+  - `server_error` → `ServerError` (HTTP 500)  
+
+

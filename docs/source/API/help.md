@@ -1,14 +1,8 @@
 ### Retrive information about Predictor classes
 
-Any Evaluator can retrieve information from a Predictor by asking for `help` in the `task` key. This will return a `.json` file that is written by the Predictor, while these are not mandatory we highly encourage detailed `help` responses to organize and document Predictor containers. 
+We highly encourage detailed `help` responses to organize and document Predictor containers. 
 
-Message sent by evalutor:
-
-| Key: Value    | Value type- Required/Optional         |Description                                                                 |
-|--------------|--------------|---------------------|
-| "request": "help" | `string`- Required| Retrieve basis information about the Predictor (written by model developers) |
-
-Message returned by Predictor:
+Predictor Response:
 
 | Key  | Value type     | Description       | Example Values |
 |------|---------------|-------------------------------------------|-------------------|
