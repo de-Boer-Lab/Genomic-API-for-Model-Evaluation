@@ -18,7 +18,6 @@ Text
 ::::
 
 ::::{grid-item-card} Title
-:img-alt:
 
 Running Pre-build containers
 ^^^
@@ -26,13 +25,11 @@ Content
 
 ::::
 
-::::{grid-item-card} Title
+::::{grid-item-card} :link: FAQ :link-type: doc
 
-Building your own containers
+Building your own containers 2
 ^^^
 
-:link: FAQ
-:link-type: doc
 ::::
 
 :::::
