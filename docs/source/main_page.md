@@ -37,4 +37,6 @@ Contribute your own modules to GAME
 
 :::::
 
-If you use GAME for your research, please cite our preprint: 
+If you use GAME for your research, please cite our preprint: https://www.biorxiv.org/content/10.1101/2025.07.04.663250v1.full
+
+Feel free to reach out to: ishika.luthra@ubc.ca
