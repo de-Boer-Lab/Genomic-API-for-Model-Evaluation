@@ -6,14 +6,10 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 :alt: Diagram
 ```
 
-::::{grid} 1 1 2 3 :gutter: 2
-
-:::{grid-item-card} :link: FAQ :link-type: doc FAQ
-
-Install alphagenome locally. :::
-
-:::{grid-item-card} :link: FAQ :link-type: doc FAQ  The tutorials walk through example usage of the AlphaGenome model. :::
-
-:::{grid-item-card} :link: FAQ :link-type: doc FAQ
-
-Reference documentation for the alphagenome package. ::: ::::
+:::{card} Card Title
+Header
+^^^
+Card content
++++
+Footer
+:::
