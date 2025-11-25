@@ -20,7 +20,7 @@
 | `predictions`      | `object`- Required    | Objects of key-value pairs where keys are strings and values are arrays of floats/integers/base64. Each array of predictions can be a single value, a list of values for track predictions or a base64 string that encodes interaction matrices. The sequence ID keys are matched to the Evaluator sequence ID keys automatically by Predictor |"predictions": {<br>   "seq1": [12.2, 5, 6, ..],<br>   "seq2": [1.1, 12, 0.00, ..],<br>  "random_seq": [100.1, 50, 0.5, ..],<br>  "enhancer": [4, 3.0, 0.001, ..],<br>  "control": [0, 0, 0, ..] <br> } |
 | `trim_upstream`      | `object`- For track `readout` requests    | Objects of key-value pairs where keys are strings and values are integers. The sequence ID keys must match the `predictions` keys. |"trim_upstream": {<br>   "seq1": 5 ,<br>   "seq2": 0,<br>  "random_seq": 2,<br>  "enhancer": 1 ,<br>  "control":  0 <br> } |
 
-### Note on Binned Predictions and Sequence-Length Alignment
+##### Note on Binned Predictions and Sequence-Length Alignment
 
 Predictors that return **binned predictions** often include **"N" bases** in flanking bins. These can skew results when performing **base-pair (bp)–level evaluation**.
 
