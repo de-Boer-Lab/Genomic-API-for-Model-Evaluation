@@ -10,7 +10,7 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 
 ::::{grid-item-card} Title1
 
-Header
+API Specifications
 ^^^
 Text
 :::
@@ -20,20 +20,20 @@ Text
 ::::{grid-item-card} Title
 :img-alt:
 
-Header
+Running Pre-build containers
 ^^^
 Content
-+++
-Footer
+
 ::::
 
 ::::{grid-item-card} Title
 
-Header
+Building your own containers
 ^^^
 Content
-+++
-Footer
+:link: FAQ
+:link-type: ref
+:link-alt: FAQ
 ::::
 
 :::::
