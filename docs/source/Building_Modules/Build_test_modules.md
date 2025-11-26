@@ -10,7 +10,6 @@ To create a sample Evaluator using the scripts and data we provide for this exam
 
 1. Download the `test_evaluator_container` folder and explore the scripts to familiarize yourself. 
 
-
 `evaluator_RestAPI.py`
 - Loads and validates input data using `load_and_validate_data()`.
 - Sends data to a predictor via HTTP and handles various response formats.
@@ -68,7 +67,7 @@ This will build the Evaluator container that automatically runs `evaluator_RestA
 
 4. `evaluator.sif` will be created in the `test_evaluator_containe` folder
 
-## Creating a Predictor that will provide and prediction values for every possible request type
+## Creating a Predictor that will return values for every possible request type
 
 1. Download the `test_predictor_container` folder to create the sample Predictor:
 

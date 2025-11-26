@@ -1,12 +1,11 @@
-.. include:: Design_Principles.md
-   :parser: myst_parser.sphinx_
-
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-   :hidden:
+   :hidden: 
+   :caption: Building Modules
 
-   Contributing_modules
+   Design_Principles.md
    Build_test_modules
+   Contributing_modules
+
 
    
