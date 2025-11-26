@@ -1,5 +1,5 @@
 Building your own GAME Modules
-
+====================================================
 .. toctree::
    :maxdepth: 1
    :hidden: 
