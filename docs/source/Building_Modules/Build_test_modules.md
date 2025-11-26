@@ -143,11 +143,11 @@ The predictor needs to be started first and the Evaluator will connect to the Pr
 
 Example:
 ```bash
-apptainer run --containall -B /arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Test_Evaluator_Predictor/predictor_container_sample/predictor_data/:/predictor_data predictor.sif 172.16.47.243 5000
+apptainer run --containall -B /path_to/test_predictor_container/predictor_data/:/predictor_data predictor.sif 172.16.47.243 5000
 ```
 
 ```bash
-apptainer run --containall -B //arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Test_Evaluator_Predictor/evaluator_container_sample/evaluator_data:/evaluator_data -B //arc/project/st-cdeboer-1/iluthra/API_genomic_model_evaluation/Test_Evaluator_Predictor/evaluator_container_sample/predictions:/predictions evaluator.sif 172.16.47.243 5000 /predictions
+apptainer run --containall -B /path_to/test_evaluator_container/evaluator_data:/evaluator_data -B /test_evaluator_container/predictions:/predictions evaluator.sif 172.16.47.243 5000 /predictions
 ```
 If the connection was successful a file called `predictor_return_file.json` will be created in the `/path/to/predictions/`
 

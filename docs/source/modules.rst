@@ -2,6 +2,7 @@
    :maxdepth: 4
 
    API/index
+   Building_Modules/index
    Using prebuilt containers
    Building your own containers
    Predictor Technical Specifications

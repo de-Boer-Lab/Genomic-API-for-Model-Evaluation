@@ -26,3 +26,14 @@ P: Psst! Hey CellMatcher! I was asked for cellX, but I have no clue that that is
 CM: Sure thing! cellX is similar to your cellY, so you should use that for your predictions instead.
 
 P: Here you go, Evaluator - i'm sending you a .json file back with all the predictions for cellY.
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   RESTAPI_methods
+   Evaluator_requests
+   Predictor_responses
+   help
+   Error_messages
+   Matcher
