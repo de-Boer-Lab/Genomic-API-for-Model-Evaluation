@@ -4,13 +4,10 @@
    API/index
    Building_Modules/index
    Using_prebuilt_containers
-   Building your own containers
-   Predictor Technical Specifications
-   Evaluator Technical Specifications
-   Technical Guidelines
-   How to Contribute
-   Matcher modules
-   Predictor Distributor
+   Submitting_jobs
+   Matcher
+   Predictor_distributor
    FAQ
+   External_Routing
    Contributors
 
