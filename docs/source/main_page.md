@@ -33,7 +33,7 @@ Get started with pre-built containers
 ::::
 
 ::::{grid-item-card}
-:link: Building_Modules 
+:link: Building_Modules/index
 :link-type: doc
 
 Contribute your own modules to GAME
