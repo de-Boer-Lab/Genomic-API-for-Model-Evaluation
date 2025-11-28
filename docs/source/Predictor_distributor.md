@@ -15,9 +15,13 @@ Additional details and code can be found here: {LINK}
 ### Usage
 The PD container can be downloaded from Zenodo: [[ADD LINK HERE]].
 
-1. **Download the Matcher Container**
+**Run the Full GAME Workflow with PD**
 
-    ```bash
-    wget -O predictor_distributor.sif [LINK]
-    ```
-2. **Run the Full GAME Workflow with PD**
+Download Predictor, Evaluator, Matcher and PD containers and submission scripts from here: LINK
+
+Make required edits for local/HPC paths.
+
+1. `sbatch matcher_job.sh`
+2. `sbatch --array=1-2 pd_worker_job.sh`
+3. `sbatch pd_job.sh 2`
+4. `sbatch evaluator_job.sh`

@@ -2,7 +2,7 @@
 
 We encourage you to explore the GAME modules page and begin with an Evaluator or Predictor codebase that most closely matches your own implementation.
 
-The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. 
+The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. We suggest testing your Evaluators/Predictors with the test module containrs to validate their functionality. 
 
 #### Checklist for Predictor Modules
 

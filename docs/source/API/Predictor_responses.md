@@ -27,6 +27,7 @@ Predictors that return **binned predictions** often include **"N" bases** in fla
 When an Evaluator requests a track `readout` request:
 
 - The **expanded bp-level prediction** (for binned outputs) **must match the length of the input sequence**.
+- The start of a prediction should be aligned with the first bp of the sequence. 
 - By default, if no `trim_upstream` parameter is returned, the Evaluator should **crop the predictions only at the downstream end**.
 - If a `trim_upstream` parameter *is* returned, the Evaluator should:
   1. **Crop upstream** by the amount specified in `trim_upstream`.

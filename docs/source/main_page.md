@@ -16,7 +16,7 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 :::::{grid} 3
 
 ::::{grid-item-card} 
-:link: FAQ 
+:link: API/index 
 :link-type: doc
 
 Explore the API Specifications
@@ -25,7 +25,7 @@ Explore the API Specifications
 ::::
 
 ::::{grid-item-card} 
-:link: FAQ 
+:link: Using_prebuilt_containers 
 :link-type: doc
 
 Get started with pre-built containers
@@ -33,7 +33,7 @@ Get started with pre-built containers
 ::::
 
 ::::{grid-item-card}
-:link: FAQ 
+:link: Building_Modules 
 :link-type: doc
 
 Contribute your own modules to GAME
