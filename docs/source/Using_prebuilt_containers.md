@@ -1,5 +1,7 @@
 # Get started by using pre-built GAME modules
 
+GAME modules can be run interactively by users or using our submission scripts{LINK}. To parallelize predictions you can use Predictor Distributor{LINK}.
+
 Predictor run command:
 
 `apptainer run --containall predictor.sif HOST PORT`
@@ -20,6 +22,8 @@ apptainer run --containall \
     -B /path/to/predictions:/predictions  \
     evaluator.sif HOST PORT /predictions
 ```
+
+Updated list of current GAME modules can be found here: [LINK]
 
 ### Running the DREAM-RNN container (Matcher not requierd) with a sample dataset
 
