@@ -1,5 +1,5 @@
 # Matcher
-GAME introduces a module called “Matcher”, which automatically maps the Evaluator's requested cell type, measured molecule (TF binding molecule/ protein and histone markers), and species with what a Predictor can provide. The Matcher uses a local LLM model and is designed to perform this task by interpreting the relationship between terms through lexical, syntactic, and semantic matching. The use of Matcher with Predictor modules is optional and up to the model developer. 
+GAME introduces a module called “Matcher”, which automatically maps the Evaluator's requested cell type, measured molecule (TF binding molecule/ protein and histone markers), and species with what a Predictor can provide. The Matcher uses a local LLM model and is designed to perform this task by interpreting the relationship between terms through lexical, syntactic, and semantic matching. The use of Matcher with Predictor modules is optional and up to the model developer. Most Predictor modules will first check for exact matches between the request and what they can complete before asking Matcher for help. 
 
 The Matcher communicates via a standardized REST API over HTTP, with a single endpoint, `/match`, which accepts POST requests containing a JSON file.
 
