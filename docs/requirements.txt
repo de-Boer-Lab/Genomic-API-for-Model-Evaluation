@@ -1,3 +1,5 @@
-sphinx
-sphinx-rtd-theme
+sphinx>=6.0
+sphinx-book-theme>=0.4
 myst-parser
+linkify-it-py
+sphinx-design
