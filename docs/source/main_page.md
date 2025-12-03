@@ -7,9 +7,10 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 ```
 ### What’s different from existing approaches
 
-- **Community-driven API design and support**
-- **Containerized workflows** to prevent installation and compatibility problems
-- Models and Datasets are **maintained and updated by the community** 
+- **Community-driven API** design, support, maintenance, and updates.
+- **Containerized workflows** to prevent dependency installation and compatibility problems.
+- **Preserved model integrity** by eliminating the need for model architectural rewrites or refactoring.
+<!-- - Models and Datasets are **maintained and updated by the community**  -->
 
 ## Getting Started
 
