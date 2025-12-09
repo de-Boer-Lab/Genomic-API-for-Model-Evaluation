@@ -16,7 +16,7 @@ Design Principles for GAME Modules
 
 Evaluator Responsibilities
 --------------------------
-- Evaluators are clients that are responsbile for evaluating models on specific benchmarks
+- Evaluators are clients that are responsible for evaluating models on specific benchmarks
 - Determine what information the Predictors require for their predictions and what the best evaluation metrics are for their benchmarks
 Predictor Responsibilities
 --------------------------
@@ -25,7 +25,7 @@ Communication Protocol Example
 ------------------------------
 P: Hi my name is "Predictor"! My job is to wait and listen for a "Evaluator" to ask me to do something.
 
-E: Hello I'm an "Evaluator"! I'm sending you a request file, could you please predict the accessbility of these sequences?
+E: Hello I'm an "Evaluator"! I'm sending you a request file, could you please predict the accessibility of these sequences?
 
 P: Sure thing :) One moment please...
 
