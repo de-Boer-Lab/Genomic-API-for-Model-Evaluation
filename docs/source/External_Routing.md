@@ -1,3 +1,3 @@
-# How to set up external routing
+# How to set up external routing (port forwarding)
 
 Coming soon.

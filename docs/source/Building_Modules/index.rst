@@ -9,7 +9,7 @@ Building your own GAME Modules
 
 
 Design Principles for GAME Modules
---------------------------
+-----------------------------------
 - **Predictor should focus on predicting the biological signal of interest**, assay types are not provided to the models
 - **Maintain a strong separation** between model prediction and evaluation
 - **Enable a sustainable benchmarking framework** that supports long-term maintenance and encapsulation

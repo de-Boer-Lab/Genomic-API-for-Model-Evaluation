@@ -5,7 +5,8 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 ```{image} API.png
 :alt: Diagram
 ```
-### What’s different from existing approaches
+
+## What’s different from existing approaches
 
 - **Community-driven API** design, support, maintenance, and updates.
 - **Containerized workflows** to prevent dependency installation and compatibility problems.

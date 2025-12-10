@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 GAME: Genomic API for Model Evaluation
-====================================================
+=======================================
 
 .. include:: /main_page.md
    :parser: myst_parser.sphinx_
