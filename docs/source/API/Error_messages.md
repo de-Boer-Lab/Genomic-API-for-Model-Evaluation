@@ -1,4 +1,4 @@
-### Error messages
+# Error messages
 
 Error messages that should be returned by the predictors in .json format. Values can follow the format described below (any type) or other/additional ones can be added by the Predictor builders.
 
@@ -14,11 +14,9 @@ We encourage Predictor builders to return error messages in the format show belo
 
 ---
 
-### Notes
+## Notes
 
 - Each **error key** corresponds to a Python exception class in the Predictor:
   - `bad_prediction_request` → `BadRequestError` (HTTP 400)  
   - `prediction_request_failed` → `PredictionFailedError` (HTTP 422)  
   - `server_error` → `ServerError` (HTTP 500)  
-
-

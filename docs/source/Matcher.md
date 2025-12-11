@@ -1,9 +1,11 @@
 # Matcher
-GAME introduces a module called “Matcher”, which automatically maps the Evaluator's requested cell type, measured molecule (TF binding molecule/ protein and histone markers), and species with what a Predictor can provide. The Matcher uses a local LLM model and is designed to perform this task by interpreting the relationship between terms through lexical, syntactic, and semantic matching. The use of Matcher with Predictor modules is optional and up to the model developer. Most Predictor modules will first check for exact matches between the request and what they can complete before asking Matcher for help. 
+
+GAME introduces a module called “Matcher”, which automatically maps the Evaluator's requested cell type, measured molecule (TF binding molecule/ protein and histone markers), and species with what a Predictor can provide. The Matcher uses a local LLM model and is designed to perform this task by interpreting the relationship between terms through lexical, syntactic, and semantic matching. The use of Matcher with Predictor modules is optional and up to the model developer. Most Predictor modules will first check for exact matches between the request and what they can complete before asking Matcher for help.
 
 The Matcher communicates via a standardized REST API over HTTP, with a single endpoint, `/match`, which accepts POST requests containing a JSON file.
 
-### **Matcher Request Payload**
+## **Matcher Request Payload**
+
 The request payload must be a JSON object conforming to the schema below. The API enforces strict validation logic using the `pydantic` library to ensure data integrity.
 
 **Validation Rules:**
@@ -20,7 +22,7 @@ The request payload must be a JSON object conforming to the schema below. The AP
 | `binding_molecule_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the binding molecule requested by the Evaluator | `"H3K4_trimethylation"`   |
 | `binding_molecule_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["CTCF", "H3K4me3", "POLR2A"]`   |
 
-### **Matcher Response Payload**
+## **Matcher Response Payload**
 
 The Matcher (server) sends back a JSON payload to the Predictor (client), containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
 
@@ -33,7 +35,8 @@ The Matcher (server) sends back a JSON payload to the Predictor (client), contai
 
 Please visit the Matcher Github Repo for the code and more details.
 
-### Usage
+## Usage
+
 The Matcher container can be downloaded from Zenodo: [[ADD LINK HERE]].
 
 1. **Download the Matcher Container**
@@ -41,6 +44,7 @@ The Matcher container can be downloaded from Zenodo: [[ADD LINK HERE]].
     ```bash
     wget -O matcher.sif [LINK]
     ```
+
 2. **Run the Matcher Server**
     This single command starts the container, launches a private Ollama server inside it, and starts the FastAPI server listening for HTTP requests.
 

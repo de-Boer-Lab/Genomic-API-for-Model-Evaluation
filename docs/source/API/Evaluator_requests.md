@@ -1,4 +1,4 @@
-### Evaluator request message
+# Evaluator request message
 
 | Key                 | Value type - Required/Optional                   | Description: Value options  | Example                                                                                                                                                                                                 |
 |--------------|--------------|-------------------------------|--------------|
@@ -15,12 +15,14 @@
 | `sequences`         | `object` - Required       | A collection of key-value pairs (strings). Keys are unique sequence ID keys - any characters [A-Z][a-z][0-9][-.\_\~#\@%^&\*()]. The sequence ID keys are matched to the Predictor sequence ID keys automatically by Predictor.                                                                                                                             | "sequences": {<br>   "seq1": "ATGC...",<br>   "seq2": "ATGC...",<br>  "random_seq": "ATGC...",<br>  "enhancer": "ATGC...",<br>  "control": "ATGC..." <br> }                                  |
 | `prediction_ranges` | `object` - Optional | A collection of key-value pairs, where the keys should be identical to sequence ID keys and values are arrays with the start and end region you want predicted for each sequence. Start and end are 0 indexed and inclusive (e.g. [0,1] is the first two bases).| "prediction_ranges": {<br>   "seq1": [0,1000],<br>   "seq2": [100,110],<br>  "random_seq": [],<br>  "enhancer": [210,500],<br>  "control": [] <br> } |
 
-Notes: <br>
+## Notes: <br>
+
 1. keys in `sequences` must be unique or will be overwritten during the reading in <br>
 2. all indexing is 0 based <br>
 3. to minimize any bias from the predictors we suggested randomizing your sequences so that there is no dependency on the order
 
-### Evaluator Output file specifications
+# Evaluator Output file specifications
+
 | Evaluator_name  | Description     | Predictor_name       | Time_stamp | Metric | Value | Prediction_task(s)_data
 |------|----------|------------------|-------------------|-------------------|-------------------|-------------------|
 |Evaluator Name| Description of the evaluation task | returned predictor_name | UNIXTIMESTAMP| Evaluation metric | Evaluation metric value | Data used to calculate the metric as a dictionary|
