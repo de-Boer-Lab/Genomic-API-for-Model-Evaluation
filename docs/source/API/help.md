@@ -1,4 +1,4 @@
-### Retrive information about Predictor classes
+# Retrive information about Predictor classes
 
 We highly encourage detailed `help` responses to organize and document Predictor containers. 
 

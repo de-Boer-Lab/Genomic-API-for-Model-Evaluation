@@ -1,4 +1,4 @@
-### Matcher response message
+# Matcher response message
 
 To perform a match for a specific category (e.g. cell_type), the Evaluator sends a **POST request** to the `/match` endpoint. 
 
@@ -8,7 +8,6 @@ The JSON payload must include paired keys for each category:
 - `<category>_list` → the list of possible values the Predictor can match against  
 
 Multiple categories can be included in a single request.
-
 
 | Key                 | Value type - Required/Optional                   | Description  | Example   |
 |--------------|--------------|-------------------------------|--------------|
@@ -27,7 +26,6 @@ The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON 
 | `species_actual`                 | `string` or `null`                   | The best match from the `species_list` | `"Homo sapiens"`   |
 | `binding_molecule_actual`                 | `string` or `null`                   | The best match from the `binding_molecule_list` | `"H3K4me3"`   |
 | `matcher_version`                 | `string`                   | The version of the Matcher that processed the request. | `"2.0"`   |
-
 
 ```bash
 curl -X POST http://localhost:8000/match \

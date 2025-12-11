@@ -1,4 +1,4 @@
-## REST API Methods
+# REST API Methods
 
 GAME’s modules communicate via REST APIs over HTTP. The main functionalities include:
 

@@ -25,7 +25,7 @@ apptainer run --containall \
 
 Updated list of current GAME modules can be found here: [LINK]
 
-### Running the DREAM-RNN container (Matcher not requierd) with a sample dataset
+## Running the DREAM-RNN container (Matcher not required) with a sample dataset
 
 To run a test prediction using the DREAM-RNN container and sample Evaluator container:
 
@@ -123,5 +123,6 @@ Yay! You just completed a successful communication between the DREAMRNN model an
 }
 ```
 
-### Running Enformer container (with Matcher) with a sample dataset
+## Running Enformer container (with Matcher) with a sample dataset
+
 Coming soon

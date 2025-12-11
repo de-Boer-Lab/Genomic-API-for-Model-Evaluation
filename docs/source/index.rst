@@ -3,9 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-GAME: Genomic API for Model Evaluation
-=======================================
-
 .. include:: /main_page.md
    :parser: myst_parser.sphinx_
 
@@ -14,4 +11,12 @@ GAME: Genomic API for Model Evaluation
    :caption: Contents:
    :hidden:
 
-   modules
+   API/index
+   Building_Modules/index
+   Using_prebuilt_containers
+   Matcher
+   Submitting_jobs
+   Predictor_distributor
+   FAQ
+   External_Routing
+   Contributors
