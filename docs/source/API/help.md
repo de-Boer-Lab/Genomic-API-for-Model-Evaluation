@@ -1,4 +1,6 @@
-# Retrive information about Predictor classes
+# HELP file
+
+## Retrieve information about Predictor classes
 
 We highly encourage detailed `help` responses to organize and document Predictor containers. 
 

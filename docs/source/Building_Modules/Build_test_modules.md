@@ -96,7 +96,7 @@ This will build the Evaluator container that automatically runs `evaluator_RestA
 
 `predictor_help_message.json`
 
-- HELP file based on GAME API specification
+- HELP file based on [GAME API specification](../API/help.md)
 
 `schema_validation.py`
 
@@ -142,32 +142,50 @@ This will build the Predictor container that automatically runs `predictor_RestA
 
 4. `predictor.sif` will be created in the `test_predictor_container` folder
 
-### Running the containers
+#### Running the containers
 
 To get the local host IP for the Predictor server you can use `hostname -I`. Ports above 1024 are usually free to use on most computers/servers. 
 
 The predictor needs to be started first and the Evaluator will connect to the Predictor's IP. 
 
-`apptainer run --containall -B /path_to/predictor_data/:/predictor_data predictor.sif HOST PORT`
+`apptainer run --containall -B /path_to/predictor_data:/predictor_data predictor.sif HOST PORT`
 
 `apptainer run --containall -B /path_to/evaluator_data:/evaluator_data -B /path/to/predictions:/predictions evaluator.sif HOST PORT OUTPUT_DIR`
 
 Example:
 ```bash
-apptainer run --containall -B /path_to/test_predictor_container/predictor_data/:/predictor_data predictor.sif 172.16.47.243 5000
+apptainer run --containall -B /path_to/test_predictor_container/predictor_data:/predictor_data predictor.sif 172.16.47.243 5000
 ```
 
 ```bash
-apptainer run --containall -B /path_to/test_evaluator_container/evaluator_data:/evaluator_data -B /test_evaluator_container/predictions:/predictions evaluator.sif 172.16.47.243 5000 /predictions
+apptainer run --containall -B /path_to/test_evaluator_container/evaluator_data:/evaluator_data -B /test_evaluator_container/predictions:/predictions evaluator.sif 172.xx.xx.xx 5000 /predictions
 ```
 
-If the connection was successful a file called `predictor_return_file.json` will be created in the `/path/to/predictions/`
+If the connection was successful a predictor response JSON file will be created in the `/path/to/predictions/`
 
-### Helpful hints and notes
+### Helpful Tips and Notes
 
-- Note: The `-B` is used to mount local directories for the containers so that they have access to those folders/files.
-- Note: You many need to change file permissions before building the container if you get permission errors when copying files into the container. This can be done using `chmod 644 file_name` before running the build command.
-- Your data can be stored in any format in the `evaluator_data/` folder. If it's a pre-made JSON format in the API format you can directly using use the evaluator API script which reads in JSON file. Many of the pre-build GAME modules use other data types and their code can be used as a reference to get started.
-- Additional dependencies can be added into the .def files in the `%post section`
-- The containers images are built with `APPTAINER_NO_MOUNT` to provide a safe default. This setting prevents the most common host directories from being automatically mounted, making the container inherently more isolated.
-- Runtime (`--containall`): While `APPTAINER_NO_MOUNT` is good, it only blocks specific default paths. The `--containall` flag provides complete isolation by blocking all unexpected host directories, variables, and settings. This is the best practice to guarantee a run is entirely isolated.
+#### File Permissions
+
+**Note:** You may need to change file permissions on your host machine before building the container. If you encounter permission errors during the build (specifically when copying files), try running `chmod 755 file_name` on your scripts/data before running the build command.
+
+#### Data & Dependencies
+
+**Data Formatting:** Your data can be stored in any format in the `evaluator_data/` folder.
+
+- If your data is already in the GAME API JSON format, you can use the generic evaluator API script directly.
+- If your data is in another format (e.g. FASTA, BED), you can refer to the pre-built GAME modules for examples of how to parse these custom formats.
+
+**Adding Dependencies:** Additional dependencies (Python libraries, system tools) should be added to the `.def` files in the `%post` section.
+
+#### Runtime & Isolation
+
+**Binding Paths (`-B`):** By default, Apptainer may not see files on your host system. The `-B` flag is used to "bind" (mount) local directories into the container so it can access them.
+
+- *Example:* `-B /scratch/user/local_data:/data` maps a folder on your host to `/data` inside the container.
+- **Default Isolation:** Our pre-built GAME containers include the environment variable `APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"`. This provides a "safe default" by preventing these common host directories from being automatically mounted, keeping the container filesystem clean.
+- **Full Isolation (`--containall`):** While our default settings hide host files, the `--containall` flag provides **complete isolation**. It creates separate namespaces for processes (PID) and IPC, and fully cleans the environment. We recommend using this flag to guarantee the most reproducible runs.
+
+#### GPU Support
+
+If your model requires a GPU, you must add the `--nv` flag to your run command to expose the host's NVIDIA drivers to the container. For AMD GPUs, refer to [Apptainer's documentation](https://apptainer.org/docs/user/1.0/gpu.html#amd-gpus-rocm).
