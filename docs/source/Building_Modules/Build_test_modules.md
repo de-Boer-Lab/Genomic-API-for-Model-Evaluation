@@ -8,7 +8,7 @@ The Evaluator container in this example will require 3 arguments in this order: 
 
 To create a sample Evaluator using the scripts and data we provide for this example follow the instructions below:
 
-1. Download the `test_evaluator_container` folder and explore the scripts to familiarize yourself. 
+### 1. Download the `test_evaluator_container` folder and explore the scripts to familiarize yourself
 
 `evaluator_RestAPI.py`
 
@@ -54,13 +54,13 @@ To create a sample Evaluator using the scripts and data we provide for this exam
 
 All of these scripts will be copied into the container in the `%files` section of the .def file.
 
-2. Change paths in the `evaluator_python_only.def` to local corresponding paths
+### 2. Change paths in the `evaluator_python_only.def` to local corresponding paths
 
 The `evaluator.def` is a definition file and will be used to create the Apptainer container. In this example we are only building a container with Python 3.9-slim and no other dependencies for simplicity. The `/predictions` folder is our `OUTPUT_DIR` where the returning predictions for this psuedo example will be stored. `evaluator_data` contains 2 sample JSON files, one is a very simple request and the other is more complicated. `evaluator_data` is mounted at run time to increase flexibility.
 
 Change the `/path_to/`  in the .def file to the local file path for the `evaluator_RestAPI.py` script to copy it into the container from a local directory.  
 
-3. It's time to build the Evaluator container
+### 3. It's time to build the Evaluator container
 
 ```bash
 cd test_evaluator_container/
@@ -70,11 +70,11 @@ apptainer build evaluator.sif evaluator.def
 
 This will build the Evaluator container that automatically runs `evaluator_RestAPI.py`. In this example the Evaluator container only requires 3 arguments in this order: HOST, PORT, OUTPUT_DIR.
 
-4. `evaluator.sif` will be created in the `test_evaluator_containe` folder
+**`evaluator.sif` will be created in the `test_evaluator_container` folder.**
 
 ## Creating a Predictor that will return values for every possible request type
 
-1. Download the `test_predictor_container` folder to create the sample Predictor:
+### 1. Download the `test_predictor_container` folder to create the sample Predictor
 
 `predictor_RestAPI.py`
 
@@ -106,9 +106,13 @@ This will build the Evaluator container that automatically runs `evaluator_RestA
 
 `error_checking_functions.py`
 
-**Error Classes:** `APIError` (base), `BadRequestError` (400), `PredictionFailedError` (422), `ServerError` (500)  
+#### Mandatory Error Classes
 
-**Validation Functions:**  
+`APIError` (base), `BadRequestError` (400), `PredictionFailedError` (422), `ServerError` (500).
+
+More error classes with their status codes can also be added. 
+
+#### Validation Functions
 
 - `check_seqs_specifications()` – sequences valid, non-empty  
 - `check_mandatory_keys()` / `check_key_values_readout()` – required JSON keys and readout  
@@ -116,76 +120,49 @@ This will build the Evaluator container that automatically runs `evaluator_RestA
 - `check_prediction_ranges()` – positive integers, start ≤ end  
 - Sequence IDs & flanking sequences – consistent and strings  
 
-`deBoerTest_model.py`
-**Functions:**  
+**`deBoerTest_model.py` Functions:**
 
 - `fake_model_point(sequences)` → single random value per sequence  
 - `fake_model_track(sequences)` → random float array per sequence  
-- `fake_model_interaction_matrix(sequences)` → 3×3 random integer matrix, base64-encoded 
+- `fake_model_interaction_matrix(sequences)` → 3×3 random integer matrix, base64-encoded
 
-All of these scripts will be copied into the container in the `%files` section of the .def file. 
+All of these scripts will be copied into the container in the `%files` section of the .def file.
 
-2. Change paths in `predictor.def` to local corresponding paths
+### 2. Change paths in `predictor.def` to local corresponding paths
 
-Change the `/path_to/` in the .def file to the local file path for the scripts. 
+Change the `/path_to/` in the .def file to the local file path for the scripts.
 
-3. Build the Predictor container
+### 3. Build the Predictor container
 
-The Predictor container here using python 3.9-slim and installs numpy and pandas. 
+The Predictor container here using python 3.9-slim and installs numpy and pandas.
 
-```bash
-cd /test_predictor_container
-apptainer build predictor.sif predictor.def
-```
+  ```bash
+  cd /test_predictor_container
+  apptainer build predictor.sif predictor.def
+  ```
 
 This will build the Predictor container that automatically runs `predictor_RestAPI.py`. In this example the Predictor container only requires 2 arguments in this order: HOST, PORT.
 
-4. `predictor.sif` will be created in the `test_predictor_container` folder
+**`predictor.sif` will be created in the `test_predictor_container` folder.**
 
-#### Running the containers
+## Running the containers
 
 To get the local host IP for the Predictor server you can use `hostname -I`. Ports above 1024 are usually free to use on most computers/servers. 
 
-The predictor needs to be started first and the Evaluator will connect to the Predictor's IP. 
+The predictor needs to be started first and the Evaluator will connect to the Predictor's IP.
 
 `apptainer run --containall -B /path_to/predictor_data:/predictor_data predictor.sif HOST PORT`
 
 `apptainer run --containall -B /path_to/evaluator_data:/evaluator_data -B /path/to/predictions:/predictions evaluator.sif HOST PORT OUTPUT_DIR`
 
-Example:
-```bash
-apptainer run --containall -B /path_to/test_predictor_container/predictor_data:/predictor_data predictor.sif 172.16.47.243 5000
-```
+**Example:**
 
-```bash
-apptainer run --containall -B /path_to/test_evaluator_container/evaluator_data:/evaluator_data -B /test_evaluator_container/predictions:/predictions evaluator.sif 172.xx.xx.xx 5000 /predictions
-```
+  ```bash
+  apptainer run --containall -B /path_to/test_predictor_container/predictor_data:/predictor_data predictor.sif 172.16.47.243 5000
+  ```
+
+  ```bash
+  apptainer run --containall -B /path_to/test_evaluator_container/evaluator_data:/evaluator_data -B /test_evaluator_container/predictions:/predictions evaluator.sif 172.xx.xx.xx 5000 /predictions
+  ```
 
 If the connection was successful a predictor response JSON file will be created in the `/path/to/predictions/`
-
-### Helpful Tips and Notes
-
-#### File Permissions
-
-**Note:** You may need to change file permissions on your host machine before building the container. If you encounter permission errors during the build (specifically when copying files), try running `chmod 755 file_name` on your scripts/data before running the build command.
-
-#### Data & Dependencies
-
-**Data Formatting:** Your data can be stored in any format in the `evaluator_data/` folder.
-
-- If your data is already in the GAME API JSON format, you can use the generic evaluator API script directly.
-- If your data is in another format (e.g. FASTA, BED), you can refer to the pre-built GAME modules for examples of how to parse these custom formats.
-
-**Adding Dependencies:** Additional dependencies (Python libraries, system tools) should be added to the `.def` files in the `%post` section.
-
-#### Runtime & Isolation
-
-**Binding Paths (`-B`):** By default, Apptainer may not see files on your host system. The `-B` flag is used to "bind" (mount) local directories into the container so it can access them.
-
-- *Example:* `-B /scratch/user/local_data:/data` maps a folder on your host to `/data` inside the container.
-- **Default Isolation:** Our pre-built GAME containers include the environment variable `APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"`. This provides a "safe default" by preventing these common host directories from being automatically mounted, keeping the container filesystem clean.
-- **Full Isolation (`--containall`):** While our default settings hide host files, the `--containall` flag provides **complete isolation**. It creates separate namespaces for processes (PID) and IPC, and fully cleans the environment. We recommend using this flag to guarantee the most reproducible runs.
-
-#### GPU Support
-
-If your model requires a GPU, you must add the `--nv` flag to your run command to expose the host's NVIDIA drivers to the container. For AMD GPUs, refer to [Apptainer's documentation](https://apptainer.org/docs/user/1.0/gpu.html#amd-gpus-rocm).

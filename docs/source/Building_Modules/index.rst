@@ -6,6 +6,7 @@ Building your own GAME Modules
 
    Build_test_modules
    Contributing_modules
+   helpful_tips_notes
 
 
 Design Principles for GAME Modules
