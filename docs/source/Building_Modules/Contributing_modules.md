@@ -2,7 +2,7 @@
 
 We encourage you to explore the GAME modules page and begin with an Evaluator or Predictor codebase that most closely matches your own implementation.
 
-The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. We suggest testing your Evaluators/Predictors with the test module containers to validate their functionality.
+**The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. We suggest testing your Evaluators/Predictors with the test module containers to validate their functionality.**
 
 ## Checklist for Predictor Modules
 
@@ -36,6 +36,6 @@ The scripts listed below are meant to be re-usable across all GAME modules with 
 ### Evaluator Responsibilities
 
 - Parsing data from the Evaluator data folder and transforming into one of the Predictor defined request formats
-- Issue /POST /predict request to the Predictors
+- Issue `POST` `/predict` request to the Predictors
 - Receive and save predictions
 - Calculate evaluation metrics and save in required format
