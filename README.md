@@ -1,6 +1,6 @@
 # Genomic API for Model Evaluation (GAME)
 
-This repository introduces a the GAME framework to enable standardized benchmarking of genomic models across various datasets.
+This repository introduces the GAME framework to enable standardized benchmarking of genomic models across various datasets.
 
 ![](./src/module-comms.png)
 
