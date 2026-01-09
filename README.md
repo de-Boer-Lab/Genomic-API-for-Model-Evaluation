@@ -6,7 +6,6 @@ This repository introduces a the GAME framework to enable standardized benchmark
 
 ## Links
 
-<!-- - To learn more about the GAME Framework ([Main GAME Repository](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation), [preprint](https://www.biorxiv.org/content/10.1101/2025.07.04.663250v1.full)) -->
 - [ReadTheDocs](https://genomic-api-for-model-evaluation-documentation.readthedocs.io): GAME documentation
 - [GAME Specs](https://genomic-api-for-model-evaluation-documentation.readthedocs.io/en/latest/API/index.html): API specifications from the documentation
 - [GAME Modules Repo](https://github.com/de-Boer-Lab/GAME_modules): Community-contributed list of GAME modules
