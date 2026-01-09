@@ -1,4 +1,4 @@
 {
-  "bad_prediction_request": ".json file is formatted incorrectly, mandatory key x is missing",
+  "bad_prediction_request": ".json file is formatted incorrectly, mandatory key x is missing"
 
 }
