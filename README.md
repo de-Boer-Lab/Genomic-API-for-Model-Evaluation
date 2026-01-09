@@ -1,69 +1,31 @@
 # Genomic API for Model Evaluation (GAME)
 
+This repository introduces a the GAME framework to enable standardized benchmarking of genomic models across various datasets.
+
+![](./src/module-comms.png)
+
+## Links
+
+<!-- - To learn more about the GAME Framework ([Main GAME Repository](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation), [preprint](https://www.biorxiv.org/content/10.1101/2025.07.04.663250v1.full)) -->
+- [ReadTheDocs](https://genomic-api-for-model-evaluation-documentation.readthedocs.io): GAME documentation
+- [GAME Specs](https://genomic-api-for-model-evaluation-documentation.readthedocs.io/en/latest/API/index.html): API specifications from the documentation
+- [GAME Modules Repo](https://github.com/de-Boer-Lab/GAME_modules): Community-contributed list of GAME modules
+- [bioRxiv Preprint](https://www.biorxiv.org/content/10.1101/2025.07.04.663250v1): GAME: Genomic API for Model Evaluation (first submission)
+
+## Brief Overview
+
 GAME was designed for the functional genomics community to create seamless communication across pre-trained models and genomics datasets. It is a product of the feedback from many model and dataset experts and our hope is that it allows for long-lasting benchmarking of models. Models and datasets communicate via a set of predefined protocols through APIs. The common protocol enables any model to communicate with any dataset (although not all combinations may make sense).
 
 The evaluators (dataset APIs) will make prediction requests in the standard format to the predictors (model APIs), which then return the predictions to the Evaluator in a standard format, enabling the evaluators to calculate the model’s performance. Each of the evaluators and predictors will be containerized using Apptainer.
 
-The communication protocol below covers some of the mandatory parameters required for the API. There are also some optional parameters for specific prediction requests.
-
 For this effort to succeed we encourage data and model experts to provide us with feedback and support (via contributing Evalutors and Predictors). Since dataset creators are the experts in their dataset, they are most qualified to decide how these models should be evaluated on their data. Meanwhile, model creators are best qualified for deciding how the model should be used for the inference tasks. Accordingly, the responsibilities for adding the new datasets and models would fall on their creators. Being able to easily compare results across different datasets and models would accelerate the improvement of genomics models, motivate novel functional genomic benchmarks, and provide a more nuanced understanding of model abilities.
 
-If you would like to be involved we encourage you to use this API with your own models and datasets and submit to the Github repo list (add link). If you have critiques or feedback please reach out to [ishika.luthra\@ubc.ca](mailto:ishika.luthra@ubc.ca).
+![](./src/api-outline.png)
 
-![](./src/API_V2.png)
+## Contributions
 
-### Communication protocol
+If you would like to be involved we encourage you to use this API with your own models and datasets and submit to the [Github repo list](https://github.com/de-Boer-Lab/GAME_modules).
 
-Using the standardized communication format each Predictor will receive information in the same format from any Evaluator. Each Predictor also returns the predictions in the same format which enables the community to easily compare different model's predictions for the same dataset or evaluate a model on multiple different types of datasets very quickly.
+### Points of contact
 
-The only files that are exchanged between the evaluators and predictors are .json files, a commonly used file format for sending and receiving information in a standard format. Data in the .json files is stored in the following format: `"keys": "value"`, where the value can be strings, numbers, objects, arrays, booleans or null. We have outlined below the mandatory "keys" required for communication between the Evaluator and Predictor to occur. Certain "keys" have a fixed set of "values" that can be used while others are up to the evaluators. API specifications can be found here:
-
-Feel free to reach out to: <ishika.luthra@ubc.ca>
-
-### Collaborators
-
-* Sara Mostafavi
-  + Xinming Tu
-  + Yilun Sheng
-* Anshul Kundaje
-  + Surag Nair
-  + Soumya Kundu
-  + Ivy Raine
-  + Vivian Hecht
-* Brenden Frey
-  + Alice Gao
-  + Phil Fradkin
-* Graham McVicker
-  + Jeff Jaureguy
-  + David Laub
-  + Brad Balderson
-  + Kohan Lee
-  + Ethan Armand
-* Hannah Carter
-  + Adam Klie
-* Maxwell Libbrecht
-* Ivan Kulakovskiy
-  + Dima Penzar
-  + Ilya Vorontsov
-* Vikram Agarwal
-* Peter Koo
-* Ziga Avsec
-* Jay Shendure
-  + CX Qiu
-  + Diego Calderon
-* Julien Gagneur
-  + Thomas Mauermeier
-* Sager Gosai
-* Andreas Gschwind
-* Ryan Tewhey
-* David Kelley
-* Georg Seelig
-* Gokcen Eraslan
-* Jesse Engreitz
-* Jian Zhou
-* Julia Zeitlinger
-* Kaur Alosoo
-* Luca Pinello
-* Michael White
-* Rhiju Das
-* Stein Aerts
+If you have critiques, questions, or feedback please feel free to reach out to Ishika Luthra (<ishika.luthra@ubc.ca>), Satyam Priyadarshi (<satyam.priyadarshi@ubc.ca>), or Carl de Boer (<carl.deboer@ubc.ca>).
