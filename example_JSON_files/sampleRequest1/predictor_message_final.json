@@ -1,11 +1,10 @@
 {
-   "request":"predict",
    "predictor_name":"Model_name",
    "prediction_tasks":[
       {
          "name":"task_for_model",
          "type_requested":"expression ",
-         "type_actual":"CAGE-seq",
+         "type_actual":["CAGE"],
          "cell_type_requested":"induced pluripotent stem cells (iPS cells; WTC11)",
          "cell_type_actual":"HEPG2",
          "scale_prediction_requested":"linear",
@@ -13,21 +12,11 @@
          "species_requested":"homo_sapiens",
          "species_actual":"homo_sapiens",
          "predictions":{
-            "seq1":[
-               5
-            ],
-            "seq2":[
-               10
-            ],
-            "random_seq":[
-               0.02
-            ],
-            "enhancer":[
-               100
-            ],
-            "control":[
-               0
-            ]
+            "seq1": 5,
+            "seq2": 10,
+            "random_seq": 0.02,
+            "enhancer": 100,
+            "control": 0
          }
       }
    ]

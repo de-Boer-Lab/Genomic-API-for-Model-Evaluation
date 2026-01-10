@@ -1,0 +1,15 @@
+{
+  "model": "deBoer Test Model",
+  "version": "1.0",
+  "publication" : "Luthra et. al, 2025",
+  "build_date": "September 17, 2025",
+  "features": ["accessibility", "accessibility", "binding_H3K4me3", "binding_CTCF",
+     "expression", "expression", "expression"],
+  "cell_types" : ["iPSC", "HepG2", "iPSC", "iPSC", "iPSC", "HepG2", "K562"],
+  "species": ["homo_sapiens"],
+  "container_authors": ["Ishika Luthra", "Satyam Priyadarshi"],
+  "model_authors": "Ishika",
+  "input_size": ["place_holder", "NaN"],
+  "bin_size": ["place_holder", "NaN"],
+  "expression_strand_specific": "false"
+}

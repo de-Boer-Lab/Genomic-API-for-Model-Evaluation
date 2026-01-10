@@ -1,130 +1,30 @@
-## API Reference
+# Genomic API for Model Evaluation (GAME)
+
+This repository introduces the GAME framework to enable standardized benchmarking of genomic models across various datasets.
+
+![Module Communication Diagram](./src/module-comms.png)
+
+## Links
+
+- [ReadTheDocs](https://genomic-api-for-model-evaluation-documentation.readthedocs.io): GAME documentation
+- [GAME Specs](https://genomic-api-for-model-evaluation-documentation.readthedocs.io/en/latest/API/index.html): API specifications from the documentation
+- [GAME Modules Repo](https://github.com/de-Boer-Lab/GAME_modules): Community-contributed list of GAME modules
+- [bioRxiv Preprint](https://www.biorxiv.org/content/10.1101/2025.07.04.663250v1): GAME: Genomic API for Model Evaluation (first submission)
+
+## Brief Overview
 
 GAME was designed for the functional genomics community to create seamless communication across pre-trained models and genomics datasets. It is a product of the feedback from many model and dataset experts and our hope is that it allows for long-lasting benchmarking of models. Models and datasets communicate via a set of predefined protocols through APIs. The common protocol enables any model to communicate with any dataset (although not all combinations may make sense).
 
 The evaluators (dataset APIs) will make prediction requests in the standard format to the predictors (model APIs), which then return the predictions to the Evaluator in a standard format, enabling the evaluators to calculate the model’s performance. Each of the evaluators and predictors will be containerized using Apptainer.
 
-The communication protocol below covers some of the mandatory parameters required for the API. There are also some optional parameters for specific prediction requests.
-
 For this effort to succeed we encourage data and model experts to provide us with feedback and support (via contributing Evalutors and Predictors). Since dataset creators are the experts in their dataset, they are most qualified to decide how these models should be evaluated on their data. Meanwhile, model creators are best qualified for deciding how the model should be used for the inference tasks. Accordingly, the responsibilities for adding the new datasets and models would fall on their creators. Being able to easily compare results across different datasets and models would accelerate the improvement of genomics models, motivate novel functional genomic benchmarks, and provide a more nuanced understanding of model abilities.
 
-If you would like to be involved we encourage you to use this API with your own models and datasets and submit to the Github repo list (add link). If you have critiques or feedback please reach out to [ishika.luthra\@ubc.ca](mailto:ishika.luthra@ubc.ca).
+![API Outline Community Contribution Diagram](./src/api-outline.png)
 
-![](./src/API_V2.png)
+## Contributions
 
-### Communication protocol
+If you would like to be involved we encourage you to use this API with your own models and datasets and submit to the [Github repo list](https://github.com/de-Boer-Lab/GAME_modules).
 
-Using the standardized communication format each Predictor will receive information in the same format from any evalutor. Each Predictor also returns the predictions in the same format which enables the community to easily compare different model's predictions for the same dataset or evaluate a model on multiple different types of datasets very quickly.
+### Points of contact
 
-The only files that are exchanged between the evaluators and predictors are .json files, a commonly used file format for sending and receiving information in a standard format. Data in the .json files is stored in the following format: `"keys": "value"`, where the value can be strings, numbers, objects, arrays, booleans or null. We have outlined below the mandatory "keys" required for communication between the Evaluator and Predictor to occur. Certain "keys" have a fixed set of "values" that can be used while others are up to the evaluators. API specifications can be found here:
-
-The files and communication between APIs is done using python sockets. Scripts for these can be found in `/src/training_examples/TCP_example`.
-
-Examples of Evaluator and Predictor messages can be found in `/example_JSON_files` folder. Formats for json files can be checked using the following link: <https://jsonformatter.curiousconcept.com>
-
-Examples of containerized evaluators and predictors can be found in `/src` folder.
-
-| Evaluator     | Zenodo Download link|Description |
-| ----------- | ----------- | ----------- |
-| Gosai MPRA - Genomic     |<https://zenodo.org/records/14920112>       |  Gosai et al. (2024), <https://doi.org/10.1038/s41586-024-08070-z> : 776,474 genomic sequences (200bp), measured in K562 (erythroid precursors), HepG2 (hepatocytes) and SK-N-SH (neuroblastoma) |
-| Agarwal Joint Library     |<https://zenodo.org/records/16956039>       |  Agarwal et al. (2025), <https://doi.org/10.1038/s41586-024-08430-9> : 56,982 candidate cis-regulatory elements (cCREs), including enhancers and promoters systematically tested across HepG2, K562, and WTC11 cell lines, along with positive and negative control sequences. Each element is represented by a 230-bp oligonucleotide. |
-
-| Predictor     | Zenodo Download link | Description|
-| ----------- | ----------- | ----------- |
-| DREAMRNN      |<https://zenodo.org/records/16953257>       |  Rafi et al. (2024), <https://doi.org/10.1038/s41587-024-02414-w> : DREAMRNN Architecture trained on human K562 cells.     |
-| Borzoi      |<https://zenodo.org/records/16808873>       |  Linder et al. (2025), <https://doi.org/10.1038/s41588-024-02053-6> : Borzoi human model is trained on human RNA-seq data from ENCODE (with 866 datasets across diverse biosamples, including cell lines and adult tissues) and Genotype-Tissue Expression (GTEx) data (with 2-3 replicates for each tissue, processed by the recount3 project). The training dataset also includes epigenomic datasets from the Enformer model, such as CAGE, DNase-seq, ATAC-seq, and ChIP-seq tracks.     |
-| Enformer      |<https://zenodo.org/records/16953438>       |  Avsec et al. (2021), <https://doi.org/10.1038/s41592-021-01252-x> : Enformer is a transformer-based deep learning architecture that improves gene expression prediction by integrating information from long-range interactions up to 100 kb away. The model was trained in a multitask setting on 5,313 human and 1,643 mouse genomic tracks (including CAGE, DNase-seq, ATAC-seq, and ChIP-seq) and then fine-tuned on only the human datasets.     |
-
-#### Communication protocol example
-
-P: Hi my name is "Predictor"! My job is to wait and listen for a "Evaluator" to ask me to do something.
-
-E: Hello I'm an "Evaluator"! I'm sending you a .json file, could you please predict the accessbility of these sequences?
-
-P: Sure thing :) One moment please...
-
-P: Psst! Hey CellMatcher! I was asked for cellX, but I have no clue that that is, can I have a little help?
-
-CM: Sure thing! cellX is similar to your cellY, so you should use that for your predictions instead.
-
-P: Here you go, Evaluator - i'm sending you a .json file back with all the predictions for cellY.
-
-![](./src/communication_protocol.png)
-
-### How should I get started?
-
-#### 0. I want to get access to all the GAME Modules that are currently publicly accessible
-
-GAME Modules Repository: <https://github.com/de-Boer-Lab/GAME_modules>
-
-#### 1. I want to use one of the pre-built Predictor containers, where should I start
-
-<https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/blob/main/src/DREAM_RNN/src/Runnning_prebuilt_containers_tutorial.md>
-
-#### 2. I'm new to TCP sockets and want to test them out on my own < 10 mins
-
-<https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/training_examples/TCP_example>
-
-#### 3. I feel like I understand (at a high level) how TCP sockets work and I'm excited to test out building 2 "test" Apptainer containers that will talk to each other <1 hour
-
-The example in the folder outlines an easy test communication between an Evaluator (with random sequences) and a Predictor (that will generate random predictions for any task you request).
-
-<https://github.com/de-Boer-Lab/Genomic-Model-Evaluation-API/tree/main/src/training_examples/Apptainer/Test_Evaluator_Predictor>
-
-#### 4. I'm ready to dive into building more complicated Evaluators/Predictors and want to work through real world examples
-
-We have created a Predictor for one of the DREAMRNN models (Rafi et. al 2024). Detailed instructions can be found here: <https://github.com/de-Boer-Lab/Genomic-Model-Evaluation-API/tree/main/src/DREAM_RNN>
-
-An Evaluator for MPRA sequences from Gosai et. al (2024) and instructions for how to build it can be found here: <https://github.com/de-Boer-Lab/Genomic-Model-Evaluation-API/tree/main/src/Gosai_2024_Evaluator>
-
-#### 5. I still have more questions/I'm stuck ... help
-
-Feel free to reach out to: <ishika.luthra@ubc.ca>
-
-### Collaborators
-
-* Sara Mostafavi
-  + Xinming Tu
-  + Yilun Sheng
-* Anshul Kundaje
-  + Surag Nair
-  + Soumya Kundu
-  + Ivy Raine
-  + Vivian Hecht
-* Brenden Frey
-  + Alice Gao
-  + Phil Fradkin
-* Graham McVicker
-  + Jeff Jaureguy
-  + David Laub
-  + Brad Balderson
-  + Kohan Lee
-  + Ethan Armand
-* Hannah Carter
-  + Adam Klie
-* Maxwell Libbrecht
-* Ivan Kulakovskiy
-  + Dima Penzar
-  + Ilya Vorontsov
-* Vikram Agarwal
-* Peter Koo
-* Ziga Avsec
-* Jay Shendure
-  + CX Qiu
-  + Diego Calderon
-* Julien Gagneur
-  + Thomas Mauermeier
-* Sager Gosai
-* Andreas Gschwind
-* Ryan Tewhey
-* David Kelley
-* Georg Seelig
-* Gokcen Eraslan
-* Jesse Engreitz
-* Jian Zhou
-* Julia Zeitlinger
-* Kaur Alosoo
-* Luca Pinello
-* Michael White
-* Rhiju Das
-* Stein Aerts
+If you have critiques, questions, or feedback please feel free to reach out to Ishika Luthra (<ishika.luthra@ubc.ca>), Satyam Priyadarshi (<satyam.priyadarshi@ubc.ca>), or Carl de Boer (<carl.deboer@ubc.ca>).
