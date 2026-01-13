@@ -2,7 +2,7 @@
 
 This repository introduces the GAME framework to enable standardized benchmarking of genomic models across various datasets.
 
-![Module Communication Diagram](./src/module-comms.png)
+![Module Communication Diagram](./src/module-comms-white-bg.png)
 
 ## Links
 
@@ -19,7 +19,7 @@ The evaluators (dataset APIs) will make prediction requests in the standard form
 
 For this effort to succeed we encourage data and model experts to provide us with feedback and support (via contributing Evalutors and Predictors). Since dataset creators are the experts in their dataset, they are most qualified to decide how these models should be evaluated on their data. Meanwhile, model creators are best qualified for deciding how the model should be used for the inference tasks. Accordingly, the responsibilities for adding the new datasets and models would fall on their creators. Being able to easily compare results across different datasets and models would accelerate the improvement of genomics models, motivate novel functional genomic benchmarks, and provide a more nuanced understanding of model abilities.
 
-![API Outline Community Contribution Diagram](./src/api-outline.png)
+![API Outline Community Contribution Diagram](./src/api-outline-white-bg.png)
 
 ## Contributions
 
