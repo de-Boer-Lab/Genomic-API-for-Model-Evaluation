@@ -2,7 +2,7 @@
 
 This repository introduces the GAME framework to enable standardized benchmarking of genomic models across various datasets.
 
-![Module Communication Diagram](./src/module-comms.png)
+![Module Communication Diagram](./src/module-comms-white-bg.png)
 
 ## Links
 
