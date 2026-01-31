@@ -15,7 +15,7 @@ We encourage you to explore the GAME modules page and begin with an Evaluator or
 | `deBoerTest_model.py` | Model specific code | Edit to define model specific code for each Predictor. |
 | `predictor_help_message.json` | HELP file per GAME API spec. | Edits required for each Predictor|
 
-### Predictor Responsibilites
+### Predictor Responsibilities
 
 - Set up endpoints for `/formats`, `/help` and `/predict`
 - Validate the requests, decline any requests model's can't fulfill

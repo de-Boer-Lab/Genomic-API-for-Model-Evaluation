@@ -21,7 +21,7 @@ To create a sample Evaluator using the scripts and data we provide for this exam
 `config.py`
 
 - Sets the evaluator name and input file for predictions.  
-- Defines output filename 
+- Defines output filename.
 - Automatically sets data directory based on container or local execution.  
 - Constructs full path to input file (`EVALUATOR_INPUT_PATH`).  
 - Configures API communication:  
