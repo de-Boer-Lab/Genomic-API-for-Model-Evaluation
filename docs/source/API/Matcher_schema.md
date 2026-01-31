@@ -1,4 +1,6 @@
-# Matcher response message
+# Matcher API Schema
+
+## Request to Matcher
 
 To perform a match for a specific category (e.g. cell_type), the Evaluator sends a **POST request** to the `/match` endpoint. 
 
@@ -18,6 +20,8 @@ Multiple categories can be included in a single request.
 | `binding_molecule_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the binding molecule requested by the Evaluator | `"H3K4_trimethylation"`   |
 | `binding_molecule_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["CTCF", "H3K4me3", "POLR2A"]`   |
 
+## Matcher response
+
 The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON payload containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
 
 | Key                 | Value type                   | Description  | Example   |
@@ -28,7 +32,7 @@ The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON 
 | `matcher_version`                 | `string`                   | The version of the Matcher that processed the request. | `"2.0"`   |
 
 ```bash
-curl -X POST http://localhost:8000/match \
+curl -X POST http://[HOST]:[PORT]/match \
      -H "Content-Type: application/json" \
      -d '{
            "cell_type_requested": "Leukemia cell line",

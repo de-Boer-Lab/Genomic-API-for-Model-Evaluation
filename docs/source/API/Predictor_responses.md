@@ -1,4 +1,6 @@
-# Predictor response message
+# Predictor API Schema
+
+## Predictor response
 
 | Key                 | Value type - Required/Optional                   | Description: Value options  | Example   |
 |--------------|--------------|-------------------------------|--------------|

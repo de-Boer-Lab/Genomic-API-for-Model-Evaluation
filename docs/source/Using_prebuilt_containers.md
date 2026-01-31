@@ -6,13 +6,15 @@ Predictor run command:
 
 `apptainer run --containall predictor.sif HOST PORT`
 
-To use a container with GPU:
+To use a container with  NVIDIA GPU:
 
 `apptainer run --containall --nv predictor.sif HOST PORT`
 
 To use a container with GPU + Matcher:
 
 `apptainer run --containall --nv predictor.sif HOST PORT MATCHER_HOST MATCHER_PORT`
+
+**NOTE:** **For AMD GPUs and ROCm framework, please refer to [Apptainer's Documentation](https://apptainer.org/docs/user/1.0/gpu.html#amd-gpus-rocm).**
 
 Evaluator run command:
 
@@ -29,7 +31,7 @@ Updated list of current GAME modules can be found here: [LINK]
 
 To run a test prediction using the DREAM-RNN container and sample Evaluator container:
 
-1. Download the containers from Zenodo: <https://zenodo.org/records/14861069>
+1. Download the containers from Zenodo: <https://zenodo.org/records/18178626>
 
     ```bash
     mkdir DREAMRNN
@@ -38,24 +40,24 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 
     ```bash
     cd DREAMRNN
-    wget -O predictor.sif "https://zenodo.org/records/14861069/files/predictor.sif?download=1"
+    wget -O dream_rnn_predictor.sif "https://zenodo.org/records/18178626/files/dream_rnn_predictor.sif?download=1"
     ```
 
     ``` bash
     cd test_evaluator
-    wget -O evaluator.sif "https://zenodo.org/records/14861069/files/evaluator.sif?download=1"
-    wget -O evaluator_data.zip "https://zenodo.org/records/14861069/files/evaluator_data.zip?download=1"
+    wget -O evaluator.sif [LINK]
+    wget -O evaluator_data.zip [LINK]
     unzip evaluator_data.zip
     mkdir predictions
     ```
 
-    Note: if you run into issues downloading the `evaluator_data` folder you may need to manually download it off Zenodo.
+    **Note:** if you run into issues downloading the `evaluator_data` folder you may need to manually download it off Zenodo.
 
 2. Get the IP Address of where the Predictor is running
 
     Note: PORTs above 5000 are usually free to use
 
-    `hostname -I`
+    `hostname -I` (**NOTE:** This could be different for different HPC platforms -- `-I`, `-i`, no flag, etc.)
 
 3. Start the DREAMRNN Predictor with the IP address and PORT arguments
 

@@ -1,4 +1,6 @@
-# Evaluator request message
+# Evaluator API Schema
+
+## Evaluator request 
 
 | Key | Value type - Required/Optional | Description: Value options | Example |
 |---|---|---|---|
@@ -22,6 +24,6 @@
 
 ## Evaluator Output file specifications
 
-| Evaluator_name | Description | Predictor_name | Time_stamp | Metric | Value | Prediction_task(s)_data |
+| `evaluator_name` | `description` | `predictor_name` | `time_stamp` | `metric` | `value` | `prediction_task(s)_data` |
 |---|---|---|---|---|---|---|
-|Evaluator Name| Description of the evaluation task | returned predictor_name | UNIXTIMESTAMP| Evaluation metric | Evaluation metric value | Data used to calculate the metric as a dictionary|
+| Evaluator name | Description of the evaluation task | returned predictor_name | UNIX_TIME_STAMP (UTC)| Evaluation metric | Evaluation metric value | Prediction task metadata used to calculate the metric as a dictionary |
