@@ -16,7 +16,7 @@ GAME’s modules communicate via REST APIs over HTTP. The main functionalities i
 
 ## Example `curl` Requests to access information
 
-**Get available formats**
+### Get available formats
 
 ```bash
 curl -X GET http://HOST:PORT/formats

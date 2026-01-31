@@ -2,7 +2,7 @@
 
 ## Creating an Evaluator that reads in a sample JSON files that include DNA sequences
 
-Make sure that you have Apptainer installed. Additional details and installation instructions can be found here: https://apptainer.org/docs/user/main/quick_start.html
+Make sure that you have Apptainer installed. Additional details and installation instructions can be found here: <https://apptainer.org/docs/user/main/quick_start.html>
 
 The Evaluator container in this example will require 3 arguments in this order: HOST, PORT, OUTPUT_DIR.
 
@@ -56,7 +56,7 @@ All of these scripts will be copied into the container in the `%files` section o
 
 ### 2. Change paths in the `evaluator_python_only.def` to local corresponding paths
 
-The `evaluator.def` is a definition file and will be used to create the Apptainer container. In this example we are only building a container with Python 3.9-slim and no other dependencies for simplicity. The `/predictions` folder is our `OUTPUT_DIR` where the returning predictions for this psuedo example will be stored. `evaluator_data` contains 2 sample JSON files, one is a very simple request and the other is more complicated. `evaluator_data` is mounted at run time to increase flexibility.
+The `evaluator.def` is a definition file and will be used to create the Apptainer container. In this example we are only building a container with Python 3.9-slim and no other dependencies for simplicity. The `/predictions` folder is our `OUTPUT_DIR` where the returning predictions for this pseudo example will be stored. `evaluator_data` contains 2 sample JSON files, one is a very simple request and the other is more complicated. `evaluator_data` is mounted at run time to increase flexibility.
 
 Change the `/path_to/`  in the .def file to the local file path for the `evaluator_RestAPI.py` script to copy it into the container from a local directory.  
 
@@ -147,7 +147,9 @@ This will build the Predictor container that automatically runs `predictor_RestA
 
 ## Running the containers
 
-To get the local host IP for the Predictor server you can use `hostname -I`. Ports above 1024 are usually free to use on most computers/servers. 
+To get the local host IP for the Predictor server you can use `hostname`, `hostname -I`, `hostname -i`, etc. **NOTE:** It is different for different HPC platforms.
+
+Ports above 1024 are usually free to use on most computers/servers.
 
 The predictor needs to be started first and the Evaluator will connect to the Predictor's IP.
 
