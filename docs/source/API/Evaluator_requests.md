@@ -14,7 +14,7 @@
 | `upstream_seq`      | `string`- Optional                  | Upstream flanking sequences to add to each sequence in `sequences`.                                                                                                                                                                                                                                                                                       | "upstream_seq": "AATTA"                                                                                                                                                                                |
 | `downstream_seq`    | `string`- Optional                  | Downstream flanking sequences to add to each sequence in `sequences`.                                                                                                                                                                                                                                                                                    | "downstream_seq": "CCCAAAA"                                                                                                                                                                            |
 | `sequences`         | `object` - Required       | A collection of key-value pairs (strings). Keys are unique sequence ID keys - any characters [A-Z][a-z][0-9][-.\_\~#\@%^&\*()]. The sequence ID keys are matched to the Predictor sequence ID keys automatically by Predictor.                                                                                                                             | "sequences": {<br>   "seq1": "ATGC...",<br>   "seq2": "ATGC...",<br>  "random_seq": "ATGC...",<br>  "enhancer": "ATGC...",<br>  "control": "ATGC..." <br> }                                  |
-| `prediction_ranges` | `object` - Optional | A collection of key-value pairs, where the keys should be identical to sequence ID keys and values are arrays with the start and end region you want predicted for each sequence. Start and end are 0 indexed and inclusive (e.g. [0,1] is the first two bases).| "prediction_ranges": {<br>   "seq1": [0,1000],<br>   "seq2": [100,110],<br>  "random_seq": [],<br>  "enhancer": [210,500],<br>  "control": [] <br> } |
+| `prediction_ranges` | `object` - Optional | A collection of key-value pairs, where the keys should be identical to sequence ID keys and values are arrays with the start and end region you want predictions for, within the provided sequence context. Start and end are 0 indexed and inclusive, respectively (e.g. [0,1] is the first two bases).| "prediction_ranges": {<br>   "seq1": [0,1000],<br>   "seq2": [100,110],<br>  "random_seq": [],<br>  "enhancer": [210,500],<br>  "control": [] <br> } |
 
 ## Notes
 
@@ -28,7 +28,7 @@ Our evaluation framework is modular. While most evaluators provide a standard **
 
 The codebase for the Agarwal MPRA Joint Library Evaluator can be found [here](https://github.com/de-Boer-Lab/GAME-Agarwal-MPRA-joint-library-evaluator) and serves as a reference for implementing custom metric calculations.
 
-1. **Correlation Summary File (`correlation_summary_[evaluator_name].csv`)**
+1. **Correlation Summary File (`evaluation_summary_[evaluator_name].csv`)**
 
     | `evaluator_name` | `description` | `predictor_name` | `time_stamp` | `metric` | `value` | `prediction_task(s)_data` |
     |---|---|---|---|---|---|---|
