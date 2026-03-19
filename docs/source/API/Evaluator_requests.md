@@ -28,7 +28,7 @@ Our evaluation framework is modular. While most evaluators provide a standard **
 
 The codebase for the Agarwal MPRA Joint Library Evaluator can be found [here](https://github.com/de-Boer-Lab/GAME-Agarwal-MPRA-joint-library-evaluator) and serves as a reference for implementing custom metric calculations.
 
-1. **Correlation Summary File (`evaluation_summary_[evaluator_name].csv`)**
+1. **Evaluation Summary File (`evaluation_summary_[evaluator_name].csv`)**
 
     | `evaluator_name` | `description` | `predictor_name` | `time_stamp` | `metric` | `value` | `prediction_task(s)_data` |
     |---|---|---|---|---|---|---|
