@@ -2,12 +2,17 @@
 
 ## Request to Matcher
 
-To perform a match for a specific category (e.g. cell_type), the Evaluator sends a **POST request** to the `/match` endpoint. 
+To perform a match for a specific category (e.g. cell_type), the Evaluator sends a **POST request** to the `/match` endpoint.
 
 The JSON payload must include paired keys for each category:
 
-- `<category>_requested` → the fuzzy input term provided by the Evaluator  
-- `<category>_list` → the list of possible values the Predictor can match against  
+- `<category>_requested` $\rightarrow$ the fuzzy input term provided by the Evaluator  
+- `<category>_list` $\rightarrow$ the list of possible values the Predictor can match against.
+
+**Validation Rules:**
+
+1. **Paired Fields:** If you provide a requested term (e.g. `cell_type_requested`), you must also provide the corresponding list (e.g. `cell_type_list`).
+2. **Minimum Requirement:** The request must contain at least one valid category pair to process. Empty requests will be rejected with a `422 Unprocessable Entity` error.
 
 Multiple categories can be included in a single request.
 
