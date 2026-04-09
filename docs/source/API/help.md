@@ -22,21 +22,49 @@ Predictor Response:
 
 ## Note on Versioning
 
-GAME distinguishes between two types of versioning:
+GAME distinguishes between two types of versioning: the **API schema** and the **individual module**.
 
-1. **API schema version** (`game_schema_version`): Tracks which version of the GAME API specification a module implements. The schema version covers the entire GAME release &mdash; the Evaluator request spec, Predictor response spec, and Matcher spec all move together as one versioned contract. Changes to the API specification (e.g. the addition, removal, or modification of keys) will be accompanied by a schema version increment and published release notes. The `game_schema_version` field is set manually by the module builder in the help file and should be updated when the module is modified to conform to a new version of the GAME API.
+### API Schema Version (`game_schema_version`)
 
-2. **Module-level version** (via `predictor_name` / `evaluator_name`): Tracks the specific build of a container. This is handled automatically by reading the container's build-date label from Apptainer's `/.singularity.d/labels.json` and appending it to the module's base name in `config.py`. The format is `YYYYMMDD-HHMMSS_TZ`, producing names like `DREAM-RNN_Human_K562_20260407-140628_PDT`.
+The `game_schema_version` tracks which version of the GAME API specification a module implements. The schema version covers the entire GAME release &mdash; the Evaluator request spec, Predictor response spec, and Matcher spec all move together as one versioned contract. Changes to the API specification (e.g. the addition, removal, or modification of keys) will be accompanied by a schema version increment and published release notes. The `game_schema_version` field is set manually by the module builder in the help file and should be updated when the module is modified to conform to a new version of the GAME API.
+
+#### Where to store it
+
+- **Predictors**: Set `game_schema_version` in the `predictor_help_message.json`. This is returned via the `GET /help` endpoint
+- **Evaluators**: Set `game_schema_version` in the `%labels` block of the Apptainer definition file (`.def`).
+
+Both Predictor and Evaluator schema versions are also tracked in the [GAME Modules](https://github.com/de-Boer-Lab/GAME_modules) repository.
+
+#### How to check it
+
+Before running an evaluation, Predictor's schema version can be verified with:
+
+```bash
+curl -X GET http://HOST:PORT/help
+```
+
+For Evaluators, the schema version from the container can be inspected with:
+
+```bash
+apptainer inspect --labels <evaluator_image>.sif | grep game_schema_version
+```
+
+### Module-level version
+
+Module-level versioning (via `predictor_name` / `evaluator_name`) tracks the specific build of a container. This is handled automatically by reading the container's build-date label from Apptainer's `/.singularity.d/labels.json` and appending it to the module's base name in `config.py`. The format is `YYYYMMDD-HHMMSS_TZ`, producing names like `DREAM-RNN_Human_K562_20260407-140628_PDT`.
+
 *Internal implementation note:* Modules running outside of a container (in development mode) append `_dev` instead.
 
 This automatic versioning ensures that every rebuild of a container produces a unique, sortable identifier &mdash; allowing Evaluators to distinguish between different builds of the same Predictor, even when the API schema version has not changed. This is especially important when model weights, preprocessing logic, or dependencies are updated between builds.
 
-### Compatibility Properties
+<!-- ### Compatibility Properties
 
 Predictors are **forward compatible**: they process only the keys they recognize and ignore unknown fields. A Predictor built for schema v2 will accept requests from a v3 Evaluator that includes new fields &mdash; the unknown keys are simply ignored. However, Predictors are **not guaranteed to be backward compatible**: a Predictor built for a newer schema version may require keys that an older Evaluator does not send, resulting in a validation error (HTTP 400).
 
-Evaluators are **not backward compatible**: they may depend on response fields introduced in newer schema versions. For example, a track Evaluator that expects `trim_upstream` in the response will default to 0 if the field is missing from an older Predictor's response &mdash; producing silently incorrect alignment rather than an error. Evaluators are, however, **forward compatible**: they ignore unknown response keys, so a v2 Evaluator will not break when receiving responses from a v3 Predictor that includes new fields.
+Evaluators are **not backward compatible**: they may depend on response fields introduced in newer schema versions. For example, a track Evaluator that expects `trim_upstream` in the response will default to 0 if the field is missing from an older Predictor's response &mdash; producing silently incorrect alignment rather than an error. Evaluators are, however, **forward compatible**: they ignore unknown response keys, so a v2 Evaluator will not break when receiving responses from a v3 Predictor that includes new fields. -->
 
-### Recommended Behavior for Version Mismatches
+### Recommended Behaviour for Version Mismatches
 
-Evaluators SHOULD check the Predictor's `game_schema_version` via the `/help` endpoint before issuing prediction requests. If a version mismatch is detected, the recommended behavior is to **log a warning and proceed** with the evaluation. The Predictor's built-in validation will reject genuinely incompatible requests with the appropriate HTTP error code, and Evaluators should handle missing or unexpected response fields gracefully by defaulting to safe values (e.g. `None`) and recording the mismatch in the evaluation output. Evaluators MAY choose to refuse connections to incompatible Predictors, but this is left to the Evaluator builder's discretion.
+Users SHOULD check the module's `game_schema_version` before issuing prediction requests. If a version mismatch is detected, the recommended behavior is to **log a warning and proceed** with the evaluation. The Predictor's built-in validation will reject genuinely incompatible requests with the appropriate HTTP error code, and Evaluators should handle missing or unexpected response fields gracefully by defaulting to safe values (e.g. `None`) and recording the mismatch in the evaluation output.
+
+Users MAY choose to refuse connections to incompatible modules, but this is left to the Evaluator builder's discretion.
