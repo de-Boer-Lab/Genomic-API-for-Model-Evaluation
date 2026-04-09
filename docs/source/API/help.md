@@ -57,7 +57,7 @@ Module-level versioning (via `predictor_name` / `evaluator_name`) tracks the spe
 
 This automatic versioning ensures that every rebuild of a container produces a unique, sortable identifier &mdash; allowing Evaluators to distinguish between different builds of the same Predictor, even when the API schema version has not changed. This is especially important when model weights, preprocessing logic, or dependencies are updated between builds.
 
-<!-- ### Compatibility Properties
+<!-- ### Compatibility Properties (Internal Notes for now)
 
 Predictors are **forward compatible**: they process only the keys they recognize and ignore unknown fields. A Predictor built for schema v2 will accept requests from a v3 Evaluator that includes new fields &mdash; the unknown keys are simply ignored. However, Predictors are **not guaranteed to be backward compatible**: a Predictor built for a newer schema version may require keys that an older Evaluator does not send, resulting in a validation error (HTTP 400).
 
