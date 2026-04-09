@@ -22,7 +22,7 @@
 2. all indexing is 0 based
 3. to minimize any bias from the predictors we suggested randomizing your sequences so that there is no dependency on the order
 
-## Evaluator Output file specifications
+## Evaluator Output File Specifications
 
 All evaluation metrics are saved into a single tab-separated file: **`evaluation_summary_[evaluator_name].csv`**
 
