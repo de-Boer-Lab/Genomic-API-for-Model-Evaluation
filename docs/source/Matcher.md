@@ -2,42 +2,25 @@
 
 GAME introduces a module called “Matcher”, which automatically maps the Evaluator's requested cell type, measured molecule (TF binding molecule/ protein and histone markers), and species with what a Predictor can provide. The Matcher uses a local LLM model and is designed to perform this task by interpreting the relationship between terms through lexical, syntactic, and semantic matching. The use of Matcher with Predictor modules is optional and up to the model developer. Most Predictor modules will first check for exact matches between the request and what they can complete before asking Matcher for help.
 
-The Matcher communicates via a standardized REST API over HTTP, with a single endpoint, `/match`, which accepts POST requests containing a JSON file.
+The Matcher communicates via a standardized REST API over HTTP, with a single endpoint, `/match`, which accepts POST requests containing a JSON payload. For the full request and response schema, see the [Matcher API Schema](API/Matcher_schema.md).
 
-## **Matcher Request Payload**
+For more information about the implementation, refer to the [Matcher GitHub Repository](https://github.com/de-Boer-Lab/GAME_matcher).
 
-The request payload must be a JSON object conforming to the schema below. The API enforces strict validation logic using the `pydantic` library to ensure data integrity.
+## How it works
 
-**Validation Rules:**
+The Matcher is implemented as a FastAPI server running a local [Gemma 3](https://deepmind.google/models/gemma/gemma-3/) 12B model via [Ollama](https://ollama.com/), both packaged inside a single Apptainer container. The LLM is configured with `temperature=0` to ensure deterministic output — the same input will produce the same match.
 
-1. **Paired Fields:** If you provide a requested term (e.g. `cell_type_requested`), you must also provide the corresponding list (e.g. `cell_type_list`).
-2. **Minimum Requirement:** The request must contain at least one valid category pair to process. Empty requests will be rejected with a `422 Unprocessable Entity` error.
+For each matching category (cell type, species, or binding molecule), the Matcher uses domain-specific prompt templates with worked examples and explicit instructions to return `NULL` when no suitable match exists. The LLM output is validated against the input choices to guard against hallucinated responses — if the LLM returns a value that was not in the provided list, it is discarded.
 
-| Key                 | Value type - Required/Optional                   | Description  | Example   |
-|--------------|--------------|-------------------------------|--------------|
-| `cell_type_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the cell type requested by the Evaluator | `"Leukemia cell line"`   |
-| `cell_type_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["K562", "A549", "HepG2"]`   |
-| `species_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the species requested by the Evaluator | `"h_sap"`   |
-| `species_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["Homo sapiens", "Mus musculus"]`   |
-| `binding_molecule_requested`                 | `string` - Optional (Paired)                   | The fuzzy input term for the binding molecule requested by the Evaluator | `"H3K4_trimethylation"`   |
-| `binding_molecule_list`                 | `array of strings` - Optional (Paired)                   | The list of choices the Predictor can support to match against | `["CTCF", "H3K4me3", "POLR2A"]`   |
+When the choice list is large (e.g. models with hundreds of cell types), the Matcher uses a **chunked tournament approach**: the list is split into chunks of up to 20 items, the LLM picks the best match from each chunk, and the winners compete in subsequent rounds until a single best match is determined.
 
-## **Matcher Response Payload**
-
-The Matcher (server) sends back a JSON payload to the Predictor (client), containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
-
-| Key                 | Value type                   | Description  | Example   |
-|--------------|--------------|-------------------------------|--------------|
-| `cell_type_actual`                 | `string` or `null`                   | The best match from the `cell_type_list` | `"K562"`   |
-| `species_actual`                 | `string` or `null`                   | The best match from the `species_list` | `"Homo sapiens"`   |
-| `binding_molecule_actual`                 | `string` or `null`                   | The best match from the `binding_molecule_list` | `"H3K4me3"`   |
-| `matcher_version`                 | `string`                   | The version of the Matcher that processed the request. | `"2.0"`   |
-
-Please visit the Matcher Github Repo for the code and more details.
+The Matcher follows the same two-tier versioning convention as Predictor and Evaluator modules. The `matcher_version` returned in every response is the build-timestamped Matcher name (e.g. `Matcher_20260414-171101_PDT`), constructed automatically from Apptainer's build-date label. The API schema version (`SCHEMA_VERSION`) is stored in the Matcher's `config.py` and exposed via the FastAPI application metadata.
 
 ## Usage
 
 The Matcher container can be downloaded from Zenodo: [[ADD LINK HERE]].
+
+Please visit the [Matcher Github Repo](LINK) for the code and more details.
 
 1. **Download the Matcher Container**
 
@@ -54,4 +37,23 @@ The Matcher container can be downloaded from Zenodo: [[ADD LINK HERE]].
 
     # Example: Run the matcher, listening on all network interfaces on port 8080
     apptainer run --nv --containall matcher.sif 0.0.0.0 8080
+    ```
+
+    **Note:** The `--nv` flag is required to expose the host's NVIDIA GPU drivers to the container for LLM inference.
+
+3. **Verify the Matcher is running**
+
+    The FastAPI server provides an auto-generated Swagger UI for interactive testing:
+
+    ```bash
+    # Open in a browser
+    http://HOST:PORT/docs
+    ```
+
+    Or test with curl:
+
+    ```bash
+    curl -X POST http://HOST:PORT/match \
+         -H "Content-Type: application/json" \
+         -d '{"cell_type_requested": "Leukemia cell line", "cell_type_list": ["K562", "A549", "HepG2"]}'
     ```
