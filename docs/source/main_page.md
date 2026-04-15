@@ -4,7 +4,7 @@ GAME was designed for the functional genomics community to create seamless commu
 
 The evaluators (dataset APIs) will make prediction requests in the standard format to the predictors (model APIs), which then return the predictions to the Evaluator in a standard format, enabling the evaluators to calculate the model’s performance. Each of the evaluators and predictors will be containerized using Apptainer.
 
-```{image} API.png
+```{image} images/API.png
 :alt: Diagram
 ```
 
