@@ -43,14 +43,7 @@ Please visit the [Matcher Github Repo](LINK) for the code and more details.
 
 3. **Verify the Matcher is running**
 
-    The FastAPI server provides an auto-generated Swagger UI for interactive testing:
-
-    ```bash
-    # Open in a browser
-    http://HOST:PORT/docs
-    ```
-
-    Or test with curl:
+    Test with curl:
 
     ```bash
     curl -X POST http://HOST:PORT/match \
