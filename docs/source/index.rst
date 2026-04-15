@@ -15,6 +15,7 @@
    Building_Modules/index
    Using_prebuilt_containers
    Matcher
+   versioning
    Submitting_jobs
    Predictor_distributor
    FAQ
