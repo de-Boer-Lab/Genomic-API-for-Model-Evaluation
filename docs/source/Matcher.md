@@ -8,9 +8,9 @@ For more information about the implementation, refer to the [Matcher GitHub Repo
 
 ## How it works
 
-The Matcher is implemented as a FastAPI server running a local [Gemma 3](https://deepmind.google/models/gemma/gemma-3/) 12B model via [Ollama](https://ollama.com/), both packaged inside a single Apptainer container. The LLM is configured with `temperature=0` to ensure deterministic output — the same input will produce the same match.
+The Matcher is implemented as a FastAPI server running a local [Gemma 3](https://deepmind.google/models/gemma/gemma-3/) 12B model via [Ollama](https://ollama.com/), both packaged inside a single Apptainer container. The LLM is configured with `temperature=0` to ensure deterministic output &mdash; the same input will produce the same match.
 
-For each matching category (cell type, species, or binding molecule), the Matcher uses domain-specific prompt templates with worked examples and explicit instructions to return `NULL` when no suitable match exists. The LLM output is validated against the input choices to guard against hallucinated responses — if the LLM returns a value that was not in the provided list, it is discarded.
+For each matching category (cell type, species, or binding molecule), the Matcher uses domain-specific prompt templates with worked examples and explicit instructions to return `NULL` when no suitable match exists. The LLM output is validated against the input choices to guard against hallucinated responses &mdash; if the LLM returns a value that was not in the provided list, it is discarded.
 
 When the choice list is large (e.g. models with hundreds of cell types), the Matcher uses a **chunked tournament approach**: the list is split into chunks of up to 20 items, the LLM picks the best match from each chunk, and the winners compete in subsequent rounds until a single best match is determined.
 

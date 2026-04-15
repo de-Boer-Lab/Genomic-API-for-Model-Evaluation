@@ -9,7 +9,7 @@ Predictor Response:
 | Key  | Value type     | Description       | Example Values |
 |------|---------------|-------------------------------------------|-------------------|
 | `model`                 | `string`- Optional  | Model name.                                                                                                         | "model": "deBoer Lab test" |
-| `game_schema_version`               | `string`- Optional  | The version of the GAME API schema that this Predictor implements. This is distinct from module-level versioning, which is handled automatically by the container build timestamp appended to `predictor_name` (see below).                                                                                 | "game_schema_version": "2.0"|
+| `game_schema_version`               | `string`- Optional  | The version of the GAME API schema that this Predictor implements. This is distinct from module-level versioning, which is handled automatically by the container build timestamp appended to `predictor_name` (see below).                                                                                 | "game_schema_version": "1.0"|
 | `publication`               | `string`- Optional  | Citation for original paper.                                                                                | "publication": "Luthra et. al, 2024"|
 | `features`              | `array of strings`- Optional   | List of features that the model predicts for each of the cells in `cell_types`.                                                 | "features": ["accessibility", "accessibility", "binding_h3K4me3","binding_ctcf","expression", "expression", "expression"] |
 | `cell_types`              | `array of strings`- Optional   | Cell types that correspond to predicted features in `features`. Length of "cell_types" should be the same as "features" or length 1.                                              | "cell_types": ["iPSC", "Hepg2", "iPSC", "iPSC", "iPSC", "HepG2",  "K562"] |
@@ -26,14 +26,16 @@ GAME distinguishes between two types of versioning: the **API schema** and the *
 
 ### API Schema Version (`game_schema_version`)
 
-The `game_schema_version` tracks which version of the GAME API specification a module implements. The schema version covers the entire GAME release &mdash; the Evaluator request spec, Predictor response spec, and Matcher spec all move together as one versioned contract. Changes to the API specification (e.g. the addition, removal, or modification of keys) will be accompanied by a schema version increment and published release notes. The `game_schema_version` field is set manually by the module builder in the help file and should be updated when the module is modified to conform to a new version of the GAME API.
+The `game_schema_version` tracks which version of the GAME API specification a module implements. The schema version covers the entire GAME release &mdash; the Evaluator request spec, Predictor response spec, and Matcher spec. Changes to the API specification (e.g. the addition, removal, or modification of keys) will be accompanied by a schema version increment and published release notes. The `game_schema_version` field is set manually by the module builder in the help file and should be updated when the module is modified to conform to a new version of the GAME API.
 
 #### Where to store it
 
 - **Predictors**: Set `game_schema_version` in the `predictor_help_message.json`. This is returned via the `GET /help` endpoint
-- **Evaluators**: Set `game_schema_version` in the `%labels` block of the Apptainer definition file (`.def`).
+- **Evaluators, Matcher, & Predictor Distributor (PD)**: Set `game_schema_version` in the `%labels` block of the Apptainer definition file (`.def`).
 
-Both Predictor and Evaluator schema versions are also tracked in the [GAME Modules](https://github.com/de-Boer-Lab/GAME_modules) repository.
+Predictor, Evaluator, Matcher, and PD schema versions are also tracked in the [GAME Modules](https://github.com/de-Boer-Lab/GAME_modules) repository.
+
+**NOTE:** PD is a transparent orchestration layer between the Evaluator and Predictor. It forwards payloads without inspecting or modifying the schema, so it does not need to be updated when the API specification changes. Its `game_schema_version` label tracks which version of GAME it was built alongside, not a schema it enforces.
 
 #### How to check it
 
@@ -43,19 +45,19 @@ Before running an evaluation, Predictor's schema version can be verified with:
 curl -X GET http://HOST:PORT/help
 ```
 
-For Evaluators, the schema version from the container can be inspected with:
+For Evaluators and the Matcher, the schema version from the container can be inspected with:
 
 ```bash
-apptainer inspect --labels <evaluator_image>.sif | grep game_schema_version
+apptainer inspect --labels <image>.sif | grep game_schema_version
 ```
 
 ### Module-level version
 
-Module-level versioning (via `predictor_name` / `evaluator_name`) tracks the specific build of a container. This is handled automatically by reading the container's build-date label from Apptainer's `/.singularity.d/labels.json` and appending it to the module's base name in `config.py`. The format is `YYYYMMDD-HHMMSS_TZ`, producing names like `DREAM-RNN_Human_K562_20260407-140628_PDT`.
+Module-level versioning (via `predictor_name` / `evaluator_name` / `matcher_version`) tracks the specific build of a container. This is handled automatically by reading the container's build-date label from Apptainer's `/.singularity.d/labels.json` and appending it to the module's base name in `config.py`. The format is `YYYYMMDD-HHMMSS_TZ`, producing names like `DREAM-RNN_Human_K562_20260407-140628_PDT` or `"Matcher_20260414-171101_PDT"`.
 
 *Internal implementation note:* Modules running outside of a container (in development mode) append `_dev` instead.
 
-This automatic versioning ensures that every rebuild of a container produces a unique, sortable identifier &mdash; allowing Evaluators to distinguish between different builds of the same Predictor, even when the API schema version has not changed. This is especially important when model weights, preprocessing logic, or dependencies are updated between builds.
+This automatic versioning ensures that every rebuild of a container produces a unique, sortable identifier &mdash; allowing Evaluators to distinguish between different builds of the same Predictor, even when the API schema version has not changed. This is especially important when model weights, preprocessing logic, or dependencies are updated between builds, which can impact their prediction and therefore their evaluation outcomes.
 
 <!-- ### Compatibility Properties (Internal Notes for now)
 
