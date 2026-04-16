@@ -54,7 +54,7 @@ To create a sample Evaluator using the scripts and data we provide for this exam
 
 All of these scripts will be copied into the container in the `%files` section of the .def file.
 
-### 2. Change paths in the `evaluator_python_only.def` to local corresponding paths
+### 2. Change paths in the `evaluator.def` to local corresponding paths
 
 The `evaluator.def` is a definition file and will be used to create the Apptainer container. In this example we are only building a container with Python 3.9-slim and no other dependencies for simplicity. The `/predictions` folder is our `OUTPUT_DIR` where the returning predictions for this pseudo example will be stored. `evaluator_data` contains 2 sample JSON files, one is a very simple request and the other is more complicated. `evaluator_data` is mounted at run time to increase flexibility.
 

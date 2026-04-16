@@ -4,9 +4,12 @@ One of the major bottlenecks in large scale model evaluation is the computationa
 
 The PD acts as an intermediate module that impersonates a single Predictor server to the Evaluator, receiving one large request. It then assumes the role of a client to several, say `N`, independent Predictor worker instances, which are made available by the user to leverage computational resources, e.g. using Slurm on an HPC platform.
 
+PD implementation can be found on [GitHub](https://github.com/de-Boer-Lab/GAME-predictor-distributor).
+
 ## Scatter Request
 
-- The PD first scatters the workload by dividing sequences and corresponding metadata into `N` smaller batches to be sent to the Predictor worker instances. - These are dispatched concurrently to the `N` Predictor instances via asynchronous REST API requests.
+- The PD first scatters the workload by dividing sequences and corresponding metadata into `N` smaller batches to be sent to the Predictor worker instances.
+- These are dispatched concurrently to the `N` Predictor instances via asynchronous REST API requests.
 
 ## Gather Responses
 

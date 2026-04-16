@@ -12,7 +12,7 @@
 | `type_requested`  | `string` - Required        | Prediction type requested: [`"accessibility"`, `"binding_molecule"`, `"expression"`, `"conformation_{isoform}"`, like `"conformation_chromatin"`]. `"binding_<molecule>"` can be for any type of binding assay (ex. CHIP-Seq, H3k27ac) and the text trailing the "_" should be all lower case.                                                                                                                                                                                        | `"type_requested": "expression"`                                                                                                                                         |
 | `type_actual`  |`array of string(s)` - Required        | Prediction type(s) completed by Predictor. In many cases will be the assay the model predicted. If multiple tracks were averaged in a multi-task model they should be included here. ex. ["dnase", "atac-seq"]               | `"type_actual": ["expression"]`|
 |`cell_type_requested`       | `string`- Required | Cell type requested by the Evaluator.                                   | `"cell_type_requested": "HEPG2"`|
-| `cell_type_actual`       | `string`- Required | Cell type returned by Predictor. Predictor can choose to use cell type/cell line ontology container which will returned the closest matched cell type that the Predictor has.| `"cell_type_actual": "HEPG2"` |
+| `cell_type_actual`       | `string`- Required | Cell type returned by Predictor. Predictor can choose to use the Matcher module, which will returned the closest matched cell type that the Predictor has.| `"cell_type_actual": "HEPG2"` |
 | `species_requested`        | `string` - Required       | What species was requested by the Evaluator.  | `"species_requested": "homo_sapiens"` |
 |`species_actual`        | `string` - Required       | What species was used by the Predictor.                                                                                                                                                                              | `"species_actual": "homo_sapiens"`|
 | `scale_prediction_requested` | `string` - Optional            | Evaluator requested scaling for predictions: ["linear", "log"].                                                                                                                                                    | `"scale_prediction_requested": "log"`       |
@@ -28,7 +28,7 @@ Predictors that return **binned predictions** often include **"N" bases** in fla
 When an Evaluator requests a track `readout` request:
 
 - The **expanded bp-level prediction** (for binned outputs) **must match the length of the input sequence**.
-- The start of a prediction should be aligned with the first bp of the sequence. 
+- The start of a prediction should be aligned with the first bp of the sequence.
 - By default, if no `trim_upstream` parameter is returned, the Evaluator should **crop the predictions only at the downstream end**.
 - If a `trim_upstream` parameter *is* returned, the Evaluator should:
   1. **Crop upstream** by the amount specified in `trim_upstream`.

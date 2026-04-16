@@ -27,7 +27,7 @@ Multiple categories can be included in a single request.
 
 ## Matcher response
 
-The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON payload containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
+The Matcher (server) sends back a JSON payload to the Predictor (client) containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
 
 A value of `null` indicates that the Matcher determined no suitable match exists in the provided list &mdash; this is a valid result, not an error.
 

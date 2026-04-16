@@ -1,6 +1,6 @@
 # Get started by using pre-built GAME modules
 
-GAME modules can be run interactively by users or using our submission scripts{LINK}. To parallelize predictions you can use Predictor Distributor{LINK}.
+GAME modules can be run interactively by users or using our submission scripts [LINK]. To parallelize predictions you can use [Predictor Distributor](Predictor_distributor.md) .
 
 Predictor run command:
 
@@ -31,7 +31,7 @@ Updated list of current GAME modules can be found here: [LINK]
 
 To run a test prediction using the DREAM-RNN container and sample Evaluator container:
 
-1. Download the containers from Zenodo: <https://zenodo.org/records/18178626>
+1. Download the containers from Zenodo: [LINK]
 
     ```bash
     mkdir DREAMRNN
@@ -40,7 +40,7 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 
     ```bash
     cd DREAMRNN
-    wget -O dream_rnn_predictor.sif "https://zenodo.org/records/18178626/files/dream_rnn_predictor.sif?download=1"
+    wget -O dream_rnn_predictor.sif [LINK]
     ```
 
     ``` bash
@@ -55,7 +55,7 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 
 2. Get the IP Address of where the Predictor is running
 
-    Note: PORTs above 5000 are usually free to use
+    Note: PORTs above 1024 are usually free to use
 
     `hostname -I` (**NOTE:** This could be different for different HPC platforms -- `-I`, `-i`, no flag, etc.)
 
@@ -92,7 +92,7 @@ Yay! You just completed a successful communication between the DREAMRNN model an
 
 ```bash
 {
-    "request": "predict",
+    "predictor_name": "DREAM-RNN_Human_K562",
     "prediction_tasks": [
         {
             "name": "gosai_synthetic_sequences",
@@ -121,6 +121,7 @@ Yay! You just completed a successful communication between the DREAMRNN model an
                     1.1637296676635742
                 ]
             }
+        }
     ]
 }
 ```
