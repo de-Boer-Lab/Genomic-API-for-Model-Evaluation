@@ -10,8 +10,8 @@ The `game_schema_version` tracks which version of the GAME API specification a m
 
 The schema version follows a `MAJOR.MINOR` format:
 
-- **Minor increments** (e.g. `1.0` $\rightarrow$ `1.1` $\rightarrow$ `1.2`): Represent the addition of optional keys that some modules may use but others can safely ignore if they don't need those keys or values. Modules built for any version within the same major release (e.g. `1.*`) are compatible with each other.
-- **Major increments** (e.g. `1.*` $\rightarrow$ `2.0`): Represent mandatory changes such as the addition, removal, or renaming of required keys. Modules built for an older major version may not be compatible and should be updated.
+- **Minor increments** (e.g. `1.0` &rarr; `1.1` &rarr; `1.2`): Represent the addition of optional keys that some modules may use but others can safely ignore if they don't need those keys or values. Modules built for any version within the same major release (e.g. `1.*`) are compatible with each other.
+- **Major increments** (e.g. `1.*` &rarr; `2.0`): Represent mandatory changes such as the addition, removal, or renaming of required keys. Modules built for an older major version may not be compatible and should be updated.
 
 ### Where to store it
 
@@ -39,8 +39,6 @@ apptainer inspect --labels <image>.sif | grep game_schema_version
 ## Module-level version
 
 Module-level versioning (via `predictor_name` / `evaluator_name` / `matcher_version`) tracks the specific build of a container. This is handled automatically by reading the container's build-date label from Apptainer's `/.singularity.d/labels.json` and appending it to the module's base name in `config.py`. The format is `YYYYMMDD-HHMMSS_TZ`, producing names like `DREAM-RNN_Human_K562_20260407-140628_PDT` or `"Matcher_20260414-171101_PDT"`.
-
-*Internal implementation note:* Modules running outside of a container (in development mode) append `_dev` instead.
 
 This automatic versioning ensures that every rebuild of a container produces a unique, sortable identifier &mdash; allowing Evaluators to distinguish between different builds of the same Predictor, even when the API schema version has not changed. This is especially important when model weights, preprocessing logic, or dependencies are updated between builds, which can impact their prediction and therefore their evaluation outcomes.
 

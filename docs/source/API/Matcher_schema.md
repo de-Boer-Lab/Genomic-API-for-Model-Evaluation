@@ -6,8 +6,8 @@ To perform a match for a specific category (e.g. cell_type), the Predictor send
 
 The JSON payload must include paired keys for each category:
 
-- `<category>_requested` $\rightarrow$ the fuzzy input term provided by the Evaluator  
-- `<category>_list` $\rightarrow$ the list of possible values the Predictor can match against.
+- `<category>_requested` &rarr; the fuzzy input term provided by the Evaluator  
+- `<category>_list` &rarr; the list of possible values the Predictor can match against.
 
 **Validation Rules:**
 

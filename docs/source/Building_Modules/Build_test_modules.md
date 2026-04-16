@@ -132,9 +132,9 @@ More error classes with their status codes can also be added.
 
 **`deBoerTest_model.py` Functions:**
 
-- `fake_model_point(sequences)` $\rightarrow$ single random value per sequence  
-- `fake_model_track(sequences)` $\rightarrow$ random float array per sequence  
-- `fake_model_interaction_matrix(sequences)` $\rightarrow$ 3×3 random integer matrix, base64-encoded
+- `fake_model_point(sequences)` &rarr; single random value per sequence  
+- `fake_model_track(sequences)` &rarr; random float array per sequence  
+- `fake_model_interaction_matrix(sequences)` &rarr; 3×3 random integer matrix, base64-encoded
 
 All of these scripts will be copied into the container in the `%files` section of the .def file.
 
