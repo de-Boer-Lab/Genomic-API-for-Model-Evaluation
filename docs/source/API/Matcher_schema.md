@@ -38,6 +38,8 @@ A value of `null` indicates that the Matcher determined no suitable match exists
 | `binding_molecule_actual`                 | `string` or `null`                   | The best match from the `binding_molecule_list` | `"H3K4me3"`   |
 | `matcher_version`                 | `string`                   | The versioned name of the Matcher that processed the request. Constructed automatically using the same build-timestamp convention as `predictor_name` and `evaluator_name` (see [Help Endpoint](help.md)). | `"Matcher_20260414-171101_PDT"`   |
 
+## Test run for Matcher once the server is running
+
 ```bash
 curl -X POST http://[HOST]:[PORT]/match \
      -H "Content-Type: application/json" \

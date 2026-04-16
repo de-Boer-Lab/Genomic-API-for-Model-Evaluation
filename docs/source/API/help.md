@@ -4,7 +4,13 @@
 
 We highly encourage detailed `help` responses to organize and document Predictor containers.
 
-Predictor Response:
+Once a Predictor server is up and running, its help information can be retrieved with:
+
+```bash
+curl -X GET http://HOST:PORT/help
+```
+
+### Predictor Response
 
 | Key  | Value type     | Description       | Example Values |
 |------|---------------|-------------------------------------------|-------------------|

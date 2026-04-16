@@ -30,7 +30,7 @@ Before running an evaluation, Predictor's schema version can be verified with:
 curl -X GET http://HOST:PORT/help
 ```
 
-For Evaluators and the Matcher, the schema version from the container can be inspected with:
+For Evaluators, Matcher, and the PD, the schema version from the container can be inspected with:
 
 ```bash
 apptainer inspect --labels <image>.sif | grep game_schema_version
