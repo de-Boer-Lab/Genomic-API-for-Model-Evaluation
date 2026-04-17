@@ -2,10 +2,10 @@
 
 When jobs are submitted to a HPC cluster we cannot control which jobs will be started first which can create complications when trying to create server-client connections since the server must be started first. The following documentation outlines how to launch jobs using Evaluator and Predictor containers.
 
-## Predictor server saves it's HOST/PORT and Evaluator client reads it in (recommended)
+## Predictor server saves its HOST/PORT and Evaluator client reads it in (recommended)
 
-1. The Predictor job script creates a `.txt` file that contains the HOST and PORT that the Predictor will run on. 
-2. The Evaluator will run a while loop that checks and waits till this `.txt` file exists which signals that the Predictor has started running and also communicates the HOST and PORT it should connect to. 
+1. The Predictor job script creates a `.txt` file that contains the HOST and PORT that the Predictor will run on.
+2. The Evaluator will run a while loop that checks and waits till this `.txt` file exists which signals that the Predictor has started running and also communicates the HOST and PORT it should connect to.
 3. The Predictor reads in the HOST and PORT and passes those into the `apptainer run` command.
 
 We recommend this approach as it should work across all HPC systems and schedulers. Sample scripts can be found here: [LINK]

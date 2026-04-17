@@ -2,12 +2,17 @@
 
 ## Request to Matcher
 
-To perform a match for a specific category (e.g. cell_type), the Evaluator sends a **POST request** to the `/match` endpoint. 
+To perform a match for a specific category (e.g. cell_type), the Predictor sends a **POST request** to the `/match` endpoint. The Evaluator does not communicate with the Matcher directly &mdash; the Predictor is the client to the Matcher service.
 
 The JSON payload must include paired keys for each category:
 
-- `<category>_requested` → the fuzzy input term provided by the Evaluator  
-- `<category>_list` → the list of possible values the Predictor can match against  
+- `<category>_requested` &rarr; the fuzzy input term provided by the Evaluator  
+- `<category>_list` &rarr; the list of possible values the Predictor can match against.
+
+**Validation Rules:**
+
+1. **Paired Fields:** If you provide a requested term (e.g. `cell_type_requested`), you must also provide the corresponding list (e.g. `cell_type_list`).
+2. **Minimum Requirement:** The request must contain at least one valid category pair to process. Empty requests will be rejected with a `422 Unprocessable Entity` error.
 
 Multiple categories can be included in a single request.
 
@@ -22,14 +27,18 @@ Multiple categories can be included in a single request.
 
 ## Matcher response
 
-The Matcher (server) sends back a JSON payload to the Predictor (client) a JSON payload containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
+The Matcher (server) sends back a JSON payload to the Predictor (client) containing the results of the matching tasks. An `_actual` key will be present for each category pair that was provided in the request.
+
+A value of `null` indicates that the Matcher determined no suitable match exists in the provided list &mdash; this is a valid result, not an error.
 
 | Key                 | Value type                   | Description  | Example   |
 |--------------|--------------|-------------------------------|--------------|
 | `cell_type_actual`                 | `string` or `null`                   | The best match from the `cell_type_list` | `"K562"`   |
 | `species_actual`                 | `string` or `null`                   | The best match from the `species_list` | `"Homo sapiens"`   |
 | `binding_molecule_actual`                 | `string` or `null`                   | The best match from the `binding_molecule_list` | `"H3K4me3"`   |
-| `matcher_version`                 | `string`                   | The version of the Matcher that processed the request. | `"2.0"`   |
+| `matcher_version`                 | `string`                   | The versioned name of the Matcher that processed the request. Constructed automatically using the same build-timestamp convention as `predictor_name` and `evaluator_name` (see [Help Endpoint](help.md)). | `"Matcher_20260414-171101_PDT"`   |
+
+## Test run for Matcher once the server is running
 
 ```bash
 curl -X POST http://[HOST]:[PORT]/match \

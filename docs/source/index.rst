@@ -17,6 +17,7 @@
    Matcher
    Submitting_jobs
    Predictor_distributor
+   versioning
    FAQ
    External_Routing
    Contributors
