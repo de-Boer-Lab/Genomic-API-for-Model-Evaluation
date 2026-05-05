@@ -20,7 +20,7 @@ The schema version follows a `MAJOR.MINOR` format:
 
 Predictor, Evaluator, Matcher, and PD schema versions are also tracked in the [GAME Modules](https://github.com/de-Boer-Lab/GAME_modules) repository.
 
-**NOTE:** PD is a transparent orchestration layer between the Evaluator and Predictor. It forwards payloads without inspecting or modifying the schema, so it does not need to be updated when the API specification changes. Its `game_schema_version` label tracks which version of GAME it was built alongside, not a schema it enforces.
+**NOTE:** PD is a transparent, orchestration layer between the Evaluator and Predictor. It forwards payloads without modifying them, but its batching and response reassembly depend on specific request/response keys (`sequences`, `prediction_ranges`, `prediction_tasks`, `predictions`, etc.). Its `game_schema_version` tracks which GAME schema PD's split/merge logic is compatible with &mdash; schema changes that don't touch those keys don't require a PD update; changes that do, will.
 
 ### How to check it
 
