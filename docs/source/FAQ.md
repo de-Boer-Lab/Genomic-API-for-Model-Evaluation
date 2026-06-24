@@ -52,4 +52,4 @@ Apptainer provides users with increased flexibility (no root access requited) on
 
 ## Where can I report bugs?
 
-Bugs can be reported on the Github Issues page for GAME or for specific modules on the GAME Modules page.
+Bugs can be reported on the Github Issues page for GAME or for specific modules on their corresponding Github repositories.
