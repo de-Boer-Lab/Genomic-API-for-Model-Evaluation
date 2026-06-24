@@ -16,7 +16,7 @@ It is true that Matcher's output depend on the exact inputs, which, if different
 
 ## Can I fine tune modules using GAME?
 
-No, only static models with fixed parameters/models weights can be used in the GAME framework. That being said foundational models that had already been fine-tuned to predict genome regulation from DNA sequence are fully compatible with GAME. 
+No, only static models with fixed parameters/models weights can be used in the GAME framework. That being said foundational models that had already been fine-tuned to predict genome regulation from DNA sequence are fully compatible with GAME.
 
 ## Can I host a Predictor with proprietary model weights?
 
@@ -29,7 +29,7 @@ Yes, if you have private data that you don't want to share with others, you can 
 ## Why did you choose to use REST APIs?
 
 1. The use of standardized HTTP error codes in conjunction with our descriptive error message to flag the Evaluators of any issues.
-2. Inbuilt content headers in REST requests and responses provides standardization of formats and flexibility of message types. 
+2. Inbuilt content headers in REST requests and responses provides standardization of formats and flexibility of message types.
 3. Cross compatibility across different tools/programming that can be used to implement modules. While most of our modules use Flask to implement REST API, the Matcher module was implemented using FastAPI, serving as an example.
 4. The use of a standardized and familiar API framework magnifies our goal to future proof this API and increases uptake by the community.
 5. Additional infrastructure already exists for applications that are built using REST APIs, such as tools that allow multiple requests to be handled and approaches to ensure privacy of connections (TLS Encryption layers, Gunicorn). Since these can be used on top of an API built using REST, they would not require any changes to the framework.
@@ -48,7 +48,7 @@ Train-test leakage is a prevalent and difficult problem in the field. Currently,
 
 ## Why Apptainer and not Docker?
 
-Apptainer provides users with increased flexiblity (no root access requited) on HPC platforms which are cruical for making predictions using large models across thousands of sequences. Pre-built docker containers can still be used with GAME's apptainer implemenation. For example, the ChromBPNet container builds a GAME container starting from a pre-built Docker image.
+Apptainer provides users with increased flexibility (no root access requited) on HPC platforms which are crucial for making predictions using large models across thousands of sequences. Pre-built docker containers can still be used with GAME's apptainer implementation. For example, the ChromBPNet container builds a GAME container starting from a pre-built Docker image.
 
 ## Where can I report bugs?
 

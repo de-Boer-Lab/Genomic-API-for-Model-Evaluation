@@ -1,5 +1,4 @@
 {
-   "request":"predict",
    "readout":"point",
    "prediction_tasks":[
       {

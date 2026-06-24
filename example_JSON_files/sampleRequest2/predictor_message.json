@@ -1,5 +1,4 @@
 {
-   "request":"predict",
    "matcher_version":"V1",
    "predictor_name":"track_predictor",
    "bin_size":1,

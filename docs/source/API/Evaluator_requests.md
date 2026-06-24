@@ -1,4 +1,6 @@
-# Evaluator request message
+# Evaluator API Schema
+
+## Evaluator request
 
 | Key | Value type - Required/Optional | Description: Value options | Example |
 |---|---|---|---|
@@ -11,8 +13,8 @@
 | `scale`             | `string` - Optional                 | How would you like the predictions scaled upon return (if at all): ["linear", "log"].                                                                                                                                                                                                                                                                         | "scale" : "linear"                                                                                                                                                                                         |
 | `upstream_seq`      | `string`- Optional                  | Upstream flanking sequences to add to each sequence in `sequences`.                                                                                                                                                                                                                                                                                       | "upstream_seq": "AATTA"                                                                                                                                                                                |
 | `downstream_seq`    | `string`- Optional                  | Downstream flanking sequences to add to each sequence in `sequences`.                                                                                                                                                                                                                                                                                    | "downstream_seq": "CCCAAAA"                                                                                                                                                                            |
-| `sequences`         | `object` - Required       | A collection of key-value pairs (strings). Keys are unique sequence ID keys - any characters [A-Z][a-z][0-9][-.\_\~#\@%^&\*()]. The sequence ID keys are matched to the Predictor sequence ID keys automatically by Predictor.                                                                                                                             | "sequences": {<br>   "seq1": "ATGC...",<br>   "seq2": "ATGC...",<br>  "random_seq": "ATGC...",<br>  "enhancer": "ATGC...",<br>  "control": "ATGC..." <br> }                                  |
-| `prediction_ranges` | `object` - Optional | A collection of key-value pairs, where the keys should be identical to sequence ID keys and values are arrays with the start and end region you want predicted for each sequence. Start and end are 0 indexed and inclusive (e.g. [0,1] is the first two bases).| "prediction_ranges": {<br>   "seq1": [0,1000],<br>   "seq2": [100,110],<br>  "random_seq": [],<br>  "enhancer": [210,500],<br>  "control": [] <br> } |
+| `sequences`         | `object` - Required       | A collection of key-value pairs (strings). Keys are unique sequence ID keys -- any characters `[A-Z][a-z][0-9][-.\_\~#\@%^&\*()]`.                                                                              | "sequences": {<br>   "seq1": "ATGC...",<br>   "seq2": "ATGC...",<br>  "random_seq": "ATGC...",<br>  "enhancer": "ATGC...",<br>  "control": "ATGC..." <br> }                                  |
+| `prediction_ranges` | `object` - Optional | A collection of key-value pairs, where the keys should be identical to sequence ID keys and values are arrays with the start and end region you want predictions for, within the provided sequence context. Start and end are 0 indexed and inclusive, respectively (e.g. [0,1] is the first two bases).| "prediction_ranges": {<br>   "seq1": [0,1000],<br>   "seq2": [100,110],<br>  "random_seq": [],<br>  "enhancer": [210,500],<br>  "control": [] <br> } |
 
 ## Notes
 
@@ -20,8 +22,22 @@
 2. all indexing is 0 based
 3. to minimize any bias from the predictors we suggested randomizing your sequences so that there is no dependency on the order
 
-## Evaluator Output file specifications
+## Evaluator Output File Specifications
 
-| Evaluator_name | Description | Predictor_name | Time_stamp | Metric | Value | Prediction_task(s)_data |
-|---|---|---|---|---|---|---|
-|Evaluator Name| Description of the evaluation task | returned predictor_name | UNIXTIMESTAMP| Evaluation metric | Evaluation metric value | Data used to calculate the metric as a dictionary|
+All evaluation metrics are saved into a single tab-separated file: **`evaluation_summary_[evaluator_name].csv`**
+
+The `evaluator_name` is constructed automatically in `config.py` by appending the container's build timestamp (from Apptainer's `/.singularity.d/labels.json`) to the evaluator's base name. The format is `{EvaluatorName}_{YYYYMMDD-HHMMSS}_{TZ}`. In development mode (outside a container), `_dev` is appended instead. This follows the same convention as `predictor_name` (see [Predictor API Schema](Predictor_responses.md)).
+
+The file uses append mode, so multiple evaluation runs against different Predictors accumulate in the same file. The `description` column distinguishes between different metric types (e.g. per-task correlation vs. cell-type specificity).
+
+| Column | Data Type | Description | Example |
+|---|---|---|---|
+| `evaluator_name` | `string` | The unique, automatically versioned identifier for the evaluator module. | `agarwal_2025_joint_lib_20260407-134539_PDT` |
+| `description` | `string` | Human-readable description of what is being measured. For per-task correlations, this identifies the task (e.g. `Agarwal Joint MPRA (K562)`). For cell-type specificity, this identifies the pair being compared (e.g. `Cell type specific expression (HepG2 - K562)`). | `Agarwal Joint MPRA (K562)` |
+| `predictor_name` | `string` | The `predictor_name` returned by the Predictor in its response payload. | `DREAM-RNN_Human_K562_20260407-140628_PDT` |
+| `time_stamp` | `string` | UTC timestamp in `YYYYMMDD-HHMMSS.f` format, generated at the time of metric calculation. Ensures unique entries when the same Evaluator-Predictor pair is run multiple times. | `20260407-212607.595087` |
+| `metric` | `string` | The evaluation metric used. | `pearson_r` |
+| `value` | `float` or `string` | The computed metric value. Set to `NaN` (as a string) if the metric could not be calculated (e.g. missing predictions, scale mismatch, zero variance). A value of `0.0` indicates the metric was calculated but the result was zero (e.g. identical predictions across cell types for specificity). | `-0.0486` or `NaN` |
+| `prediction_task(s)_data` | `string` | Serialized prediction task metadata (excluding the `predictions` values) as a list of dictionaries. For metrics involving two tasks (e.g. cell-type specificity), the metadata for both tasks is included, separated by ` - `. | `[{'name': 'task_k562', 'type_requested': 'expression', ...}]` |
+
+The codebase for the Agarwal MPRA Joint Library Evaluator can be found on [GitHub](https://github.com/de-Boer-Lab/GAME-Agarwal-MPRA-joint-library-evaluator) and serves as a reference for implementing custom metric calculations.

@@ -1,4 +1,20 @@
 {
-  "bad_prediction_request": ".json file is formatted incorrectly, mandatory key x is missing",
-
+  "predictor_name": "TestModel",
+  "error": [
+      {
+          "bad_prediction_request": "Invalid range for 'WTC11_seq1000_F': index is out of bounds. The maximum valid index for a sequence of length 230 is 229."
+      },
+      {
+          "bad_prediction_request": "Invalid range for 'WTC11_seq10002_F': index is out of bounds. The maximum valid index for a sequence of length 230 is 229."
+      },
+      {
+          "bad_prediction_request": "Invalid range for 'WTC11_seq10004_F': index is out of bounds. The maximum valid index for a sequence of length 230 is 229."
+      },
+      {
+        "bad_prediction_request": "Invalid range for 'WTC11_seq10131_F': index is out of bounds. The maximum valid index for a sequence of length 230 is 229."
+      },
+      {
+        "bad_prediction_request": "Invalid range for 'WTC11_seq10136_F': index is out of bounds. The maximum valid index for a sequence of length 230 is 229."
+      }
+  ]
 }
