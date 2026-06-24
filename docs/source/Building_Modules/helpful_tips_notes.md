@@ -1,6 +1,6 @@
 # Helpful Tips and Notes
 
-Working on and developing within a framework like GAME can come with a huge learning curve. Here are some tips and notes we compiled along the way.
+Working on and developing within a framework like GAME can come with a learning curve. Here are some tips and notes we compiled along the way.
 
 ## File Permissions
 

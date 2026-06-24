@@ -1,8 +1,16 @@
 # Contributing containers
 
-We encourage you to explore the GAME modules page and begin with an Evaluator or Predictor codebase that most closely matches your own implementation.
+We encourage you to explore the GAME modules page and begin with an Evaluator or Predictor codebase that most closely matches your own implementation. GAME's modules (and their corresponding code) is meant to be shared with the community, please include the code you use to build your containers on their independent Github Repositories (LINK MODULES PAGE).
 
-**The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. We suggest testing your Evaluators/Predictors with the test module containers to validate their functionality.**
+**The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. We suggest testing your Evaluators/Predictors with the test module containers to validate their functionality.** 
+
+The core Test module containers can be found here: <<LINK>>
+
+## Commands to run them
+`apptainer run --containall -B /path_to/predictor_data:/predictor_data predictor.sif HOST PORT`
+
+`apptainer run --containall -B /path_to/evaluator_data:/evaluator_data -B /path/to/predictions:/predictions evaluator.sif HOST PORT OUTPUT_DIR`
+
 
 ## Checklist for Predictor Modules
 
