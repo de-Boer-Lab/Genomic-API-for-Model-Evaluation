@@ -92,7 +92,7 @@ Yay! You just completed a successful communication between the DREAMRNN model an
 
 ```bash
 {
-    "predictor_name": "DREAM-RNN_Human_K562",
+    "predictor_name": "DREAM-RNN_Human_K562_20260601-173514_EDT",
     "prediction_tasks": [
         {
             "name": "gosai_synthetic_sequences",
@@ -105,21 +105,21 @@ Yay! You just completed a successful communication between the DREAMRNN model an
             "species_requested": "homo_sapiens",
             "species_actual": "homo_sapiens",
             "predictions": {
-                "7:70038969:G:T:A:wC": [
+                "7:70038969:G:T:A:wC": 
                     -0.4900762140750885
-                ],
-                "1:192696196:C:T:A:wC": [
+                ,
+                "1:192696196:C:T:A:wC": 
                     -0.4205487370491028
-                ],
-                "1:211209457:C:T:A:wC": [
+                ,
+                "1:211209457:C:T:A:wC": 
                     -0.2514425814151764
-                ],
-                "15:89574440:GT:G:A:wC": [
+                ,
+                "15:89574440:GT:G:A:wC": 
                     1.1541708707809448
-                ],
-                "15:89574440:GT:G:R:wC": [
+                ,
+                "15:89574440:GT:G:R:wC": 
                     1.1637296676635742
-                ]
+                
             }
         }
     ]
