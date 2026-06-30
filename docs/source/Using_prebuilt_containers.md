@@ -25,7 +25,7 @@ apptainer run --containall \
     evaluator.sif HOST PORT /predictions
 ```
 
-Updated list of current GAME modules can be found here: [LINK]
+Updated list of current GAME modules can be found here: [Modules](https://github.com/de-Boer-Lab/GAME_modules/tree/main)
 
 ## Running the DREAM-RNN container (Matcher not required) with a sample dataset
 
@@ -126,6 +126,4 @@ Yay! You just completed a successful communication between the DREAMRNN model an
 }
 ```
 
-## Running Enformer container (with Matcher) with a sample dataset
 
-Coming soon
