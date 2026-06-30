@@ -3,7 +3,7 @@ We are grateful to have had feedback and contributions from many people in the c
 
 ## Thanks to
 
-## Contributors
+#### Contributors
 - Nikita Penzin
 - Dmitry Penzar
 - Ilya Vorontsov
@@ -35,7 +35,7 @@ We are grateful to have had feedback and contributions from many people in the c
 - Jian Zhou
 - Ivan Kulakovskiy
 
-## Acknowledgements
+#### Acknowledgements
 We would like to thank the following people for helpful feedback and discussion during the API design and implementation process:
 - J. Gagneur
 - T. Mauermeier
