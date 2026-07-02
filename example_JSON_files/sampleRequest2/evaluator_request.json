@@ -1,0 +1,137 @@
+{
+    "predictor_name": "test_predictor_deBoer_20260701-134818_EDT",
+    "prediction_tasks": [
+        {
+            "name": "K562_linear",
+            "type_requested": "expression",
+            "type_actual": [
+                "expression"
+            ],
+            "cell_type_requested": "K562",
+            "cell_type_actual": "test_cell",
+            "species_requested": "homo_sapiens",
+            "species_actual": "test_species",
+            "predictions": {
+                "short_seq": 1,
+                "boundary_1000": 1,
+                "long_seq": 0,
+                "range_at_start": 1,
+                "range_at_end": 1,
+                "full_range": 1,
+                "empty_range": 0
+            },
+            "scale_prediction_requested": "linear",
+            "scale_prediction_actual": "linear"
+        },
+        {
+            "name": "K562_log",
+            "type_requested": "expression",
+            "type_actual": [
+                "expression"
+            ],
+            "cell_type_requested": "K562",
+            "cell_type_actual": "test_cell",
+            "species_requested": "homo_sapiens",
+            "species_actual": "test_species",
+            "predictions": {
+                "short_seq": 1,
+                "boundary_1000": 0,
+                "long_seq": 0,
+                "range_at_start": 0,
+                "range_at_end": 0,
+                "full_range": 1,
+                "empty_range": 0
+            },
+            "scale_prediction_requested": "log",
+            "scale_prediction_actual": "linear"
+        },
+        {
+            "name": "hepg2_linear",
+            "type_requested": "expression",
+            "type_actual": [
+                "expression"
+            ],
+            "cell_type_requested": "hepg2",
+            "cell_type_actual": "test_cell",
+            "species_requested": "mus_musculus",
+            "species_actual": "test_species",
+            "predictions": {
+                "short_seq": 1,
+                "boundary_1000": 0,
+                "long_seq": 1,
+                "range_at_start": 1,
+                "range_at_end": 0,
+                "full_range": 0,
+                "empty_range": 0
+            },
+            "scale_prediction_requested": "linear",
+            "scale_prediction_actual": "linear"
+        },
+        {
+            "name": "matcher_test",
+            "type_requested": "expression",
+            "type_actual": [
+                "expression"
+            ],
+            "cell_type_requested": "HeLa",
+            "cell_type_actual": "test_cell",
+            "species_requested": "homo_sapiens",
+            "species_actual": "test_species",
+            "predictions": {
+                "short_seq": 1,
+                "boundary_1000": 0,
+                "long_seq": 0,
+                "range_at_start": 0,
+                "range_at_end": 1,
+                "full_range": 1,
+                "empty_range": 0
+            },
+            "scale_prediction_requested": "linear",
+            "scale_prediction_actual": "linear"
+        },
+        {
+            "name": "task2",
+            "type_requested": "expression",
+            "type_actual": [
+                "expression"
+            ],
+            "cell_type_requested": "ww6",
+            "cell_type_actual": "test_cell",
+            "species_requested": "mus_musculus",
+            "species_actual": "test_species",
+            "predictions": {
+                "short_seq": 0,
+                "boundary_1000": 0,
+                "long_seq": 0,
+                "range_at_start": 1,
+                "range_at_end": 0,
+                "full_range": 1,
+                "empty_range": 1
+            },
+            "scale_prediction_requested": "linear",
+            "scale_prediction_actual": "linear"
+        },
+        {
+            "name": "task3",
+            "type_requested": "accessibility",
+            "type_actual": [
+                "accessibility"
+            ],
+            "cell_type_requested": "liver",
+            "cell_type_actual": "test_cell",
+            "species_requested": "mus_musculus",
+            "species_actual": "test_species",
+            "predictions": {
+                "short_seq": 0,
+                "boundary_1000": 0,
+                "long_seq": 0,
+                "range_at_start": 1,
+                "range_at_end": 0,
+                "full_range": 0,
+                "empty_range": 0
+            },
+            "scale_prediction_requested": "log",
+            "scale_prediction_actual": "linear"
+        }
+    ]
+}
