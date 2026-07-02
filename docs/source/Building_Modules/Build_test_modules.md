@@ -122,7 +122,7 @@ This example Predictor is intentionally **model-free and CPU-only**: it ships no
 - **`preprocess_data(payload)`** — applies flanking sequences, trims by prediction ranges, validates sequences; raises `PredictionFailedError` on issues.
 - Prepares the payload for model inference with progress feedback via tqdm.
 
-`error_checking_functions.py`
+#### `error_checking_functions.py`
 
 #### Mandatory Error Classes
 
