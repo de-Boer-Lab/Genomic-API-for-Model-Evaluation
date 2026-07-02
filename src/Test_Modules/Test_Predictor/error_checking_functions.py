@@ -1,7 +1,5 @@
 '''Error Classes and Error Checking Functions for Predictor'''
 
-import numpy as np
-
 # ERROR CLASSES
 # Error classes can be added here to easily keep track of error status codes
 
@@ -54,7 +52,6 @@ def check_seqs_specifications(sequences, json_return_error_model):
     # max_length = int(5e9)
     valid_bases = {"A", "T", "C", "G", "N"}
     for seq_id, seq in sequences.items():
-
         if not seq:
             json_return_error_model["prediction_request_failed"].append(f"sequence '{seq_id}' is empty")
         
@@ -66,6 +63,16 @@ def check_seqs_specifications(sequences, json_return_error_model):
 
 # check the the mandatory_keys exist in the .json files
 def check_mandatory_keys(evaluator_keys, json_return_error):
+    """
+    Check that all mandatory top-level keys are present in the payload
+
+    Args:
+        evaluator_keys (list): list of keys present in the Evaluator payload
+        json_return_error (dict): dictionary to store error messages
+
+    Returns:
+        dict: Updated json_return_error with any missing key errors added
+    """
 
     mandatory_keys = ["readout", "prediction_tasks", "sequences"] # NOTE: "request" removed
     evaluator_keys_set = set(evaluator_keys)
@@ -100,9 +107,7 @@ def check_prediction_task_mandatory_keys(prediction_tasks, json_return_error):
  
     for index, prediction_task in enumerate(prediction_tasks):
         mandatory_keys = ["name", "type", "cell_type", "species"]
-        # print(index, prediction_task)
         task_keys = set(prediction_task.keys())
-        # print(task_keys)
         missing = list(sorted(set(mandatory_keys) - task_keys))
         
         if missing:
@@ -111,7 +116,6 @@ def check_prediction_task_mandatory_keys(prediction_tasks, json_return_error):
             
             error_msg = (f"Mandatory keys missing from prediction_task '{task_identifier}': "
                          f"{', '.join(missing)}")
-            print(error_msg)
             json_return_error['bad_prediction_request'].append(error_msg)
             
     return json_return_error
@@ -220,7 +224,7 @@ def check_prediction_task_scale(prediction_tasks, json_return_error):
             pass
     return(json_return_error)
 
-def check_prediction_ranges(prediction_ranges, sequences, json_return_error):
+def check_prediction_ranges(prediction_ranges, json_return_error):
     """
     Checks that prediction_ranges are formatted correctly.
     Now includes checks for positive integers and start <= end.
@@ -276,8 +280,6 @@ def check_key_values_upstream_flank(upstream_seq, json_return_error):
             json_return_error['bad_prediction_request'].append("'upstream_seq' value should be a string")
 
     return(json_return_error)
-
-
 
 def check_key_values_downstream_flank(downstream_seq, json_return_error):
     if type(downstream_seq) == list:

@@ -50,9 +50,12 @@ def _process_results(data, duplicate_keys):
     Args:
         data (dict): The dictionary of parsed data. 
         duplicate_keys (dict): The dictionary of duplicates.
-
+    
+    Raises:
+        DuplicateKeysError: If duplicate keys are found in the JSON structure.
+        
     Returns:
-        data or None: The parsed data if no duplicates. None, if duplicates are found.
+        data: The parsed data if no errors or duplicates are found.
     """
     # Report duplicates if any were found
     if duplicate_keys:
@@ -113,6 +116,9 @@ def check_duplicates_from_json(json_file_path):
     before they are processed into a dictionary. If duplicates are detected at any level, they
     are reported with their counts and paths. Keys reused in separate objects within arrays 
     (e.g. lists) are not considered duplicates.
+    
+    Args:
+        json_file_path (str): The path to the JSON file to parse and check for duplicates.
 
     Raises:
         FileNotFoundError: If the specified file does not exist.
@@ -120,7 +126,7 @@ def check_duplicates_from_json(json_file_path):
         DuplicateKeysError: If duplicate keys are found in the JSON structure.
 
     Returns:
-        dict: The parsed data if no errors or duplicates are found.
+        dict or list: The parsed data if no errors or duplicates are found.
     """
 
     # Initialize a dictionary to track duplicate keys and their counts
@@ -140,7 +146,7 @@ def load_and_validate_data():
     """
     Loads and validates the input file specified in `config.py`.
     
-    This function checks for file existence and output directory, handles JSON or MsgPack formats,
+    This function checks for file existence, handles JSON or MsgPack formats,
     and runs duplicate key validation.
 
     Raises:
@@ -148,7 +154,7 @@ def load_and_validate_data():
                            does not exist.
         ValueError: If the file type is unsupported (not .json, .msgpack, or .mpk),
                     or if the data is malformed (e.g. invalid JSON/MsgPack),
-                    or if duplicate keys are found via `evaluator_utils`.
+                    or if duplicate keys are found during parsing.
     Returns:
         data_dict (dict): The validated data dictionary if loading and validation are successful.
     """
@@ -165,11 +171,21 @@ def load_and_validate_data():
             data_dict = check_duplicates_from_json(EVALUATOR_INPUT_PATH)
             
         elif input_file.endswith((".msgpack", ".mpk")):
-            # .msgpack -> raw dict -> JSON string -> check_duplicates_from_string
+            # FIX: replaced the previous comment, which described a wrong pipeline
+            # ("check_duplicates_from_string -> raw dict -> JSON string"). That order
+            # cannot work: once msgpack returns a plain dict the duplicate keys are
+            # already collapsed (last-write-wins). Duplicates must be caught DURING
+            # unpacking, which is why the hook is passed directly into unpackb below.
+            # Initialize the duplicate tracker
+            duplicate_keys = {}
+            hook = functools.partial(_detect_duplicates, duplicate_keys_state=duplicate_keys)
+            
             with open(EVALUATOR_INPUT_PATH, "rb") as f:
-                raw = msgpack.unpackb(f.read(), raw=False)
-            json_str = json.dumps(raw)
-            data_dict = check_duplicates_from_string(json_str)
+                # Pass the hook DIRECTLY to msgpack to catch duplicates during unpacking
+                data = msgpack.unpackb(f.read(), raw=False, object_pairs_hook=hook)
+                
+            # Process and raise errors if duplicates were found
+            data_dict = _process_results(data, duplicate_keys)
             
         else:
             raise ValueError(f"Unsupported file type: '{input_file}'. Must be .json, .msgpack, or .mpk")

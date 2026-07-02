@@ -3,13 +3,15 @@ From: python:3.13-slim
 Stage: build
 
 %files
-    ../Test_Evaluator /Test_Evaluator
+    ./config.py /Test_Evaluator/config.py
+    ./data_loader.py /Test_Evaluator/data_loader.py
+    ./evaluator_content_handler.py /Test_Evaluator/evaluator_content_handler.py
+    ./evaluator_metrics_calculator.py /Test_Evaluator/evaluator_metrics_calculator.py
+    ./evaluator_RestAPI.py /Test_Evaluator/evaluator_RestAPI.py
 
 %environment
     export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
     export LC_ALL=C
-    export PATH="/opt/conda/bin:$PATH"
-    export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
     
 %post
     # Install system packages and dependencies
@@ -20,7 +22,7 @@ Stage: build
 
     echo "Installing Python dependencies..."
     python -m pip install --upgrade pip
-    python -m pip install --no-cache-dir numpy tqdm pandas msgpack flask requests
+    python -m pip install --no-cache-dir numpy tqdm pandas msgpack requests
     
     # Set permissions to access all directories
     echo "Setting permissions for directories and script..."
@@ -33,7 +35,9 @@ Stage: build
     exec python3 /Test_Evaluator/evaluator_RestAPI.py "$@"
 
 %labels
-    test_evaluator_deboer
+    Authors "Satyam Priyadarshi"
+    game_schema_version "1.0"
+    Description "This is a sample evaluator container for testing the Evaluator API. It includes dummy evaluation metrics and serves as a template for building custom evaluators."
 
 %help
     This is a container for a sample evaluator. It includes:
@@ -46,7 +50,7 @@ Stage: build
     apptainer run \
       -B absolute/path/to/evaluator_data:/evaluator_data \
       -B absolute/path/to/predictions:/predictions \
-      test_evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
+      test-evaluator.sif PREDICTOR_HOST PREDICTOR_PORT /predictions
     ```
 
-    NOTE: The file inside `evaluator_data/` must be titled "evaluator_message_more_complex.json" for the script to read the input file. 
+    NOTE: The file inside `evaluator_data/` must be titled "test_evaluator_request.json" for the script to read the input file. 

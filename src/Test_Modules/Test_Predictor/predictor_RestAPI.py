@@ -1,4 +1,3 @@
-'''RESTful Test Evaluator Utilizing Flask'''
 import os
 import sys
 import json
@@ -8,27 +7,11 @@ from schema_validation import *
 from deBoerTest_model import *
 from predictor_content_handler import decode_request, encode_response
 
-# Get the absolute path of the script's directory
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Hardcode name of this Predictor. It will be added to ALL responses.
-PREDICTOR_NAME = "test_predictor_deBoer"
-
-# Determine if running inside a container or not
-if os.path.exists('/.singularity.d'):
-    # Running inside the container
-    print("Running inside the container...🥡")
-    HELP_FILE = "/Test_Predictor/predictor_help_message.json"
-else:
-    # Running outside the container
-    print("Running outside the container...📋")
-    PREDICTOR_CONTAINER_DIR = os.path.dirname(SCRIPT_DIR)
-    HELP_FILE = os.path.join(SCRIPT_DIR, 'predictor_help_message.json')
-
-
-# ------ Configuration for Wire-Format ------
-SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["application/json", "application/msgpack"]]
-SUPPORTED_RESPONSE_FORMATS = [fmt.lower() for fmt in ["application/json", "application/msgpack"]] # JSON is always supported even when not mentioned. This is jsut to show that. 
+import config
+PREDICTOR_NAME = config.PREDICTOR_NAME
+HELP_FILE = config.HELP_FILE
+SUPPORTED_REQUEST_FORMATS = config.SUPPORTED_REQUEST_FORMATS
+SUPPORTED_RESPONSE_FORMATS = config.SUPPORTED_RESPONSE_FORMATS
 
 # --- Flask App and Central Error Handler ---
 app = Flask(__name__)
@@ -38,7 +21,7 @@ app.json.sort_keys = False
 
 def create_error_response(error_key, messages, status_code):
     """ 
-    Formats error response into a standarized JSON structure.
+    Formats error response into a standardized JSON structure.
     
     Args:
         error_key (str): The category of the error (e.g. 'bad_prediction_request', 'prediction_request_failed').
@@ -66,7 +49,6 @@ def handle_api_error(error):
         isError=True,
         predictor_name=PREDICTOR_NAME)
     
-
 @app.after_request
 def after_request_callback(response):
     """This function runs after each request is processed."""
@@ -123,10 +105,13 @@ def predict():
         readout_type = evaluator_request.get('readout')
         
         # Assemble the response
-        json_return = {'prediction_tasks': []}
+        json_return = {}
+        if readout_type in ("track", "interaction_matrix"):
+            json_return['bin_size'] = 1
+        json_return['prediction_tasks'] = []
+
         for task in evaluator_request['prediction_tasks']:
             # Run Model Inference
-            # Run the same model with the same logic for each task
             if readout_type == "point":
                 model_predictions = fake_model_point(sequences)
             elif readout_type == "track":
@@ -135,19 +120,23 @@ def predict():
                 model_predictions = fake_model_interaction_matrix(sequences)
             else:
                 raise PredictionFailedError(f"Unsupported readout type: '{readout_type}'")
-                
-            json_return['prediction_tasks'].append({
+ 
+            task_response = {
                 'name': task['name'],
                 'type_requested': task['type'],
                 'type_actual': [task['type']],
                 'cell_type_requested': task['cell_type'],
                 'cell_type_actual': 'test_cell',
-                'scale_prediction_requested': task['scale'],
-                'scale_prediction_actual': 'linear',
                 'species_requested': task['species'],
                 'species_actual': 'test_species',
                 'predictions': model_predictions
-            })
+            }
+            
+            if 'scale' in task:
+                task_response['scale_prediction_requested'] = task['scale']
+                task_response['scale_prediction_actual'] = 'linear'  # fake model is always linear
+
+            json_return['prediction_tasks'].append(task_response)
             
         return encode_response(
             json_return,
@@ -163,11 +152,27 @@ def predict():
         raise ServerError(f"An unexpected internal error occurred: {e}.")
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print(f"Invalid arguments! Arguments must have: <container image/python script> <ip_address> <port>")
+# --- Run Flask ---
+if __name__ == '__main__':
+    
+    if len(sys.argv) < 3:
+        print(f"Invalid arguments! Must provide at least: <ip_address> <port>")
         sys.exit(1)
+        
+    try:
+        predictor_ip = sys.argv[1]
+        predictor_port = int(sys.argv[2])
+    except ValueError:
+        print(f"Error: Port must be an integer. Received '{sys.argv[2]}'.")
+        sys.exit(1)
+
+    # This will log that extra args were ignored, which is good
+    if len(sys.argv) > 3:
+        print(f"Ignoring {len(sys.argv) - 3} extra command-line arguments (e.g. Matcher config). This predictor does not use Matcher.")
         
     predictor_ip = sys.argv[1]
     predictor_port = int(sys.argv[2])
-    app.run(host=predictor_ip, port=predictor_port)
+    
+    print(f"{PREDICTOR_NAME} Predictor is running on http://{predictor_ip}:{predictor_port}")
+    app.run(host=predictor_ip, port=predictor_port, threaded=True, debug=False)
+

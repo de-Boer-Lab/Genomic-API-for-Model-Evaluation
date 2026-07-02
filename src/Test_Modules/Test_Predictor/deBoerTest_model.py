@@ -3,7 +3,6 @@ This is a "fake model" it will return predictions for any request type and
 can be used to test new Evaluators
 '''
 import tqdm
-import base64
 import random
 import numpy as np
 
@@ -19,7 +18,7 @@ def fake_model_point(sequences):
         for seq_id in tqdm.tqdm(sequences, 
                                 desc="Processing sequences (point prediction)",
                                 unit="seq"):
-            predictions[seq_id] = random.randint(0, 1)
+            predictions[seq_id] = round(random.randint(0, 1), 5)
         return predictions
     except Exception as e:
         raise PredictionFailedError(f"An unexpected error occurred during fake model point prediction: {e}")
@@ -41,7 +40,8 @@ def fake_model_track(sequences):
     
 def fake_model_interaction_matrix(sequences):
     """
-    Takes sequences and returns a dictionary of base64-encoded matrix
+    Takes sequences and returns a dictionary of interaction matrices
+    (one square matrix per sequence, as a list of lists).
     """
     try:
         predictions = {}

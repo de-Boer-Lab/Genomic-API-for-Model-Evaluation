@@ -32,7 +32,7 @@ def validate_request_payload(payload):
 
     if 'prediction_ranges' in payload:
         errors = check_seq_ids(payload['prediction_ranges'], payload['sequences'], errors)
-        errors = check_prediction_ranges(payload['prediction_ranges'], payload['sequences'], errors)
+        errors = check_prediction_ranges(payload['prediction_ranges'], errors)
 
     if 'upstream_seq' in payload:
         errors = check_key_values_upstream_flank(payload['upstream_seq'], errors)

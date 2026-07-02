@@ -1,0 +1,82 @@
+Bootstrap: docker
+From: python:3.13-slim
+
+%files
+    ./config.py /Test_Predictor/config.py
+    ./deBoerTest_model.py /Test_Predictor/deBoerTest_model.py
+    ./error_checking_functions.py /Test_Predictor/error_checking_functions.py
+    ./predictor_content_handler.py /Test_Predictor/predictor_content_handler.py
+    ./predictor_help_message.json /Test_Predictor/predictor_help_message.json
+    ./predictor_RestAPI.py /Test_Predictor/predictor_RestAPI.py
+    ./schema_validation.py /Test_Predictor/schema_validation.py
+
+%environment
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
+    export LC_ALL=C
+
+%post
+    # Install system packages needed for conda and building extensions
+    echo "Installing system dependencies..."
+    apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+    echo "Installing Python dependencies..."
+    python3 -m pip install --upgrade pip
+    pip3 install --no-cache-dir numpy pandas tqdm msgpack flask
+
+    echo "Removing any __pycache__ directories that snuck in..."
+    find /Test_Predictor -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+
+    echo "Setting permissions..."
+    chmod -R 755 /Test_Predictor
+
+%runscript
+    exec python3 /Test_Predictor/predictor_RestAPI.py "$@"
+
+%startscript
+    exec python3 /Test_Predictor/predictor_RestAPI.py "$@"
+
+%labels
+    Authors "Satyam Priyadarshi, Ishika Luthra"
+    game_schema_version "1.0"
+    Description "A model-free test Predictor ('deBoer Test Model') for the GAME framework; 
+    returns randomized predictions for any request type to validate new Evaluators end-to-end."
+
+%help
+    This container for the Test Predictor includes:
+    - A Flask-based REST API (`predictor_RestAPI.py`)
+    - The `deBoerTest_model` dummy model, integrated into the predictor, which returns
+      randomized predictions for any request type (point, track, interaction_matrix)
+    - Request validation and preprocessing (`schema_validation.py`, `error_checking_functions.py`)
+    - Content negotiation and (de)serialization for JSON and MessagePack (`predictor_content_handler.py`)
+    - Predictor identity and wire-format configuration (`config.py`)
+    - Predictor metadata served at `/help` (`predictor_help_message.json`).
+
+    Run the container
+    ```
+    apptainer run --containall predictor.sif HOST PORT
+    ```
+
+    Details:
+    - The container launches a Flask-based server to receive data via HTTP POST requests.
+    - Replace `HOST` and `PORT` with the server and port configuration for the Evaluator to connect to.
+
+    API Endpoints:
+    - `/formats` - GET:  supported request and response formats
+    - `/help`    - GET:  predictor metadata and usage information
+    - `/predict` - POST: main endpoint for submitting prediction requests
+
+    Purpose:
+    - Provides a lightweight, model-free Predictor to test and validate new Evaluators
+      against the GAME Predictor API without needing a real trained model.
+    - Facilitates end-to-end checks of the request -> predict -> response -> metrics pipeline.
+
+    Example Command:
+    ```
+    apptainer run --containall predictor.sif 172.xx.xx.xxx 5000
+    ```
+
+    Arguments:
+    1. `HOST IP`: IP address or hostname of the Predictor server.
+    2. `PORT`   : Port number the Predictor is listening on.

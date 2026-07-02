@@ -1,6 +1,6 @@
 {
-   "predictor_name":"Model_name",
-   "prediction_tasks":[
+   "predictor_name": "some_test_predictor_20260701-134818_EDT",
+   "prediction_tasks": [
       {
          "name":"task_for_model",
          "type_requested":"expression ",
