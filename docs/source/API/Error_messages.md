@@ -17,6 +17,6 @@ We encourage Predictor builders to return error messages in the format show belo
 ## Notes
 
 - Each **error key** corresponds to a Python exception class in the Predictor:
-  - `bad_prediction_request` → `BadRequestError` (HTTP 400)  
-  - `prediction_request_failed` → `PredictionFailedError` (HTTP 422)  
-  - `server_error` → `ServerError` (HTTP 500)  
+  - `bad_prediction_request` &rarr; `BadRequestError` (HTTP 400)  
+  - `prediction_request_failed` &rarr; `PredictionFailedError` (HTTP 422)  
+  - `server_error` &rarr; `ServerError` (HTTP 500)  

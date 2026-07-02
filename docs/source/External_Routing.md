@@ -12,6 +12,6 @@ This page provides a brief overview of how to set up port forwarding for these s
 
 If both the Predictor and Evaluator are on the same HPC cluster or local network, port forwarding is not needed &mdash; use the IP and port directly as described in [Submitting Jobs](Submitting_jobs.md).
 
-## Coming soon...
+<!-- ## Coming soon...
 
-TODO: Add more tested info
+TODO: Add more tested info -->
