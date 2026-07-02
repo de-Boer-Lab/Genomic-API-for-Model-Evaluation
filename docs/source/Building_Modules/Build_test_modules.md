@@ -1,118 +1,126 @@
 # Basic instructions to create a test Evaluator and Predictor
 
-## Creating an Evaluator that reads in a sample JSON files that include DNA sequences
+## Creating an Evaluator that reads in a sample JSON file that includes DNA sequences
 
 Make sure that you have Apptainer installed. Additional details and installation instructions can be found here: <https://apptainer.org/docs/user/main/quick_start.html>
 
-The Evaluator container in this example will require 3 arguments in this order: HOST, PORT, OUTPUT_DIR.
+The Evaluator container in this example requires 3 arguments in this order: `HOST`, `PORT`, `OUTPUT_DIR`.
 
-To create a sample Evaluator using the scripts and data we provide for this example follow the instructions below:
+To create a sample Evaluator using the scripts and data we provide for this example, follow the instructions below.
 
-### 1. Download the `test_evaluator_container` folder and explore the scripts to familiarize yourself
+### 1. Download the `Test_Evaluator` folder and explore the scripts to familiarize yourself
 
-`evaluator_RestAPI.py`
+#### `config.py`
+
+- Sets the base **evaluator** name (e.g. `"test_evaluator_deBoer"`).
+- Automatically versions the **Evaluator** name using the container's build-date label from `/.singularity.d/labels.json`.
+  - Inside container: `"test_evaluator_deBoer_20251128-160727_PST"` (sortable, human-readable).
+  - Outside container (dev mode): `"test_evaluator_deBoer_dev"`.
+- Defines the output filename.
+- Automatically sets the data directory based on container or local execution.
+- Constructs the full path to the input file (`EVALUATOR_INPUT_PATH`).
+- Configures API communication: request format, response format, and maximum retries / retry interval.
+- Prints the input file path for validation.
+
+#### `evaluator_RestAPI.py`
 
 - Loads and validates input data using `load_and_validate_data()`.
-- Sends data to a predictor via HTTP and handles various response formats.
-- Gracefully handles HTTP errors and malformed predictor responses.
+- Sends data to a Predictor via HTTP and handles the negotiated response format.
+- Gracefully handles HTTP errors and malformed Predictor responses.
 - Saves raw predictions to a JSON file.
 - Computes metrics only if the Predictor returns a successful response (HTTP 200).
 
-`config.py`
+#### `evaluator_content_handler.py`
 
-- Sets the evaluator name and input file for predictions.  
-- Defines output filename.
-- Automatically sets data directory based on container or local execution.  
-- Constructs full path to input file (`EVALUATOR_INPUT_PATH`).  
-- Configures API communication:  
-  - Request format, response format, Maximum retries/interval
-- Prints input file path for validation.
+- Sends HTTP requests with automatic retries on network failures.
+- Negotiates request and response formats with the Predictor (JSON / MsgPack).
+- Posts data to `<predictor_url>/predict` and returns the response.
+- Deserializes responses safely; raises errors if decoding fails.
+- Warns if the actual response format differs from the negotiated format.
 
-`evaluator_content_handler.py`
+#### `data_loader.py`
 
-- Sends HTTP requests with automatic retries on network failures.  
-- Negotiates request and response formats with the Predictor (JSON/MsgPack).  
-- Posts data to `<predictor_url>/predict` and returns the response.  
-- Deserializes responses safely; raises errors if decoding fails.  
-- Warns if actual response format differs from negotiated format.
-
-`data_loader.py`
-
-- Loads and validates evaluator input files (`.json`, `.msgpack`, `.mpk`).  
-- Detects and reports duplicate keys (`DuplicateKeysError`).  
-- Supports JSON string or file parsing with duplicate key checks.  
-- Raises errors for missing files, invalid formats, or malformed data.  
+- Loads and validates the evaluator's input file. **The loader is evaluator-specific**: this sample supports `.json`, `.msgpack`, and `.mpk`, but you are free to extend it to read whatever format your evaluation needs (e.g. bigWig, BED, TSV, custom binaries). The only requirement is that the final request payload it produces conforms to the request schema.
+- Detects and reports duplicate keys (`DuplicateKeysError`).
+- Supports JSON string or file parsing with duplicate-key checks.
+- Raises errors for missing files, unsupported file types, or malformed data.
 - Returns validated data as a dictionary for downstream processing.
 
-`evaluator_metrics_calculator.py`
+#### `evaluator_metrics_calculator.py`
 
-- Calculates and saves fake correlation and cell-type specificity metrics.  
-- Validates prediction tasks and handles missing/invalid data.  
-- Saves results as CSV files with timestamps and metadata.  
-- Main function: `calculate_and_save_metrics(predictions_data, output_dir)`.  
+- Calculates and saves placeholder correlation and cell-type specificity metrics.
+- Validates prediction tasks and handles missing/invalid data.
+- Saves results as a tab-separated CSV file with timestamps and metadata.
+- Main function: `calculate_and_save_metrics(predictions_data, output_dir)`.
 - Helper functions: `_calculate_fake_correlations` and `_calculate_fake_specificity`.
 
-All of these scripts will be copied into the container in the `%files` section of the .def file.
+All of these scripts are copied into the container in the `%files` section of the `.def` file.
 
-### 2. Change paths in the `evaluator.def` to local corresponding paths
+### 2. Adjust the `test-evaluator.def` to your local paths
 
-The `evaluator.def` is a definition file and will be used to create the Apptainer container. In this example we are only building a container with Python 3.9-slim and no other dependencies for simplicity. The `/predictions` folder is our `OUTPUT_DIR` where the returning predictions for this pseudo example will be stored. `evaluator_data` contains 2 sample JSON files, one is a very simple request and the other is more complicated. `evaluator_data` is mounted at run time to increase flexibility.
+The `test-evaluator.def` is an Apptainer definition file used to build the container. In this example we build on top of `python:3.13-slim` and install the Python packages the Evaluator needs (`numpy`, `tqdm`, `pandas`, `msgpack`, `requests`).
 
-Change the `path_to/`  in the .def file to the local file path for the `evaluator_RestAPI.py` script to copy it into the container from a local directory.  
+The `%files` section uses paths **relative to the directory you run the build from**, so the simplest workflow is to build from inside the evaluator folder (see step 3). If you build from elsewhere, update the `%files` source paths accordingly.
 
-### 3. It's time to build the Evaluator container
+`evaluator_data` contains sample JSON request files (a simple request and a more complex one) and is **mounted at run time** for flexibility, rather than copied into the image. The `/predictions` folder is the `OUTPUT_DIR` where returned predictions are written.
+
+> **Note:** the Evaluator reads the single file named by `input_file` in `config.py` (in this sample, `test_evaluator_request.json`), resolved under `evaluator_data/`. Either place a file with that name in `evaluator_data/`, or change `input_file` in `config.py` to match your file. This is a per-evaluator setting, not a framework-wide filename requirement.
+
+### 3. Build the Evaluator container
 
 ```bash
-cd test_evaluator_container/
-mkdir predictions
-apptainer build evaluator.sif evaluator.def
+cd Test_Evaluator/
+mkdir -p predictions
+apptainer build test-evaluator.sif test-evaluator.def
 ```
 
-This will build the Evaluator container that automatically runs `evaluator_RestAPI.py`. In this example the Evaluator container only requires 3 arguments in this order: HOST, PORT, OUTPUT_DIR.
+This builds the Evaluator container, which automatically runs `evaluator_RestAPI.py`. In this example the container requires 3 arguments in this order: `HOST`, `PORT`, `OUTPUT_DIR`.
 
-**`evaluator.sif` will be created in the `test_evaluator_container` folder.**
+**`test-evaluator.sif` will be created in the `Test_Evaluator` folder.**
 
-## Creating a Predictor that will return values for every possible request type
+## Creating a Predictor that returns values for every possible request type
 
-### 1. Download the `test_predictor_container` folder to create the sample Predictor
+This example Predictor is intentionally **model-free and CPU-only**: it ships no trained weights, needs no GPU (no `--nv`), and returns randomized values for any request. Its purpose is to exercise a new Evaluator end-to-end (request &rarr; predict &rarr; response &rarr; metrics) without a real model.
 
-`config.py`
+### 1. Download the `Test_Predictor` folder to create the sample Predictor
 
-- Sets the base predictor name (e.g. `"TestPredictor"`).
-- Automatically versions the Predictor name using the container's build-date label from `/.singularity.d/labels.json`.
-  - Inside container: `"TestPredictor_20251128-180629_PST"` (sortable, human-readable).
-  - Outside container (dev mode): `"TestPredictor_dev"` (*Optional*).
-- Determines if running inside a container or not and sets paths accordingly (e.g. `HELP_FILE`).
-- Configures supported request and response wire formats (e.g. `application/json`, `application/msgpack`).
+#### `config.py`
 
-`predictor_RestAPI.py`
+- Sets the base **predictor** name (e.g. `"test_predictor_deBoer"`).
+- Automatically versions the **Predictor** name using the container's build-date label from `/.singularity.d/labels.json`.
+  - Inside container: `"test_predictor_deBoer_20251128-180629_PST"` (sortable, human-readable).
+  - Outside container (dev mode): `"test_predictor_deBoer_dev"`.
+- Determines whether it is running inside a container and sets paths accordingly (e.g. `HELP_FILE`).
+- Configures the supported request and response wire formats (`application/json`, `application/msgpack`).
+
+#### `predictor_RestAPI.py`
 
 - Imports configuration from `config.py` (`PREDICTOR_NAME`, `HELP_FILE`, `SUPPORTED_REQUEST_FORMATS`, `SUPPORTED_RESPONSE_FORMATS`).
-- **GET `/formats`** - Returns supported request/response formats.  
-- **GET `/help`** - Returns predictor metadata/help information.  
-- **POST `/predict`** - Receives sequences and returns predictions.  
-- Decodes, validates, and preprocesses evaluator requests.  
-- Supports readout types: `point`, `track`, `interaction_matrix`.  
-- Standardized error handling and JSON/MsgPack responses.  
-- Adds predictor name to all responses; auto-adjusts paths for container use.
+- **GET `/formats`** — returns supported request/response formats.
+- **GET `/help`** — returns Predictor metadata / help information.
+- **POST `/predict`** — receives sequences and returns predictions.
+- Decodes, validates, and preprocesses Evaluator requests.
+- Supports readout types: `point`, `track`, `interaction_matrix`.
+- Standardized error handling and JSON / MsgPack responses.
+- Adds the Predictor name to all responses; auto-adjusts paths for container use.
 
-`predictor_content_handler.py`
+#### `predictor_content_handler.py`
 
-- **`decode_request(supported_request_formats)`** - Decodes incoming JSON or MsgPack requests; raises `BadRequestError` on failure.  
-- **`encode_response(payload, status_code=200, isError=False, supported_response_formats=None, predictor_name="UnknownPredictor")`** - Encodes responses as JSON or MsgPack; errors always use JSON.  
-- Adds `predictor_name` to responses if missing.  
-- Handles MIME negotiation based on `Content-Type` and `Accept` headers.  
-- Integrates seamlessly with Flask request/response workflow.
+- **`decode_request(supported_request_formats)`** — decodes incoming JSON or MsgPack requests; raises `BadRequestError` on failure.
+- **`encode_response(payload, status_code=200, isError=False, supported_response_formats=None, predictor_name="UnknownPredictor")`** — encodes responses as JSON or MsgPack; errors always use JSON.
+- Adds `predictor_name` to responses if missing.
+- Handles MIME negotiation based on the `Content-Type` and `Accept` headers.
+- Integrates with the Flask request/response workflow.
 
-`predictor_help_message.json`
+#### `predictor_help_message.json`
 
-- HELP file based on [GAME API specification](../API/help.md)
+- HELP file based on the [GAME Help Endpoint specification](../API/help.md).
 
-`schema_validation.py`
+#### `schema_validation.py`
 
-- **`validate_request_payload(payload)`** - Checks required keys and values; raises `BadRequestError` on failure.  
-- **`preprocess_data(payload)`** - Applies flanking sequences, trims by prediction ranges, validates sequences; raises `PredictionFailedError` on issues.  
-- Prepares payload for model inference with progress feedback via tqdm.
+- **`validate_request_payload(payload)`** — checks required keys and values; raises `BadRequestError` on failure.
+- **`preprocess_data(payload)`** — applies flanking sequences, trims by prediction ranges, validates sequences; raises `PredictionFailedError` on issues.
+- Prepares the payload for model inference with progress feedback via tqdm.
 
 `error_checking_functions.py`
 
@@ -120,61 +128,79 @@ This will build the Evaluator container that automatically runs `evaluator_RestA
 
 `APIError` (base), `BadRequestError` (400), `PredictionFailedError` (422), `ServerError` (500).
 
-More error classes with their status codes can also be added. 
+Additional error classes with their status codes can also be added.
 
 #### Validation Functions
 
-- `check_seqs_specifications()` - sequences valid, non-empty  
-- `check_mandatory_keys()` / `check_key_values_readout()` - required JSON keys and readout  
-- Prediction tasks - validate `name`, `type`, `cell_type`, `species`, `scale`  
-- `check_prediction_ranges()` - positive integers, start $\leq$ end  
-- Sequence IDs & flanking sequences - consistent and strings  
+- `check_seqs_specifications()` — sequences valid, non-empty.
+- `check_mandatory_keys()` / `check_key_values_readout()` — required JSON keys and readout.
+- Prediction-task checks — validate `name`, `type`, `cell_type`, `species`, and (optional) `scale`.
+- `check_prediction_ranges()` — positive integers, start ≤ end.
+- Sequence IDs and flanking sequences — consistent and strings.
 
-**`deBoerTest_model.py` Functions:**
+**`deBoerTest_model.py` functions:**
 
-- `fake_model_point(sequences)` &rarr; single random value per sequence  
-- `fake_model_track(sequences)` &rarr; random float array per sequence  
-- `fake_model_interaction_matrix(sequences)` &rarr; 3×3 random integer matrix, base64-encoded
+- `fake_model_point(sequences)` &rarr; a single random scalar per sequence.
+- `fake_model_track(sequences)` &rarr; a random float array per sequence (length equal to the sequence length).
+- `fake_model_interaction_matrix(sequences)` &rarr; an N×N random integer matrix per sequence (N = sequence length), returned as a list of lists. For large matrices we recommend encoding via msgpack / msgpack-numpy.
 
-All of these scripts will be copied into the container in the `%files` section of the .def file.
+All of these scripts are copied into the container in the `%files` section of the `.def` file.
 
-### 2. Change paths in `predictor.def` to local corresponding paths
+### 2. Adjust the `test-predictor.def` to your local paths
 
-Change the `path_to/` in the .def file to the local file path for the scripts.
+The Predictor container builds on top of `python:3.13-slim` and installs the packages the Predictor needs: `numpy`, `pandas`, `tqdm`, `msgpack`, and `flask`.
+
+As with the Evaluator, the `%files` section uses paths **relative to the directory you run the build from**; the simplest workflow is to build from inside the Predictor folder (step 3). If you build from elsewhere, update the `%files` source paths accordingly.
 
 ### 3. Build the Predictor container
 
-The Predictor container here uses python 3.9-slim and installs numpy and pandas.
+```bash
+cd Test_Predictor
+apptainer build test-predictor.sif test-predictor.def
+```
 
-  ```bash
-  cd test_predictor_container
-  apptainer build predictor.sif predictor.def
-  ```
+This builds the Predictor container, which automatically runs `predictor_RestAPI.py`. In this example the container requires 2 arguments in this order: `HOST`, `PORT`. (Any extra arguments — e.g. a Matcher configuration used by other Predictors — are ignored by this test Predictor.)
 
-This will build the Predictor container that automatically runs `predictor_RestAPI.py`. In this example the Predictor container only requires 2 arguments in this order: HOST, PORT.
-
-**`predictor.sif` will be created in the `test_predictor_container` folder.**
+**`test-predictor.sif` will be created in the `Test_Predictor` folder.**
 
 ## Running the containers
 
-To get the local host IP for the Predictor server you can use `hostname`, `hostname -I`, `hostname -i`, etc. **NOTE:** It is different for different HPC platforms.
+To get the local host IP for the Predictor server you can use `hostname`, `hostname -I`, `hostname -i`, etc. **NOTE:** this differs across HPC platforms.
 
-Ports above 1024 are usually free to use on most computers/servers.
+Ports above 1024 are usually free to use on most machines/servers.
 
-The Predictor needs to be started first and the Evaluator will connect to the Predictor's IP.
+**Start the Predictor first**, then start the Evaluator and point it at the Predictor's IP and port.
 
-`apptainer run --containall -B path_to/predictor_data:/predictor_data predictor.sif HOST PORT`
+This test Predictor reads nothing from disk, so it needs no bind mounts:
 
-`apptainer run --containall -B path_to/evaluator_data:/evaluator_data -B /path/to/predictions:/predictions evaluator.sif HOST PORT OUTPUT_DIR`
+```bash
+apptainer run --containall test-predictor.sif HOST PORT
+```
+
+> Predictors that need model weights or reference data bake them into the image at build time via `%files` (as the reference DREAM-RNN predictor does with its `.pth` weights). A builder *may* choose to bind a folder at run time instead, but none of the reference predictors do, and the test Predictor needs no mounts at all.
+
+The Evaluator mounts its input data and output directory at run time:
+
+```bash
+apptainer run --containall \
+  -B path_to/evaluator_data:/evaluator_data \
+  -B path_to/predictions:/predictions \
+  test-evaluator.sif HOST PORT /predictions
+```
 
 **Example:**
 
-  ```bash
-  apptainer run --containall -B path_to/test_predictor_container/predictor_data:/predictor_data predictor.sif 172.xx.xx.xx 5000
-  ```
+```bash
+# 1) Predictor (start first)
+apptainer run --containall test-predictor.sif 172.xx.xx.xx 5000
+```
 
-  ```bash
-  apptainer run --containall -B path_to/test_evaluator_container/evaluator_data:/evaluator_data -B path_to/test_evaluator_container/predictions:/predictions evaluator.sif 172.xx.xx.xx 5000 /predictions
-  ```
+```bash
+# 2) Evaluator (connects to the Predictor's HOST/PORT)
+apptainer run --containall \
+  -B path_to/Test_Evaluator/evaluator_data:/evaluator_data \
+  -B path_to/Test_Evaluator/predictions:/predictions \
+  test-evaluator.sif 172.xx.xx.xx 5000 /predictions
+```
 
-If the connection was successful a predictor response JSON file will be created in the `/path/to/predictions/`
+If the connection succeeds, a Predictor-response JSON file and the evaluation metrics CSV will be created in `path_to/Test_Evaluator/predictions/`.

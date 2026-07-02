@@ -39,7 +39,9 @@ From: python:3.13-slim
 
 %labels
     Authors "Satyam Priyadarshi, Ishika Luthra"
-
+    game_schema_version "1.0"
+    Description "A model-free test Predictor ('deBoer Test Model') for the GAME framework; 
+    returns randomized predictions for any request type to validate new Evaluators end-to-end."
 
 %help
     This container for the Test Predictor includes:
