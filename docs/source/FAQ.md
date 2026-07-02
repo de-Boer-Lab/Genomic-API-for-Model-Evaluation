@@ -24,7 +24,8 @@ Yes, this is exactly why GAME is built around REST APIs. If you want to contribu
 
 ## Can I host an Evaluator with private data?
 
-Yes, if you have private data that you don't want to share with others, you can add an encryption layer on top of your client. More on this coming soon!
+Yes, if you have private data that you don't want to share with others, you can add an encryption layer on top of your client. As of now, however, we have not implemented the encryption layer on any of our evaluators.
+<!-- More on this coming soon! -->
 
 ## Why did you choose to use REST APIs?
 
