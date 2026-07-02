@@ -30,8 +30,8 @@ E: Hello I'm an "Evaluator"! I'm sending you a request file, could you please pr
 
 P: Sure thing :) One moment please...
 
-P: Psst! Hey CellMatcher! I was asked for cellX, but I have no clue that that is, can I have a little help?
+P: Psst! Hey Matcher! I was asked for cellX, but I have no clue that that is, can I have a little help?
 
-CM: Sure thing! cellX is similar to your cellY, so you should use that for your predictions instead.
+M: Sure thing! cellX is similar to your cellY, so you should use that for your predictions instead.
 
-P: Here you go, Evaluator - i'm sending you a response file back with all the predictions for cellY in a negotiated serialization format.
+P: Here you go, Evaluator - i'm sending you a response with all the predictions for cellY in a negotiated serialization format.
