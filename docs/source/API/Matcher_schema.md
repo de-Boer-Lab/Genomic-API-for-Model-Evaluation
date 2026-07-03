@@ -1,6 +1,6 @@
 # Matcher API Schema
 
-## Request to Matcher
+## Request to [Matcher](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/job-submission-scripts)
 
 To perform a match for a specific category (e.g. cell_type), the Predictor sends a **POST request** to the `/match` endpoint. The Evaluator does not communicate with the Matcher directly &mdash; the Predictor is the client to the Matcher service.
 

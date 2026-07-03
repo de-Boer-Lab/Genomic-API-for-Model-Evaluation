@@ -1,6 +1,6 @@
 # Get started by using pre-built GAME modules
 
-GAME modules can be run interactively by users or using our submission scripts [LINK]. To parallelize predictions you can use [Predictor Distributor](Predictor_distributor.md) .
+GAME modules can be run interactively by users or using our [submission scripts](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/job-submission-scripts). To parallelize predictions you can use [Predictor Distributor](Predictor_distributor.md) .
 
 Predictor run command:
 
@@ -31,7 +31,7 @@ Updated list of current GAME modules can be found here: [Modules](https://github
 
 To run a test prediction using the DREAM-RNN container and sample Evaluator container:
 
-1. Download the containers from Zenodo: [LINK]
+1. Download the containers from [Hugging Face](https://huggingface.co/datasets/deBoerLab/DREAMRNN_Predictor_GAME): 
 
     ```bash
     mkdir DREAMRNN
@@ -40,7 +40,7 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 
     ```bash
     cd DREAMRNN
-    wget -O dream_rnn_predictor.sif [LINK]
+    wget -O dream_rnn_predictor.sif [https://huggingface.co/datasets/deBoerLab/DREAMRNN_Predictor_GAME]
     ```
 
     ``` bash
