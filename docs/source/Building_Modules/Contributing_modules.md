@@ -4,7 +4,7 @@ We encourage you to explore the GAME modules page and begin with an Evaluator or
 
 **The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. We suggest testing your Evaluators/Predictors with the test module containers to validate their functionality.** 
 
-The core Test module containers can be found here: [<<LINK>>](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/Test_Modules)
+The core Test module containers can be found [here](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/Test_Modules)
 
 ## Commands to run them
 `apptainer run --containall -B /path_to/predictor_data:/predictor_data predictor.sif HOST PORT`

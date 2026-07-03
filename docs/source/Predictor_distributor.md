@@ -31,7 +31,7 @@ Additional details and code can be found here: {LINK}
 
 ## Usage
 
-The PD container can be downloaded from Zenodo: [[ADD LINK HERE]].
+The PD container can be downloaded from [[[HF](https://huggingface.co/datasets/deBoerLab/PredictorDistributor_GAME)]].
 
 ### **Run the Full GAME Workflow with PD on Slurm**
 

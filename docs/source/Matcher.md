@@ -18,9 +18,9 @@ The Matcher follows the same two-tier versioning convention as Predictor and Eva
 
 ## Usage
 
-The Matcher container can be downloaded from Zenodo: [[ADD LINK HERE]].
+The Matcher container can be downloaded from [HF](https://huggingface.co/datasets/deBoerLab/Matcher_GAME).
 
-Please visit the [Matcher Github Repo](LINK) for the code and more details.
+Please visit the [Matcher Github Repo](https://github.com/de-Boer-Lab/GAME_matcher) for the code and more details.
 
 1. **Download the Matcher Container**
 

@@ -1,4 +1,4 @@
-# Basic instructions to create a test Evaluator and Predictor
+# Basic instructions to create a [test Evaluator and Predictor](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/Test_Modules)
 
 ## Creating an Evaluator that reads in a sample JSON file that includes DNA sequences
 
