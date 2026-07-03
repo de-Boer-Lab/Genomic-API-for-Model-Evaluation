@@ -3,8 +3,8 @@
 .RData
 .Ruserdata
 
-# Ignoring the containers since they are huge
-*.sif
+# # Ignoring the containers since they are huge -- commented out only for Test Modules
+# *.sif
 
 # macOS system files
 *.DS_Store
