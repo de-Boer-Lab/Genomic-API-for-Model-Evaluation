@@ -25,7 +25,7 @@ Please visit the [Matcher Github Repo](https://github.com/de-Boer-Lab/GAME_match
 1. **Download the Matcher Container**
 
     ```bash
-    wget -O matcher.sif [LINK]
+    wget -O matcher.sif https://huggingface.co/datasets/deBoerLab/Matcher_GAME/resolve/main/matcher.sif
     ```
 
 2. **Run the Matcher Server**
