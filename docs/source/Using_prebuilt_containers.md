@@ -40,14 +40,14 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 
     ```bash
     cd DREAMRNN
-    wget -O dream_rnn_predictor.sif [https://huggingface.co/datasets/deBoerLab/DREAMRNN_Predictor_GAME]
+    wget https://huggingface.co/datasets/deBoerLab/DREAMRNN_Predictor_GAME/resolve/main/dream_rnn_predictor.sif
     ```
 
     ``` bash
     cd test_evaluator
-    wget -O evaluator.sif [LINK]
-    wget -O evaluator_data.zip [LINK]
-    unzip evaluator_data.zip
+    wget -O wget -O test-evaluator.sif https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/test-evaluator.sif
+    mkdir evaluator_data
+    wget -O test_evaluator_request.json https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/evaluator_data/test_evaluator_request.json
     mkdir predictions
     ```
 

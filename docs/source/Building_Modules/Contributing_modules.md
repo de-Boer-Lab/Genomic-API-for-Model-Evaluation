@@ -1,6 +1,6 @@
 # Contributing containers
 
-We encourage you to explore the GAME modules page and begin with an Evaluator or Predictor codebase that most closely matches your own implementation. GAME's modules (and their corresponding code) is meant to be shared with the community, please include the code you use to build your containers on their independent Github Repositories (LINK MODULES PAGE).
+We encourage you to explore the GAME modules page and begin with an Evaluator or Predictor codebase that most closely matches your own implementation. GAME's modules (and their corresponding code) is meant to be shared with the community, please include the code you use to build your containers on their independent Github Repositories ([MODULES PAGE](https://github.com/de-Boer-Lab/GAME_modules)).
 
 **The scripts listed below are meant to be re-usable across all GAME modules with minimal changes. We suggest testing your Evaluators/Predictors with the test module containers to validate their functionality.** 
 

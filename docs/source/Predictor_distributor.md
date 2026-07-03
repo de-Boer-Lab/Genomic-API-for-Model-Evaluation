@@ -4,7 +4,7 @@ One of the major bottlenecks in large scale model evaluation is the computationa
 
 The PD acts as an intermediate module that impersonates a single Predictor server to the Evaluator, receiving one large request. It then assumes the role of a client to several, say `N`, independent Predictor worker instances, which are made available by the user to leverage computational resources, e.g. using Slurm on an HPC platform.
 
-PD implementation can be found on [GitHub](https://github.com/de-Boer-Lab/GAME-predictor-distributor).
+PD implementation and additional details can be found on [GitHub](https://github.com/de-Boer-Lab/GAME-predictor-distributor).
 
 ## Scatter Request
 
@@ -27,7 +27,6 @@ PD implementation can be found on [GitHub](https://github.com/de-Boer-Lab/GAME-p
 5. The PD receives the Evaluator request, partitions the metadata and sequences across the N Predictor instances, and sends each partition to its assigned Predictor.
 6. After all Predictor responses are returned, the PD reassembles the results, performs validation checks, and sends the final combined predictions back to the Evaluator, where metrics are computed.
 
-Additional details and code can be found here: {LINK}
 
 ## Usage
 
