@@ -34,7 +34,7 @@ The PD container can be downloaded from [[[HF](https://huggingface.co/datasets/d
 
 ### **Run the Full GAME Workflow with PD on Slurm**
 
-Download Predictor, Evaluator, Matcher and PD containers and submission scripts from here: LINK
+Download Predictor, Evaluator, Matcher and PD containers and submission scripts from [here](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/job-submission-scripts): 
 
 Make required edits for local/HPC paths.
 
