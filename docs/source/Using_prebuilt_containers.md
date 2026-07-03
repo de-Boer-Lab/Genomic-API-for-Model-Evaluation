@@ -45,7 +45,7 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 
     ``` bash
     cd test_evaluator
-    wget -O wget -O test-evaluator.sif https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/test-evaluator.sif
+    wget -O test-evaluator.sif https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/test-evaluator.sif
     mkdir evaluator_data
     wget -O test_evaluator_request.json https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/evaluator_data/test_evaluator_request.json
     mkdir predictions
