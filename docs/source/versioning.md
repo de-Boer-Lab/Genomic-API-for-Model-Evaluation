@@ -48,6 +48,12 @@ Predictors are **forward compatible**: they process only the keys they recognize
 
 Evaluators are **not backward compatible**: they may depend on response fields introduced in newer schema versions. For example, a track Evaluator that expects `trim_upstream` in the response will default to 0 if the field is missing from an older Predictor's response &mdash; producing silently incorrect alignment rather than an error. Evaluators are, however, **forward compatible**: they ignore unknown response keys, so a v2 Evaluator will not break when receiving responses from a v3 Predictor that includes new fields. -->
 
+## GitHub Release Tags (recommended convention)
+
+GAME does not require any particular GitHub release-tagging scheme &mdash; only the `game_schema_version` and module-level (build-timestamp) versioning described above are part of the API contract. That said, module builders are encouraged to tag GitHub releases as `vMAJOR.MINOR.PATCH`, where `MAJOR.MINOR` mirrors the module's current `game_schema_version` and `PATCH` increments for code-only changes (bug fixes, documentation, refactors) that don't change the schema. For example, a module implementing schema `1.0` might see releases tagged `v1.0.0`, then `v1.0.1` for a small fix, and so on until the schema itself moves to `1.1` or `2.0`.
+
+This is purely a convention for human-readable release tracking on GitHub, not a compatibility signal &mdash; Evaluators and Predictors should rely on `game_schema_version` and the module-level build timestamp, not the GitHub tag, to determine compatibility.
+
 ## Recommended Behaviour for Version Mismatches
 
 Users SHOULD check the module's `game_schema_version` before issuing prediction requests. If a version mismatch is detected, the recommended behavior is to **log a warning and proceed** with the evaluation. The Predictor's built-in validation will reject genuinely incompatible requests with the appropriate HTTP error code, and Evaluators should handle missing or unexpected response fields gracefully by defaulting to safe values (e.g. `None`) and recording the mismatch in the evaluation output.
