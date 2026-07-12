@@ -51,6 +51,10 @@ Train-test leakage is a prevalent and difficult problem in the field. Currently,
 
 Apptainer provides users with increased flexibility (no root access requited) on HPC platforms which are crucial for making predictions using large models across thousands of sequences. Pre-built docker containers can still be used with GAME's apptainer implementation. For example, the ChromBPNet container builds a GAME container starting from a pre-built Docker image.
 
+## What is the best way to keep track of a benchmarking result?
+
+If you plan to run a "all by all" benchmarking using GAME we suggest you document the Versioned Module name for all Predictors, Evaluators and Additional Modules that were used (e.g Borzoi_Human_20260506-022639_PDT) as well as the GAME Schema Version to maintain complete reproducbility. 
+
 ## Where can I report bugs?
 
 Bugs can be reported on the Github Issues page for GAME or for specific modules on their corresponding Github repositories.
