@@ -8,7 +8,7 @@ When jobs are submitted to a HPC cluster we cannot control which jobs will be st
 2. The Evaluator will run a while loop that checks and waits till this `.txt` file exists which signals that the Predictor has started running and also communicates the HOST and PORT it should connect to.
 3. The Predictor reads in the HOST and PORT and passes those into the `apptainer run` command.
 
-We recommend this approach as it should work across all HPC systems and schedulers. Sample scripts can be found[here](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/job-submission-scripts)
+We recommend this approach as it should work across all HPC systems and schedulers. Sample scripts can be found [here](https://github.com/de-Boer-Lab/Genomic-API-for-Model-Evaluation/tree/main/src/job-submission-scripts)
 
 **Notes:**
 
