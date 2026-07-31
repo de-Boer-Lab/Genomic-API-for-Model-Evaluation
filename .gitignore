@@ -22,3 +22,5 @@ __pycache__/
 /src/Gosai_2024_Evaluator/predictions/gosai_mpra_predictions_41586_2024_8070_MOESM4_ESM.json
 
 docs/build
+
+CLAUDE.local.md
