@@ -2,7 +2,7 @@
 
 By default, GAME modules communicate over a local network &mdash; both the Predictor (server) and the Evaluator (client) run on the same HPC cluster or local network, and connect directly via IP and port. However, there are cases where you may want to host a Predictor on a separate machine (e.g. your local workstation, a cloud VM, or a different institution's HPC) and allow remote Evaluators to connect to it.
 
-This page provides a brief overview of how to set up port forwarding for these scenarios. Network configurations vary widely across institutions, so treat these as starting points rather than universal instructions.
+This page points to general resources on port forwarding for these scenarios. Network configurations vary widely across institutions, so treat these as starting points only.
 
 ## When is port forwarding needed?
 

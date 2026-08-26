@@ -22,7 +22,8 @@ extensions = [
     'sphinx.ext.viewcode',     # Link to source code
     'myst_parser',             # Support Markdown (README.md)
     'sphinx_book_theme',
-    "sphinx_design"
+    "sphinx_design",
+    "sphinx_copybutton",
 ]
 # Optional: enable MyST extensions
 myst_enable_extensions = [

@@ -25,13 +25,13 @@ apptainer run --containall \
     evaluator.sif HOST PORT /predictions
 ```
 
-Updated list of current GAME modules can be found here: [Modules](https://github.com/de-Boer-Lab/GAME_modules/tree/main)
+An updated list of current GAME modules can be found here: [Modules](https://github.com/de-Boer-Lab/GAME_modules/tree/main)
 
 ## Running the DREAM-RNN container (Matcher not required) with a sample dataset
 
 To run a test prediction using the DREAM-RNN container and sample Evaluator container:
 
-1. Download the containers from [Hugging Face](https://huggingface.co/datasets/deBoerLab/DREAMRNN_Predictor_GAME): 
+1. Download the containers from [Hugging Face](https://huggingface.co/datasets/deBoerLab/DREAMRNN_Predictor_GAME):
 
     ```bash
     mkdir DREAMRNN
@@ -43,15 +43,16 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
     wget https://huggingface.co/datasets/deBoerLab/DREAMRNN_Predictor_GAME/resolve/main/dream_rnn_predictor.sif
     ```
 
-    ``` bash
-    cd test_evaluator
+    ```bash
+    cd ../test_evaluator
     wget -O test-evaluator.sif https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/test-evaluator.sif
     mkdir evaluator_data
-    wget -O test_evaluator_request.json https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/evaluator_data/test_evaluator_request.json
+    wget -O evaluator_data/test_evaluator_request.json https://huggingface.co/datasets/deBoerLab/TestContainers_GAME/resolve/main/evaluator_data/test_evaluator_request.json
     mkdir predictions
+    cd ..
     ```
 
-    **Note:** if you run into issues downloading the `evaluator_data` folder you may need to manually download it off Zenodo.
+    **Note:** if you run into issues downloading `test_evaluator_request.json`, you can download it manually from the [TestContainers_GAME dataset page](https://huggingface.co/datasets/deBoerLab/TestContainers_GAME) on Hugging Face.
 
 2. Get the IP Address of where the Predictor is running
 
@@ -61,10 +62,17 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
 
 3. Start the DREAMRNN Predictor with the IP address and PORT arguments
 
-    `apptainer run --containall --nv predictor.sif HOST PORT`
+    ```bash
+    apptainer run --containall --nv DREAMRNN/dream_rnn_predictor.sif HOST PORT
+    ```
 
     Example:
-    `apptainer run --containall --nv predictor.sif 172.16.47.243 5000`
+
+    ```bash
+    apptainer run --containall --nv DREAMRNN/dream_rnn_predictor.sif 172.16.47.243 5000
+    ```
+
+    The Predictor runs in the foreground and stays running while it waits for requests. Leave this terminal open and start a second one for step 4.
 
 4. Start the test Evaluator
 
@@ -72,27 +80,27 @@ To run a test prediction using the DREAM-RNN container and sample Evaluator cont
     apptainer run --containall \
         -B /path/to/evaluator_data:/evaluator_data  \
         -B /path/to/predictions:/predictions  \
-        evaluator.sif HOST PORT /predictions
+        test_evaluator/test-evaluator.sif HOST PORT /predictions
     ```
 
     Example:
 
     ```bash
     apptainer run --containall \
-        -B /path/to/evaluator_data:/evaluator_data  \
-        -B /path/to/predictions:/predictions  \
-        evaluator.sif 172.16.47.243 5000 /predictions
+        -B ./test_evaluator/evaluator_data:/evaluator_data  \
+        -B ./test_evaluator/predictions:/predictions  \
+        test_evaluator/test-evaluator.sif 172.16.47.243 5000 /predictions
     ```
 
     The `-B` mounts local directories so that the Evaluator container can read in the JSON file from a local folder and write the prediction to the locally created `/predictions` folder.
 
-5. If the Evaluator-Prediction communication was successful a JSON file will be found in the `predictions/` folder.
+5. If the Evaluator-Predictor communication was successful a JSON file will be found in the `test_evaluator/predictions/` folder.
 
 Yay! You just completed a successful communication between the DREAMRNN model and a test sequence set with GAME :)
 
-```bash
+```json
 {
-    "predictor_name": "DREAM-RNN_Human_K562_20260601-173514_EDT",
+    "predictor_name": "DREAM-RNN_Human_K562_20260430-012244_PDT",
     "prediction_tasks": [
         {
             "name": "gosai_synthetic_sequences",
@@ -105,25 +113,13 @@ Yay! You just completed a successful communication between the DREAMRNN model an
             "species_requested": "homo_sapiens",
             "species_actual": "homo_sapiens",
             "predictions": {
-                "7:70038969:G:T:A:wC": 
-                    -0.4900762140750885
-                ,
-                "1:192696196:C:T:A:wC": 
-                    -0.4205487370491028
-                ,
-                "1:211209457:C:T:A:wC": 
-                    -0.2514425814151764
-                ,
-                "15:89574440:GT:G:A:wC": 
-                    1.1541708707809448
-                ,
-                "15:89574440:GT:G:R:wC": 
-                    1.1637296676635742
-                
+                "7:70038969:G:T:A:wC": -0.4900762140750885,
+                "1:192696196:C:T:A:wC": -0.4205487370491028,
+                "1:211209457:C:T:A:wC": -0.2514425814151764,
+                "15:89574440:GT:G:A:wC": 1.1541708707809448,
+                "15:89574440:GT:G:R:wC": 1.1637296676635742
             }
         }
     ]
 }
 ```
-
-
