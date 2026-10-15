@@ -1,89 +1,62 @@
 {
-   "matcher_version":"V1",
-   "predictor_name":"track_predictor",
-   "bin_size":1,
-   "prediction_tasks":[
+   "predictor_name": "sample_predictor_20260506-022639_PDT",
+   "matcher_version": "Matcher_20260505-013416_PDT",
+   "bin_size": 1,
+   "prediction_tasks": [
       {
-         "name":"task1",
-         "type_requested":"expression",
-         "type_actual":[
-            "RNA-seq"
-         ],
-         "cell_type_requested":"HEPG2",
-         "cell_type_actual":"HEPG2",
-         "species_requested":"homo_sapiens",
-         "species_actual":"homo_sapiens",
-         "scale_prediction_requested":"log",
-         "scale_prediction_actual":"log",
-         "aggregation":{
-            "replicates":"mean"
+         "name": "sample_expression_wtc11",
+         "type_requested": "expression",
+         "type_actual": ["RNA"],
+         "cell_type_requested": "induced pluripotent stem cells (iPS cells; WTC11)",
+         "cell_type_actual": "WTC11",
+         "species_requested": "homo_sapiens",
+         "species_actual": "homo_sapiens",
+         "scale_prediction_requested": "log",
+         "scale_prediction_actual": "log",
+         "aggregation": {
+            "bins": "mean"
          },
-         "predictions":{
-            "seq1":[
-               12.2,
-               5,
-               6
-            ],
-            "seq2":[
-               1.1,
-               12,
-               0
-            ],
-            "random_seq":[
-               100.1,
-               50,
-               0.5
-            ],
-            "enhancer":[
-               4,
-               3,
-               0.01
-            ],
-            "control":[
-               0,
-               0,
-               0
-            ]
+         "predictions": {
+            "seq_full_range": 0.4533,
+            "seq_bounded_range": 0.5586,
+            "seq_range_at_end": 0.9157,
+            "chr1:1000-1040": 0.4663,
+            "seq_long_2000bp": 0.5077
          }
       },
       {
-         "name":"ishika_trick",
-         "type_requested":"accessibility",
-         "type_actual":[
-            "ATAC"
-         ],
-         "cell_type_requested":"K562",
-         "cell_type_actual":"bone_marrow_cell_line",
-         "species_requested":"homo_sapiens",
-         "species_actual":"homo_sapiens",
-         "scale_prediction_requested":"log",
-         "scale_prediction_actual":"log",
-         "predictions":{
-            "seq1":[
-               12.2,
-               5,
-               6
-            ],
-            "seq2":[
-               1.1,
-               12,
-               0
-            ],
-            "random_seq":[
-               100.1,
-               50,
-               0.5
-            ],
-            "enhancer":[
-               4,
-               3,
-               0.001
-            ],
-            "control":[
-               0,
-               0,
-               0
-            ]
+         "name": "sample_accessibility_k562",
+         "type_requested": "accessibility",
+         "type_actual": ["ATAC"],
+         "cell_type_requested": "K562",
+         "cell_type_actual": "K562",
+         "species_requested": "homo_sapiens",
+         "species_actual": "homo_sapiens",
+         "scale_prediction_requested": "linear",
+         "scale_prediction_actual": "linear",
+         "predictions": {
+            "seq_full_range": 0.5856,
+            "seq_bounded_range": 0.191,
+            "seq_range_at_end": 0.5117,
+            "chr1:1000-1040": 0.6273,
+            "seq_long_2000bp": 0.7871
+         }
+      },
+      {
+         "name": "sample_expression_mouse_liver",
+         "type_requested": "expression",
+         "type_actual": ["RNA"],
+         "cell_type_requested": "liver",
+         "cell_type_actual": "liver",
+         "species_requested": "mus_musculus",
+         "species_actual": "mus_musculus",
+         "scale_prediction_actual": "linear",
+         "predictions": {
+            "seq_full_range": 0.1022,
+            "seq_bounded_range": 0.3073,
+            "seq_range_at_end": 0.0989,
+            "chr1:1000-1040": 0.8035,
+            "seq_long_2000bp": 0.6896
          }
       }
    ]

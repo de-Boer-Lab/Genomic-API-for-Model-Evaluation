@@ -1,137 +1,41 @@
 {
-    "predictor_name": "test_predictor_deBoer_20260701-134818_EDT",
-    "prediction_tasks": [
-        {
-            "name": "K562_linear",
-            "type_requested": "expression",
-            "type_actual": [
-                "expression"
-            ],
-            "cell_type_requested": "K562",
-            "cell_type_actual": "test_cell",
-            "species_requested": "homo_sapiens",
-            "species_actual": "test_species",
-            "predictions": {
-                "short_seq": 1,
-                "boundary_1000": 1,
-                "long_seq": 0,
-                "range_at_start": 1,
-                "range_at_end": 1,
-                "full_range": 1,
-                "empty_range": 0
-            },
-            "scale_prediction_requested": "linear",
-            "scale_prediction_actual": "linear"
-        },
-        {
-            "name": "K562_log",
-            "type_requested": "expression",
-            "type_actual": [
-                "expression"
-            ],
-            "cell_type_requested": "K562",
-            "cell_type_actual": "test_cell",
-            "species_requested": "homo_sapiens",
-            "species_actual": "test_species",
-            "predictions": {
-                "short_seq": 1,
-                "boundary_1000": 0,
-                "long_seq": 0,
-                "range_at_start": 0,
-                "range_at_end": 0,
-                "full_range": 1,
-                "empty_range": 0
-            },
-            "scale_prediction_requested": "log",
-            "scale_prediction_actual": "linear"
-        },
-        {
-            "name": "hepg2_linear",
-            "type_requested": "expression",
-            "type_actual": [
-                "expression"
-            ],
-            "cell_type_requested": "hepg2",
-            "cell_type_actual": "test_cell",
-            "species_requested": "mus_musculus",
-            "species_actual": "test_species",
-            "predictions": {
-                "short_seq": 1,
-                "boundary_1000": 0,
-                "long_seq": 1,
-                "range_at_start": 1,
-                "range_at_end": 0,
-                "full_range": 0,
-                "empty_range": 0
-            },
-            "scale_prediction_requested": "linear",
-            "scale_prediction_actual": "linear"
-        },
-        {
-            "name": "matcher_test",
-            "type_requested": "expression",
-            "type_actual": [
-                "expression"
-            ],
-            "cell_type_requested": "HeLa",
-            "cell_type_actual": "test_cell",
-            "species_requested": "homo_sapiens",
-            "species_actual": "test_species",
-            "predictions": {
-                "short_seq": 1,
-                "boundary_1000": 0,
-                "long_seq": 0,
-                "range_at_start": 0,
-                "range_at_end": 1,
-                "full_range": 1,
-                "empty_range": 0
-            },
-            "scale_prediction_requested": "linear",
-            "scale_prediction_actual": "linear"
-        },
-        {
-            "name": "task2",
-            "type_requested": "expression",
-            "type_actual": [
-                "expression"
-            ],
-            "cell_type_requested": "ww6",
-            "cell_type_actual": "test_cell",
-            "species_requested": "mus_musculus",
-            "species_actual": "test_species",
-            "predictions": {
-                "short_seq": 0,
-                "boundary_1000": 0,
-                "long_seq": 0,
-                "range_at_start": 1,
-                "range_at_end": 0,
-                "full_range": 1,
-                "empty_range": 1
-            },
-            "scale_prediction_requested": "linear",
-            "scale_prediction_actual": "linear"
-        },
-        {
-            "name": "task3",
-            "type_requested": "accessibility",
-            "type_actual": [
-                "accessibility"
-            ],
-            "cell_type_requested": "liver",
-            "cell_type_actual": "test_cell",
-            "species_requested": "mus_musculus",
-            "species_actual": "test_species",
-            "predictions": {
-                "short_seq": 0,
-                "boundary_1000": 0,
-                "long_seq": 0,
-                "range_at_start": 1,
-                "range_at_end": 0,
-                "full_range": 0,
-                "empty_range": 0
-            },
-            "scale_prediction_requested": "log",
-            "scale_prediction_actual": "linear"
-        }
-    ]
+   "readout": "point",
+   "prediction_tasks": [
+      {
+         "name": "sample_expression_wtc11",
+         "type": "expression",
+         "cell_type": "induced pluripotent stem cells (iPS cells; WTC11)",
+         "species": "homo_sapiens",
+         "scale": "log"
+      },
+      {
+         "name": "sample_accessibility_k562",
+         "type": "accessibility",
+         "cell_type": "K562",
+         "species": "homo_sapiens",
+         "scale": "linear"
+      },
+      {
+         "name": "sample_expression_mouse_liver",
+         "type": "expression",
+         "cell_type": "liver",
+         "species": "mus_musculus"
+      }
+   ],
+   "upstream_seq": "ACGTACGT",
+   "downstream_seq": "TGCATGCA",
+   "sequences": {
+      "seq_full_range": "GCTAAAGACAATTACATAACATACACGTCA",
+      "seq_bounded_range": "GCACGAAACTTGTTGGCCCAGTGTGAATCGCTTAAGGGTTAAGTAAGTGTGATGCATACG",
+      "seq_range_at_end": "CCTTTACTTGCTGTGTCCACCCCATCGGACTGGCATTTTTATTACACTCA",
+      "chr1:1000-1040": "GAAACAGAACTCGGGTAATTTTGACAGGTCACGCAGAGGC",
+      "seq_long_2000bp": "GCGCCCTCCTGAAGTGCGTGGACACTCGCTATGAATCTCTGATTTACCCACTCTGCCAAACTCCAGCGCGGTCAGTTCCATCACCCTAAGTAACCGAATAATGCGTTCGCTCTATTGACTACGACGCGCTCATTCCCTTGTCGGAGAGTTATGGAACAAGGACGCTGTCTGAGACTAGAAGACAGATAGTGCACACGACCGGCGTCGGAGAAACTCTATTTGCCGCCTGACAAGTCAATGCGATCCGTAGGGGCAGCGCAGTATGCCAAGACTATAGGCACTGTCGCATCACAAACGATTAACTGATAAATGAGCCCTTTATGACACGGGCATATGACTGGTTTACGATAGTATGTCCAACGGCGAGCTTTACATTTGCTGTGAGAGGTACAGGGATTAGTGAGAAGCCGTGCGTATCAATTCGTACCTTGGGGGTCGTTACCACTCTGTTCCCACGAGCGGCATTTCTGGATGGCCAGCTTTTGACATTTAATTTCACCCATAAACCAGCGTAAAGCTGCAAGTGGCTCCATGAACTTAGCTGCTAGTGTCAGACTCGCCTCGGATCCTTACTACACTAACTTGAACGCCTAGTGGTCAAAGAGTACTGGTAATCGTCGGTATCTATATAAGCAGGGGAGGGGAAACATTTGTTCTCAGCCGGTGACTCCTAATGCTAAGACATTTCCCTTCAGGGGGGGCTCCCCCGCGATGCCATAAATCTGAGCAACCAGCTGAAGCAGGCACGACAGTGCGACATTATATCACTGTGGTAGGTTAGCTTCATCTAATGTCCAACTAGCCGGCCAATTCGCATGATACCTCTCCATCTGACCCAAGATTGTGCTTGTTCAATTCTTCTTAACGTGATAACAGAATCAAACCTGCCAGGCGGTCGTCGCGGACCTCGGTCGAAGTAGTGGTGCGGATCCAGGGGAACCGTTGACTCAAAAGGAGCTGCCGTCCACCTAACGTGAAGTTCCAAAATCCCAAACCTCTCGAGATATTTATCCAGCAAGGAGTGGCAACGCCCGCTGCTTTAATCGCTACCAAAACGCAAACAAAAGCATACCCAAAAGTACACGGGTGAGGGAGGTGATATAGTACAGCTACGAAGTATCTGGCGCCTCAATAGGATTATAGCGGTCTCTCAGGCTGCTTGCCGTCCGGCCCGGCCGCGACACTCCGGTGCAAGCTTAATTCGTACGTACTTCCCATTGGATCTCGTTTATCGATTAAGCCCGATCTAGGTTCCTAGAGGTTAAATTGGACGTCTTCCCACTCCGTTGCTGCGTGTCTAGGCGGTTTAGCGTAAGCGAACAGGACCCTGCCTCAGCTCATAAGTCCTTATTCTCTCACGTTGTGTTACGAAAGATTCACTCGAGGTCGTGTGAGGGTTGGGCTAGCGGCAATTATGAAACTATCACATCACATAAGCGGGCTAGATATAATTTAATCTTAATCCATAAAACACTAGCTCAGCAGTTGAAAAAATGGCTAGGTTCCAGCTTTTGGGGAGACGTCTTTCTGAGGGTCAGCCGTGATTCCGATTCGATTAGACTGGTCCCCACGGGTCCATGAGTACGAGGAAACTCGGTATCGAGCCTAAAAGTTATAAGGCATCTCGCCCAGGAAAGTAACGACGTATGGGTAGTTCTCCATCACCAGCTATAATGGCTAGCGCACTCTCGTTCCAGGGCGTAGTTACACTGAGCGTGCCATGTCAGCATGCTAGCGTATCGCCCCCCAATGCCCCGCAATAGGGTAATTCGCCGACGAGTAAGCGTAGATTACACACCCAGGAAACGATCTAGACAGATTGAAATCCCCTTCATTATAGGTCGTGTAGCGCTAGACAGTCACCTTTAAAGGAAGAATCAGAGGCAAGATCTACGTGGCAGTCTCGTGTTGACGCCTTAGCCGGTGGCGAACAGTATTGACCTGGCCGATGCTAATATTCTGATTTGGGGTTGATTTGCGCTTCAGGCGCTAAAGTGGTT"
+   },
+   "prediction_ranges": {
+      "seq_full_range": [],
+      "seq_bounded_range": [10, 40],
+      "seq_range_at_end": [40, 50],
+      "chr1:1000-1040": [0, 10],
+      "seq_long_2000bp": [990, 1010]
+   }
 }
