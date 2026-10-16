@@ -20,6 +20,13 @@
          "type": "expression",
          "cell_type": "liver",
          "species": "mus_musculus"
+      },
+      {
+         "name": "sample_unmatched_cell_type",
+         "type": "expression",
+         "cell_type": "made_up_cell_type_xyz",
+         "species": "homo_sapiens",
+         "scale": "linear"
       }
    ],
    "upstream_seq": "ACGTACGT",

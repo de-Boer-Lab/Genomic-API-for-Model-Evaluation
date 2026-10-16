@@ -58,6 +58,20 @@
             "chr1:1000-1040": 0.8035,
             "seq_long_2000bp": 0.6896
          }
+      },
+      {
+         "name": "sample_unmatched_cell_type",
+         "type_requested": "expression",
+         "type_actual": null,
+         "cell_type_requested": "made_up_cell_type_xyz",
+         "cell_type_actual": null,
+         "species_requested": "homo_sapiens",
+         "species_actual": null,
+         "scale_prediction_requested": "linear",
+         "scale_prediction_actual": null,
+         "predictions": {
+            "error": [{"prediction_request_failed": "No tracks found for expression in cell type 'made_up_cell_type_xyz'"}]
+         }
       }
    ]
 }
