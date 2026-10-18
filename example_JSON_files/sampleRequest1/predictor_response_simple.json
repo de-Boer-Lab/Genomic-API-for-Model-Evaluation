@@ -3,7 +3,7 @@
    "prediction_tasks": [
       {
          "name":"task_for_model",
-         "type_requested":"expression ",
+         "type_requested":"expression",
          "type_actual":["CAGE"],
          "cell_type_requested":"induced pluripotent stem cells (iPS cells; WTC11)",
          "cell_type_actual":"HEPG2",
