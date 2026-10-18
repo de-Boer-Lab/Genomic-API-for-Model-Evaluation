@@ -35,7 +35,7 @@ Out of scope unless explicitly asked:
 
 - Don't edit anything in `GAME_modules` or any other module-implementation repo — that's phase (2), handled by a different agent/session, only after spec changes here are reviewed and pushed.
 - Don't modify `src/Test_Modules/Test_Predictor`, `src/Test_Modules/Test_Evaluator`, or other reference module code as part of a documentation fix — flag it instead if a spec change would require a reference implementation to change too.
-- Don't touch `Genomic-Model-Evaluation-API.Rproj`, CI, or build config unless asked.
+- Don't touch CI or build config unless asked.
 
 ## Workflow
 
