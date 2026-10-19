@@ -22,6 +22,12 @@
 2. all indexing is 0 based
 3. `prediction_ranges` are half-open (`end` exclusive, `start < end`), consistent with Python's slicing/indexing conventions
 4. to minimize any bias from the predictors we suggested randomizing your sequences so that there is no dependency on the order
+5. `species` is the species of the cells (or organism) in which the experiment was performed, **not** the species the input `sequences` originate from. The experiment measures the regulatory activity of the host cell, so the origin of the DNA is irrelevant. For example:
+   - a human sequence measured in mouse cells should request `"mus_musculus"`
+   - human DNA measured in yeast should request `"saccharomyces_cerevisiae"`
+   - a synthetic sequence measured in mouse cells should request `"mus_musculus"` (not "synthetic")
+
+   Otherwise, a model that correctly predicts the human-specific regulation of a human sequence would be penalized against the measured mouse activity.
 
 ## Evaluator Output File Specifications
 
