@@ -24,7 +24,7 @@
 ## Notes:
 In development mode (outside a container), `_dev` is appended to the `predictor_name` instead. This ensures every container rebuild produces a unique, sortable identifier, allowing Evaluators to distinguish between builds even when the model name has not changed. <br>  <br> This is especially important for Predictors that have undergone updates that led to different predictions. 
 
-`species_requested` and `species_actual` use the same definition as `species` in the Evaluator request: the species of the cells in which the experiment was performed, regardless of where the input sequences originate (see the Notes in the [Evaluator API Schema](Evaluator_requests.md)).
+`species_requested` is the `species` from the Evaluator request and has the definition given there: the species of the cells in which the experiment was performed, regardless of where the input sequences originate (see the Notes in the [Evaluator API Schema](Evaluator_requests.md)). `species_actual` is the species the Predictor (model) actually used to make the predictions. It can differ from `species_requested`, for example when the requested name is normalized by the Matcher, and it is `null` if the task could not be performed.
 
 (tasks-cannot-perform)=
 ## Tasks the Predictor cannot perform
