@@ -26,7 +26,7 @@ In development mode (outside a container), `_dev` is appended to the `predictor_
 
 `species_requested` is the `species` from the Evaluator request and has the definition given there: the species of the cells in which the experiment was performed, regardless of where the input sequences originate (see the Notes in the [Evaluator API Schema](Evaluator_requests.md)). `species_actual` is the species the Predictor (model) actually used to make the predictions. It can differ from `species_requested`, for example when the requested name is normalized by the Matcher, and it is `null` if the task could not be performed.
 
-(tasks-cannot-perform)=
+
 ## Tasks the Predictor cannot perform
 
 If a request contains multiple `prediction_tasks`, the Predictor should return predictions for every task it can perform. A task the Predictor cannot perform (for example, no cell type or assay matching the requested `cell_type` or `type` could be found, even after using the Matcher) must still be returned, with its metadata:
