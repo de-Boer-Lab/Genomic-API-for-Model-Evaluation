@@ -62,7 +62,7 @@ The `test-evaluator.def` is an Apptainer definition file used to build the conta
 
 The `%files` section uses paths **relative to the directory you run the build from**, so the simplest workflow is to build from inside the evaluator folder (see step 3). If you build from elsewhere, update the `%files` source paths accordingly.
 
-`evaluator_data` contains sample JSON request files (a simple request and a more complex one) and is **mounted at run time** for flexibility, rather than copied into the image. The `/predictions` folder is the `OUTPUT_DIR` where returned predictions are written.
+`evaluator_data` contains the sample JSON request file `test_evaluator_request.json` (several prediction tasks and edge-case `prediction_ranges`) and is **mounted at run time** for flexibility, rather than copied into the image. The `/predictions` folder is the `OUTPUT_DIR` where returned predictions are written.
 
 > **Note:** the Evaluator reads the single file named by `input_file` in `config.py` (in this sample, `test_evaluator_request.json`), resolved under `evaluator_data/`. Either place a file with that name in `evaluator_data/`, or change `input_file` in `config.py` to match your file. This is a per-evaluator setting, not a framework-wide filename requirement.
 
@@ -119,7 +119,7 @@ This example Predictor is intentionally **model-free and CPU-only**: it ships no
 #### `schema_validation.py`
 
 - **`validate_request_payload(payload)`** — checks required keys and values; raises `BadRequestError` on failure.
-- **`preprocess_data(payload)`** — applies flanking sequences, trims by prediction ranges, validates sequences; raises `PredictionFailedError` on issues.
+- **`preprocess_data(payload)`** — applies flanking sequences, trims each sequence to its (half-open) prediction range, validates sequences; raises `PredictionFailedError` on issues.
 - Prepares the payload for model inference with progress feedback via tqdm.
 
 #### `error_checking_functions.py`
@@ -135,7 +135,7 @@ Additional error classes with their status codes can also be added.
 - `check_seqs_specifications()` — sequences valid, non-empty.
 - `check_mandatory_keys()` / `check_key_values_readout()` — required JSON keys and readout.
 - Prediction-task checks — validate `name`, `type`, `cell_type`, `species`, and (optional) `scale`.
-- `check_prediction_ranges()` — positive integers, start ≤ end.
+- `check_prediction_ranges()` — each range is an empty `[]` or a `[start, end]` pair of non-negative integers with `start < end`. Ranges are half-open: `start` is inclusive and `end` is exclusive.
 - Sequence IDs and flanking sequences — consistent and strings.
 
 **`deBoerTest_model.py` functions:**
