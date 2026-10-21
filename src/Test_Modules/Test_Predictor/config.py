@@ -47,6 +47,12 @@ else:
 
 HELP_FILE = os.path.join(SCRIPT_DIR, "predictor_help_message.json")
 
+# --- Unmatched-task test hook ---
+# A task requesting this cell type is returned as a task the Predictor cannot perform
+# (null *_actual keys and an error object in `predictions`), so Evaluators can test how
+# they handle partial results. All other cell types succeed, as before.
+UNMATCHED_CELL_TYPE = "made_up_cell_type_xyz"
+
 # --- Supported Wire Formats ---
 # JSON is always supported even when not listed; msgpack is offered for large payloads.
 SUPPORTED_REQUEST_FORMATS = [fmt.lower() for fmt in ["application/json", "application/msgpack"]]

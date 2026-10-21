@@ -12,6 +12,7 @@ PREDICTOR_NAME = config.PREDICTOR_NAME
 HELP_FILE = config.HELP_FILE
 SUPPORTED_REQUEST_FORMATS = config.SUPPORTED_REQUEST_FORMATS
 SUPPORTED_RESPONSE_FORMATS = config.SUPPORTED_RESPONSE_FORMATS
+UNMATCHED_CELL_TYPE = config.UNMATCHED_CELL_TYPE
 
 # --- Flask App and Central Error Handler ---
 app = Flask(__name__)
@@ -36,6 +37,29 @@ def create_error_response(error_key, messages, status_code):
     error_payload = {"error": [{error_key: msg} for msg in messages]}
     print(error_payload)
     return error_payload, status_code
+
+def unmatched_task_response(task):
+    """
+    Builds the response for a task the Predictor cannot perform (per the GAME spec):
+    name and *_requested keys are returned, every *_actual key is None (null in JSON),
+    and `predictions` holds an error object instead of values.
+    """
+    task_response = {
+        'name': task['name'],
+        'type_requested': task['type'],
+        'type_actual': None,
+        'cell_type_requested': task['cell_type'],
+        'cell_type_actual': None,
+        'species_requested': task['species'],
+        'species_actual': None,
+        'predictions': {
+            "error": [{"prediction_request_failed": f"No tracks found for {task['type']} in cell type '{task['cell_type']}'"}]
+        }
+    }
+    if 'scale' in task:
+        task_response['scale_prediction_requested'] = task['scale']
+        task_response['scale_prediction_actual'] = None
+    return task_response
 
 @app.errorhandler(APIError)
 def handle_api_error(error):
@@ -111,6 +135,11 @@ def predict():
         json_return['prediction_tasks'] = []
 
         for task in evaluator_request['prediction_tasks']:
+            # Tasks that cannot be performed are still returned (HTTP 200) with null *_actual keys and an error
+            if task['cell_type'] == UNMATCHED_CELL_TYPE:
+                json_return['prediction_tasks'].append(unmatched_task_response(task))
+                continue
+
             # Run Model Inference
             if readout_type == "point":
                 model_predictions = fake_model_point(sequences)

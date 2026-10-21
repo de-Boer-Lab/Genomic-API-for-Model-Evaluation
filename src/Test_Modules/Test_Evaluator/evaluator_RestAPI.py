@@ -77,6 +77,10 @@ def run_evaluator(predictor_ip, predictor_port, output_dir):
     # Check sequence counts before saving
     for i, task in enumerate(response_payload.get("prediction_tasks", []), start=1):
         preds = task.get("predictions", {})
+        if "error" in preds:
+            # A task the Predictor could not perform returns an error object instead of predictions
+            print(f"Task {i} ('{task.get('name')}') returned an error instead of predictions: {preds['error']}")
+            continue
         if len(preds) != total_sequences:
             print(f"Warning: Task {i} ('{task.get('name')}') has {len(preds)} predictions, but {total_sequences} sequences were sent to the Predictor.")
     
