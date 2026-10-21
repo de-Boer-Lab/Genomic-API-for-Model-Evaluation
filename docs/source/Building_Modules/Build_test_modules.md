@@ -27,7 +27,7 @@ To create a sample Evaluator using the scripts and data we provide for this exam
 - Loads and validates input data using `load_and_validate_data()`.
 - Sends data to a Predictor via HTTP and handles the negotiated response format.
 - Gracefully handles HTTP errors and malformed Predictor responses.
-- Saves raw predictions to a JSON file.
+- Saves raw predictions to a JSON file. Tasks that the Predictor returned as errors are reported in the log instead of being checked for prediction counts.
 - Computes metrics only if the Predictor returns a successful response (HTTP 200).
 
 #### `evaluator_content_handler.py`
@@ -49,7 +49,7 @@ To create a sample Evaluator using the scripts and data we provide for this exam
 #### `evaluator_metrics_calculator.py`
 
 - Calculates and saves placeholder correlation and cell-type specificity metrics.
-- Validates prediction tasks and handles missing/invalid data.
+- Validates prediction tasks and handles missing/invalid data: a task with an `error` in its `predictions` is marked invalid and its metrics are recorded as `NaN`.
 - Saves results as a tab-separated CSV file with timestamps and metadata.
 - Main function: `calculate_and_save_metrics(predictions_data, output_dir)`.
 - Helper functions: `_calculate_fake_correlations` and `_calculate_fake_specificity`.
@@ -92,6 +92,7 @@ This example Predictor is intentionally **model-free and CPU-only**: it ships no
   - Outside container (dev mode): `"test_predictor_deBoer_dev"`.
 - Determines whether it is running inside a container and sets paths accordingly (e.g. `HELP_FILE`).
 - Configures the supported request and response wire formats (`application/json`, `application/msgpack`).
+- Defines `UNMATCHED_CELL_TYPE` (`"made_up_cell_type_xyz"`), the reserved cell type used to test failed tasks (see below).
 
 #### `predictor_RestAPI.py`
 
@@ -101,6 +102,7 @@ This example Predictor is intentionally **model-free and CPU-only**: it ships no
 - **POST `/predict`** — receives sequences and returns predictions.
 - Decodes, validates, and preprocesses Evaluator requests.
 - Supports readout types: `point`, `track`, `interaction_matrix`.
+- A task whose `cell_type` is the reserved `UNMATCHED_CELL_TYPE` is returned as a task the Predictor cannot perform (HTTP 200): every `*_actual` key is `null` and `predictions` holds an error object (`{"error": [{"prediction_request_failed": "..."}]}`), as described in [Tasks the Predictor cannot perform](../API/Predictor_responses.md). Use it to check how your Evaluator handles partial results. All other tasks succeed regardless of cell type or species.
 - Standardized error handling and JSON / MsgPack responses.
 - Adds the Predictor name to all responses; auto-adjusts paths for container use.
 
