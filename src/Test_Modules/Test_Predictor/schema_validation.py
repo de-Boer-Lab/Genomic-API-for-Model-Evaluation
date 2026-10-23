@@ -91,8 +91,9 @@ def preprocess_data(payload):
             if pr: # Only process non-empty ranges
                 start, end = pr
 
-                if start >= len(sequences[seq_id]) or end >= len(sequences[seq_id]):
-                    err_msg = f"Invalid range for '{seq_id}': index is out of bounds. The maximum valid index for a sequence of length {len(sequences[seq_id])} is {len(sequences[seq_id]) - 1}."
+                # Ranges are half-open, so the largest valid end is the sequence length
+                if end > len(sequences[seq_id]):
+                    err_msg = f"Invalid range for '{seq_id}': end index ({end}) is out of bounds. Ranges are half-open, so the maximum valid end for a sequence of length {len(sequences[seq_id])} is {len(sequences[seq_id])}."
                     errors['prediction_request_failed'].append(err_msg)
 
     if any(errors.values()):
@@ -104,9 +105,9 @@ def preprocess_data(payload):
         for seq_id, pr in payload['prediction_ranges'].items():
             if pr: # Only process non-empty ranges
                 start, end = pr
-                # Slice the sequence. `prediction_range` is start, end inclusive
-                sequences[seq_id] = sequences[seq_id][start:end+1]
-                print(f"Sequence '{seq_id}' trimmed to prediction range [{start}, {end}].")
+                # Slice the sequence. `prediction_range` is half-open: start inclusive, end exclusive
+                sequences[seq_id] = sequences[seq_id][start:end]
+                print(f"Sequence '{seq_id}' trimmed to prediction range [{start}, {end}).")
 
     
     return sequences
