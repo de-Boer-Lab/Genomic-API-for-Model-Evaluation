@@ -38,7 +38,7 @@ If a request contains multiple `prediction_tasks`, the Predictor should return p
 
 A task the Predictor lacks the capability to perform, for example because the Matcher could not find a good match, uses the `prediction_request_failed` error key (the request was valid, but the model could not complete it). This may change as the Matcher improves.
 
-The HTTP status of the response is 200 as long as the request itself was valid, even if every task failed. Request-level failures (a malformed request, server errors, or an unreachable Matcher) are still returned as HTTP errors as described in [Error messages](Error_messages.md).
+The HTTP status of the response is 200 as long as the request itself was valid, even if every task failed. Request-level failures (a malformed request or a server error) are still returned as HTTP errors as described in [Error messages](Error_messages.md). If the Matcher fails or is unreachable, the Predictor may either fail the whole request with an HTTP error or return a per-task error (for example `{"error": [{"upstream_dependency_failed": "<message>"}]}`) for only the tasks that needed the Matcher, still returning the tasks that did not. Returning per-task errors is encouraged, since it avoids discarding Matcher work already done, but the choice is left to the Predictor builder. A generic `server_error` is equally acceptable in either case.
 
 Evaluators identify a failed task by the `"error"` key in `predictions`, should score only the tasks that succeeded, and record `"NaN"` for the failed ones in the [evaluation output file](Evaluator_requests.md).
 
