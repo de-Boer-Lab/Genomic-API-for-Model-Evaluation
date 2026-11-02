@@ -28,6 +28,8 @@
    - a synthetic sequence measured in mouse cells should request `"mus_musculus"` (not "synthetic")
 
    Otherwise, a model that correctly predicts the human-specific regulation of a human sequence would be penalized against the measured mouse activity.
+6. **Complete predictions are required.** The Evaluator sends a fixed set of sequences, and the Predictor (or the Predictor Distributor) must return a prediction for every one of them. The Evaluator must not let a Predictor choose which sequences are scored: a task is scored only if its `predictions` hold exactly the sequence IDs that were sent. A task whose predictions are missing sequences, have extra or different IDs, or contain a value that is not a finite number is recorded as `"NaN"`. This stops a Predictor from improving its score by predicting only the sequences it does well on.
+7. **Sequences without a measurement.** A sequence that was sent and predicted but has no measured value is a problem with the Evaluator's data, not the Predictor's. The Evaluator leaves that sequence out of the calculation and scores the rest.
 
 ## Evaluator Output File Specifications
 
@@ -44,7 +46,7 @@ The file uses append mode, so multiple evaluation runs against different Predict
 | `predictor_name` | `string` | The `predictor_name` returned by the Predictor in its response payload. | `DREAM-RNN_Human_K562_20260407-140628_PDT` |
 | `time_stamp` | `string` | UTC timestamp in `YYYYMMDD-HHMMSS.f` format, generated at the time of metric calculation. Ensures unique entries when the same Evaluator-Predictor pair is run multiple times. | `20260407-212607.595087` |
 | `metric` | `string` | The evaluation metric used. | `pearson_r` |
-| `value` | `float` or `string` | The computed metric value. Set to "NaN" (as a string) only if the metric could not be calculated due to a protocol failure (e.g. missing predictions, a per-task error returned by the Predictor, HTTP errors, missing sequences, scale mismatch). A value of 0.0 is recorded if the Predictor successfully returned valid predictions, but the mathematical result is zero or undefined due to data invariance (e.g. the model predicted a constant flat-line value resulting in zero variance, or identical predictions across cell types). | `-0.0486` or `"NaN"` |
+| `value` | `float` or `string` | The computed metric value. Set to "NaN" (as a string) only if the metric could not be calculated due to a protocol failure (e.g. missing predictions, a per-task error returned by the Predictor, HTTP errors, missing sequences, extra or different sequence IDs, non-finite prediction values, scale mismatch). A value of 0.0 is recorded if the Predictor successfully returned valid predictions, but the mathematical result is zero or undefined due to data invariance (e.g. the model predicted a constant flat-line value resulting in zero variance, or identical predictions across cell types). | `-0.0486` or `"NaN"` |
 | `prediction_task(s)_data` | `string` | Serialized prediction task metadata (excluding the `predictions` values) as a list of dictionaries. For metrics involving two tasks (e.g. cell-type specificity), the metadata for both tasks is included, separated by ` - `. | `[{'name': 'task_k562', 'type_requested': 'expression', ...}]` |
 
 The codebase for the Agarwal MPRA Joint Library Evaluator can be found on [GitHub](https://github.com/de-Boer-Lab/GAME-Agarwal-MPRA-joint-library-evaluator) and serves as a reference for implementing custom metric calculations.
