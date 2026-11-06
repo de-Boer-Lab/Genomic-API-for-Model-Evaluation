@@ -41,7 +41,7 @@
    "prediction_ranges": {
       "seq_full_range": [],
       "seq_bounded_range": [10, 40],
-      "seq_range_at_end": [40, 50],
+      "seq_range_at_end": [56, 66],
       "chr1:1000-1040": [0, 10],
       "seq_long_2000bp": [990, 1010]
    }
