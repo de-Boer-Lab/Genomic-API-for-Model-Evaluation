@@ -6,7 +6,7 @@
      "expression", "expression", "expression"],
   "cell_types" : ["iPSC", "HepG2", "iPSC", "iPSC", "iPSC", "HepG2", "K562"],
   "species": ["homo_sapiens"],
-  "container_authors": ["Ishika Luthra", "Satyam Priyadarshi"],
+  "container_authors": "Ishika Luthra, Satyam Priyadarshi",
   "model_authors": "Ishika Luthra",
   "input_size": ["place_holder", "NaN"],
   "bin_size": ["place_holder", "NaN"],

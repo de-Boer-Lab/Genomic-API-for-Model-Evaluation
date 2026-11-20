@@ -1,5 +1,5 @@
 {
-    "readout": "interaction_matrix",
+    "readout": "track",
     "prediction_tasks": [
         {
             "name": "K562_linear",
