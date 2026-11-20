@@ -84,6 +84,7 @@ def preprocess_data(payload):
     # Since this is model-specific, it utilizes `PredictionFailedError`.
     errors = {'prediction_request_failed': []}
     errors = check_seqs_specifications(sequences, errors)
+    range_errors = []
 
     #Check prediction ranges
     if 'prediction_ranges' in payload:
@@ -94,7 +95,11 @@ def preprocess_data(payload):
                 # Ranges are half-open, so the largest valid end is the sequence length
                 if end > len(sequences[seq_id]):
                     err_msg = f"Invalid range for '{seq_id}': end index ({end}) is out of bounds. Ranges are half-open, so the maximum valid end for a sequence of length {len(sequences[seq_id])} is {len(sequences[seq_id])}."
-                    errors['prediction_request_failed'].append(err_msg)
+                    range_errors.append(err_msg)
+
+    # Out-of-bounds ranges are a bad request (400), reported before the 422 sequence errors
+    if range_errors:
+        raise BadRequestError(range_errors)
 
     if any(errors.values()):
         flagged_errors = [msg for sublist in errors.values() for msg in sublist]

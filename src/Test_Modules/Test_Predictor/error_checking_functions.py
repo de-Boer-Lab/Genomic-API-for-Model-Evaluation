@@ -54,6 +54,7 @@ def check_seqs_specifications(sequences, json_return_error_model):
     for seq_id, seq in sequences.items():
         if not seq:
             json_return_error_model["prediction_request_failed"].append(f"sequence '{seq_id}' is empty")
+            continue
         
         invalid_chars = set(seq.upper()) - valid_bases
         if invalid_chars:
@@ -227,21 +228,24 @@ def check_prediction_task_scale(prediction_tasks, json_return_error):
 def check_prediction_ranges(prediction_ranges, json_return_error):
     """
     Checks that prediction_ranges are formatted correctly.
-    Now includes checks for positive integers and start <= end.
+    Includes checks for non-negative integers and start < end (ranges are half-open).
     """
     for key, value in prediction_ranges.items():
         
         if not isinstance(value, list):
             json_return_error['bad_prediction_request'].append(f"Values for '{key}' in 'prediction_ranges' must be in a list")
+            continue
             
         if not value:
             continue
         
         if len(value) != 2:
             json_return_error['bad_prediction_request'].append(f"Range array for '{key}' in 'prediction_ranges' must have 2 elements")
+            continue
         
         if not all(isinstance(num, int) for num in value):
             json_return_error['bad_prediction_request'].append(f"Values in '{key}' in 'prediction_ranges' must be integers")
+            continue
         
         start = value[0]
         end = value[1]
