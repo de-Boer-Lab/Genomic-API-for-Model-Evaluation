@@ -1,5 +1,5 @@
 {
-    "readout": "track",
+    "readout": "point",
     "prediction_tasks": [
         {
             "name": "K562_linear",
