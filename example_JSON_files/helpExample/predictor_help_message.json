@@ -1,5 +1,6 @@
 {
   "model": "deBoer Lab test",
+  "description": "Test model used to demonstrate the help response format.",
   "game_schema_version": "1.0",
   "publication" : "Luthra et. al, 2025",
   "features": ["accessibility", "accessibility", "binding_h3k4me3", "binding_ctcf",
